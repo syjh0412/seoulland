@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>고천중 1학년 서울랜드 체험학습</title>
+<style>
+:root{
+  --bg:#FFF9F0; --card:#FFFFFF; --ink:#23304A; --ink2:#5B6B86; --line:#EADFCF;
+  --sky:#2E9BD6; --skyS:#E3F4FD; --grass:#3FA34D; --grassS:#E4F6E6;
+  --coral:#E8543F; --coralS:#FDE9E5; --grape:#7A4FCB; --grapeS:#EFE8FC;
+  --sun:#E39A00; --sunS:#FFF3D6;
+  --shadow:0 2px 0 rgba(35,48,74,.10), 0 8px 22px rgba(35,48,74,.07);
+  --navbg:rgba(255,249,240,.94);
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#151A24; --card:#1E2534; --ink:#EDF2FA; --ink2:#9FB0C9; --line:#2E3849;
+  --skyS:#13303F; --grassS:#16301D; --coralS:#3A1A16; --grapeS:#251A3D; --sunS:#352600;
+  --sky:#63C4F5; --grass:#6FD47E; --coral:#FF8A72; --grape:#B492F5; --sun:#FFC24D;
+  --shadow:0 2px 0 rgba(0,0,0,.3), 0 8px 22px rgba(0,0,0,.35); --navbg:rgba(21,26,36,.94);
+}}
+:root[data-theme="dark"]{
+  --bg:#151A24; --card:#1E2534; --ink:#EDF2FA; --ink2:#9FB0C9; --line:#2E3849;
+  --skyS:#13303F; --grassS:#16301D; --coralS:#3A1A16; --grapeS:#251A3D; --sunS:#352600;
+  --sky:#63C4F5; --grass:#6FD47E; --coral:#FF8A72; --grape:#B492F5; --sun:#FFC24D;
+  --shadow:0 2px 0 rgba(0,0,0,.3), 0 8px 22px rgba(0,0,0,.35); --navbg:rgba(21,26,36,.94);
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0}
+body{background:var(--bg);color:var(--ink);
+ font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Pretendard","Noto Sans KR","Malgun Gothic",sans-serif;
+ font-size:16px;line-height:1.55;letter-spacing:-.01em;
+ padding-bottom:calc(74px + env(safe-area-inset-bottom));overflow-x:hidden}
+img{max-width:100%;display:block}
+button{font:inherit;color:inherit;border:none;background:none;cursor:pointer}
+a{color:inherit}
+
+.hero{background:linear-gradient(135deg,#2E9BD6 0%,#57C3E8 48%,#7ED957 100%);color:#fff;
+ padding:calc(15px + env(safe-area-inset-top)) 18px 18px;position:relative;overflow:hidden}
+.hero:after{content:"";position:absolute;right:-30px;top:-34px;width:150px;height:150px;border-radius:50%;background:rgba(255,255,255,.15)}
+.hero h1{margin:0;font-size:20px;font-weight:800;letter-spacing:-.03em;position:relative}
+.hero .sub{margin:3px 0 0;font-size:13px;opacity:.93;position:relative}
+.cd{margin:13px 0 0;background:rgba(255,255,255,.2);border:1.5px solid rgba(255,255,255,.42);
+ border-radius:18px;padding:13px 15px;position:relative;backdrop-filter:blur(4px)}
+.cd .lab{font-size:11.5px;font-weight:800;letter-spacing:.06em;opacity:.92}
+.cd .big{font-size:23px;font-weight:800;margin-top:2px;letter-spacing:-.02em;line-height:1.15}
+.cd .dsc{font-size:13px;opacity:.95;margin-top:3px}
+.cd.warn{background:rgba(232,84,63,.92);border-color:#fff;animation:pulse 1.4s ease-in-out infinite}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(255,255,255,.5)}50%{box-shadow:0 0 0 7px rgba(255,255,255,0)}}
+
+.wrap{padding:16px 14px 8px;max-width:640px;margin:0 auto}
+.panel{display:none}.panel.on{display:block;animation:fade .22s ease}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+h2.sec{font-size:15px;font-weight:800;margin:22px 0 10px;display:flex;align-items:center;gap:7px;letter-spacing:-.02em}
+h2.sec:first-child{margin-top:4px}
+.card{background:var(--card);border:1.5px solid var(--line);border-radius:18px;padding:14px;box-shadow:var(--shadow);margin-bottom:12px}
+.muted{color:var(--ink2);font-size:13px}
+
+.tl{position:relative;padding-left:20px}
+.tl:before{content:"";position:absolute;left:5px;top:10px;bottom:10px;width:3px;border-radius:3px;background:var(--line)}
+.ti{position:relative;margin-bottom:10px}
+.ti:before{content:"";position:absolute;left:-19px;top:15px;width:13px;height:13px;border-radius:50%;background:var(--card);border:3px solid var(--line)}
+.ti.now:before{border-color:var(--coral);background:var(--coral);box-shadow:0 0 0 5px var(--coralS)}
+.ti.done:before{border-color:var(--grass);background:var(--grass)}
+.tc{background:var(--card);border:1.5px solid var(--line);border-radius:16px;padding:11px 13px;box-shadow:var(--shadow)}
+.ti.now .tc{border-color:var(--coral);border-width:2px}
+.tt{font-size:12px;font-weight:800;color:var(--sky);letter-spacing:.02em}
+.ti.now .tt{color:var(--coral)}
+.tb{font-size:15px;font-weight:700;margin-top:1px}
+.td{font-size:13px;color:var(--ink2);margin-top:3px}
+.bnow{display:inline-block;font-size:11px;font-weight:800;padding:2px 8px;border-radius:99px;margin-left:5px;background:var(--coral);color:#fff;vertical-align:1px}
+
+.seg{display:flex;gap:6px;background:var(--line);padding:4px;border-radius:14px;margin-bottom:14px}
+.seg button{flex:1;padding:9px 4px;border-radius:11px;font-size:14px;font-weight:700;color:var(--ink2)}
+.seg button.on{background:var(--card);color:var(--ink);box-shadow:var(--shadow)}
+.step{background:var(--card);border:1.5px solid var(--line);border-radius:18px;overflow:hidden;box-shadow:var(--shadow);margin-bottom:12px}
+.step .hd{display:flex;gap:10px;align-items:center;padding:12px 14px}
+.num{flex:none;width:30px;height:30px;border-radius:50%;background:var(--sky);color:#fff;font-weight:800;font-size:14px;display:grid;place-items:center}
+.step .hd .tx{font-weight:700;font-size:15px;line-height:1.35}
+.step img{width:100%;aspect-ratio:4/3;object-fit:cover;background:var(--line)}
+.step .cap{padding:9px 14px 13px;font-size:13px;color:var(--ink2)}
+.step .cap b{color:var(--ink)}
+.tip{margin:8px 14px 13px;background:var(--sunS);border-radius:12px;padding:9px 11px;font-size:13px;color:var(--ink)}
+.tip b{color:var(--sun)}
+.mz{margin:0 14px 13px;background:var(--grapeS);border-radius:12px;padding:9px 11px;font-size:13px;color:var(--ink);font-weight:600}
+
+.mapbox{position:relative;background:var(--card);border:1.5px solid var(--line);border-radius:18px;overflow:hidden;box-shadow:var(--shadow);touch-action:none}
+#iso{display:block;width:100%;height:auto;background:linear-gradient(180deg,var(--skyS),var(--card))}
+.mapctl{position:absolute;right:9px;bottom:9px;display:flex;gap:6px}
+.mapctl button{width:36px;height:36px;border-radius:11px;background:var(--card);border:1.5px solid var(--line);font-size:17px;font-weight:800;display:grid;place-items:center;box-shadow:var(--shadow)}
+.poi{display:flex;gap:11px;align-items:flex-start;background:var(--card);border:1.5px solid var(--line);border-radius:16px;padding:11px 13px;margin-bottom:9px;box-shadow:var(--shadow);width:100%;text-align:left}
+.poi.hit{border-color:var(--sky);border-width:2px}
+.pn{flex:none;width:27px;height:27px;border-radius:9px;color:#fff;font-weight:800;font-size:13px;display:grid;place-items:center}
+.poi .nm{font-weight:700;font-size:15px}
+.poi .ds{font-size:13px;color:var(--ink2);margin-top:1px}
+
+.pick{display:flex;flex-wrap:wrap;gap:6px}
+.pick button{padding:8px 13px;border-radius:12px;border:1.5px solid var(--line);background:var(--card);font-weight:700;font-size:14px}
+.pick button.on{background:var(--grape);border-color:var(--grape);color:#fff}
+.field{width:100%;padding:11px 13px;border:1.5px solid var(--line);border-radius:12px;background:var(--bg);color:var(--ink);font:inherit;margin-top:7px}
+.bar{height:11px;background:var(--line);border-radius:99px;overflow:hidden;margin-top:9px}
+.bar i{display:block;height:100%;background:linear-gradient(90deg,var(--grass),var(--sun));border-radius:99px;transition:width .35s cubic-bezier(.3,1.4,.5,1)}
+.ms{display:flex;gap:11px;align-items:flex-start;background:var(--card);border:1.5px solid var(--line);border-radius:16px;padding:12px 13px;margin-bottom:9px;box-shadow:var(--shadow);width:100%;text-align:left;transition:.18s}
+.ms.done{background:var(--grassS);border-color:var(--grass)}
+.ck{flex:none;width:26px;height:26px;border-radius:9px;border:2.5px solid var(--line);display:grid;place-items:center;font-size:15px;color:#fff;margin-top:1px}
+.ms.done .ck{background:var(--grass);border-color:var(--grass)}
+.ms .mt{font-weight:700;font-size:15px}
+.ms.done .mt{text-decoration:line-through;opacity:.62}
+.ms .md{font-size:13px;color:var(--ink2);margin-top:2px}
+.ms .pin{font-size:11px;font-weight:800;color:var(--grape);margin-top:3px}
+
+.bigbtn{width:100%;padding:14px;border-radius:14px;font-weight:800;font-size:15.5px;box-shadow:var(--shadow)}
+.bigbtn.g{background:var(--grape);color:#fff}
+.bigbtn.c{background:var(--coral);color:#fff}
+
+.calls{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.call{display:flex;flex-direction:column;gap:2px;background:var(--coral);color:#fff;border-radius:16px;padding:13px;text-decoration:none;box-shadow:var(--shadow)}
+.call.b{background:var(--sky)}.call.p{background:var(--grape)}
+.call .who{font-size:12px;opacity:.9;font-weight:600}
+.call .nm{font-size:16px;font-weight:800}
+.call .no{font-size:12px;opacity:.92}
+.rule{display:flex;gap:10px;align-items:flex-start;padding:10px 0;border-bottom:1px dashed var(--line)}
+.rule:last-child{border:none}
+.rule .e{font-size:19px;flex:none;line-height:1.25}
+.rule .t{font-size:14.5px;font-weight:600}
+.rule .s{font-size:13px;color:var(--ink2);margin-top:1px}
+.chk{display:flex;gap:10px;align-items:center;padding:9px 0;border-bottom:1px dashed var(--line);width:100%;text-align:left}
+.chk:last-child{border:none}
+.chk .b{flex:none;width:23px;height:23px;border-radius:8px;border:2.5px solid var(--line);display:grid;place-items:center;color:#fff;font-size:13px}
+.chk.on .b{background:var(--sky);border-color:var(--sky)}
+.chk.on .l{text-decoration:line-through;opacity:.55}
+.chk .l{font-size:15px;font-weight:600}
+
+nav{position:fixed;left:0;right:0;bottom:0;z-index:50;display:flex;background:var(--navbg);
+ backdrop-filter:blur(12px);border-top:1.5px solid var(--line);padding:6px 4px calc(6px + env(safe-area-inset-bottom))}
+nav button{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:5px 2px;border-radius:13px;color:var(--ink2)}
+nav button .i{font-size:20px;line-height:1}
+nav button .l{font-size:10.5px;font-weight:700}
+nav button.on{color:var(--sky);background:var(--skyS)}
+.note{font-size:12px;color:var(--ink2);text-align:center;padding:14px 8px 4px;line-height:1.6}
+.pop{position:fixed;inset:0;background:rgba(10,15,25,.55);display:none;place-items:center;z-index:99;padding:20px}
+.pop.on{display:grid}
+.pop .in{background:var(--card);border-radius:22px;padding:26px 22px;text-align:center;max-width:320px;box-shadow:0 20px 50px rgba(0,0,0,.3)}
+.pop .em{font-size:52px}.pop h3{margin:8px 0 4px;font-size:19px}
+.pop p{margin:0 0 16px;font-size:14px;color:var(--ink2)}
+.pop button{background:var(--grass);color:#fff;font-weight:800;padding:11px 26px;border-radius:13px}
+.regstate{font-size:14px;font-weight:700;padding:10px 12px;border-radius:12px;background:var(--sunS)}
+.regstate.ok{background:var(--grassS);color:var(--ink)}
+.lchk{display:flex;align-items:center;gap:9px;font-size:15px;margin-top:12px}
+.lchk input{width:20px;height:20px}
+.mate{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px dashed var(--line)}
+.mate:last-child{border:none}
+.mate .mn{flex:1;font-weight:700;font-size:15px}
+.mate .mn small{font-weight:600;color:var(--ink2);font-size:12px;margin-left:4px}
+.mate .star{display:inline-block;background:var(--sunS);color:var(--sun);font-size:11px;font-weight:800;padding:2px 7px;border-radius:99px;margin-left:5px}
+.mtel{flex:none;padding:8px 12px;border-radius:11px;background:var(--grass);color:#fff;font-weight:800;font-size:13.5px;text-decoration:none}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:88px;background:#1B2434;color:#fff;padding:11px 18px;border-radius:12px;font-size:14px;font-weight:600;z-index:80;opacity:0;pointer-events:none;transition:.25s;max-width:88%}
+.toast.on{opacity:1}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <h1>🎢 고천중 1학년 서울랜드 체험학습</h1>
+  <div class="sub">2026. 10. 8.(목) · 모둠별 자유 체험</div>
+  <div class="cd" id="cd">
+    <div class="lab" id="cdLab">지금</div>
+    <div class="big" id="cdBig">불러오는 중…</div>
+    <div class="dsc" id="cdDsc"></div>
+  </div>
+</header>
+
+<div class="wrap">
+
+<!-- 홈 -->
+<section class="panel on" id="p-home">
+  <h2 class="sec">🗓️ 오늘 하루</h2>
+  <div class="card" style="padding:12px 13px">
+    <div class="muted" style="margin-bottom:8px">우리 반을 고르면 연락처가 맞게 설정돼요</div>
+    <div class="pick" id="classPick"></div>
+  </div>
+  <div class="tl" id="timeline"></div>
+  <div class="card" style="background:var(--coralS);border-color:var(--coral)">
+    <b style="font-size:15px">⏰ 가장 중요한 약속</b>
+    <div style="font-size:14px;margin-top:4px"><b>오후 3시 10분, 지구별 앞</b>에 모여요. 모둠끼리 시계를 보며 <b>3시 전에는 지구별 쪽으로</b> 움직이기 시작해요. 한 명이 늦으면 모두가 기다려요!</div>
+  </div>
+
+  <h2 class="sec">🎒 준비물 체크</h2>
+  <div class="card" id="packing"></div>
+
+  <h2 class="sec">💰 챙길 돈</h2>
+  <div class="card">
+    <div class="rule"><span class="e">🚌</span><span><span class="t">교통카드 충전</span><span class="s">왕복 지하철·버스. <b>꼭 미리 충전!</b> 잔액이 부족하면 개찰구에서 못 나가요</span></span></div>
+    <div class="rule"><span class="e">🍚</span><span><span class="t">점심값 + 간식값</span><span class="s">서울랜드 안은 밖보다 조금 비싸요. 넉넉히</span></span></div>
+    <div class="rule"><span class="e">🎟️</span><span><span class="t">입장료·자유이용권은 학교에서 냈어요</span><span class="s">따로 낼 돈 없음 · 1인 20,000원 지원</span></span></div>
+  </div>
+</section>
+
+<!-- 길 -->
+<section class="panel" id="p-way">
+  <div class="seg" id="waySeg">
+    <button class="on" data-w="go">🌅 가는 길</button>
+    <button data-w="back">🌆 오는 길</button>
+  </div>
+  <div id="wayBody"></div>
+</section>
+
+<!-- 지도 -->
+<section class="panel" id="p-map">
+  <h2 class="sec">🗺️ 서울랜드 한눈에 보기</h2>
+  <div class="mapbox">
+    <svg id="iso" viewBox="0 0 640 430" xmlns="http://www.w3.org/2000/svg"></svg>
+    <div class="mapctl">
+      <button onclick="zoom(1.25)" aria-label="확대">＋</button>
+      <button onclick="zoom(.8)" aria-label="축소">－</button>
+      <button onclick="resetMap()" aria-label="처음으로">⟲</button>
+    </div>
+  </div>
+  <div class="muted" style="margin:8px 2px 16px">손가락으로 밀면 움직이고, 두 손가락으로 크기를 바꿀 수 있어요. 아래 장소를 누르면 지도에서 반짝여요.</div>
+  <h2 class="sec">📍 꼭 알아야 할 곳</h2>
+  <div id="poiList"></div>
+  <h2 class="sec">🎡 다섯 개의 나라</h2>
+  <div class="muted" style="margin:-4px 2px 10px">모둠끼리 어디부터 갈지 미리 정해 두면 훨씬 알차게 놀 수 있어요.</div>
+  <div id="landList"></div>
+  <h2 class="sec">💸 자유이용권으로 안 되는 것</h2>
+  <div class="card" style="background:var(--coralS);border-color:var(--coral)">
+    <div style="font-size:14px;margin-bottom:8px">아래는 <b>따로 돈을 내야</b> 해요. 줄 섰다가 당황하지 않게 미리 알아두기!</div>
+    <div id="extraList"></div>
+  </div>
+  <h2 class="sec">🚻 알아두면 편한 것</h2>
+  <div class="card" id="facil"></div>
+</section>
+
+<!-- 우리 모둠 -->
+<section class="panel" id="p-group">
+  <h2 class="sec">🧑‍🤝‍🧑 우리 모둠 등록</h2>
+  <div class="card">
+    <div id="regState" class="regstate">연결 준비 중…</div>
+    <div class="muted" style="margin:12px 0 6px">우리 반</div>
+    <div class="pick" id="regCls"></div>
+    <div class="muted" style="margin:12px 0 6px">우리 모둠</div>
+    <div class="pick" id="groupPick"></div>
+    <input class="field" id="regName" maxlength="20" placeholder="내 이름" autocomplete="name">
+    <input class="field" id="regTel" maxlength="20" type="tel" inputmode="numeric" placeholder="내 전화번호 (예: 010-1234-5678)" autocomplete="tel">
+    <label class="lchk"><input type="checkbox" id="regLeader"> 나는 우리 모둠의 <b>모둠장</b>이에요 ⭐</label>
+    <button class="bigbtn g" id="regBtn" style="margin-top:10px">📝 등록하기</button>
+    <div class="muted" style="margin-top:8px">등록하면 <b>우리 모둠 친구들</b>과 <b>담임 선생님</b>께 이름·번호가 보여요. 잘못 넣었으면 고쳐서 다시 누르면 돼요.</div>
+  </div>
+
+  <h2 class="sec">📒 우리 모둠 친구들</h2>
+  <div id="mates"></div>
+
+  <h2 class="sec">📣 선생님께 바로 보고</h2>
+  <div class="card">
+    <div class="muted" style="margin-bottom:9px">누르면 <b>담임 선생님 화면에 바로</b> 떠요.</div>
+    <button class="bigbtn g" onclick="report('ok')">✅ 우리 모둠 전원 무사 <span style="font-weight:600;opacity:.85">(모둠장)</span></button>
+    <button class="bigbtn c" style="margin-top:8px" onclick="report('help')">🆘 도움이 필요해요</button>
+    <div class="muted" style="margin-top:9px">모둠장 보고 시각: <b>11:00 · 13:00 · 14:30</b> · 급하면 전화가 먼저예요!</div>
+  </div>
+
+<h2 class="sec">🎯 우리 모둠 미션</h2>
+  <div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:baseline">
+      <b style="font-size:15px">진행률</b><b id="misCnt" style="font-size:15px;color:var(--grass)">0 / 0</b>
+    </div>
+    <div class="bar"><i id="misBar" style="width:0%"></i></div>
+  </div>
+  <div id="misList"></div>
+  <div class="card" style="background:var(--grapeS);border-color:var(--grape)">
+    <b style="font-size:14px">📸 사진은 어디에 내나요?</b>
+    <div class="muted" style="margin-top:4px;color:var(--ink)">찍은 사진(모둠인증샷)은 <b>스쿨톡으로 담임 선생님께</b> 보내요. 이 페이지에선 "보냈는지"만 체크!</div>
+  </div>
+</section>
+
+<!-- 안전 -->
+<section class="panel" id="p-safe">
+  <h2 class="sec">📞 급할 땐 바로 전화</h2>
+  <div class="calls" id="callList"></div>
+  <div class="card" style="margin-top:12px;background:var(--coralS);border-color:var(--coral)">
+    <b style="font-size:15px">🏥 서울랜드 의무실</b>
+    <div style="margin-top:3px;font-size:14px">삼천리동산 쪽, <b>후문 옆</b>에 있어요. 다치거나 많이 아프면 <b>혼자 참지 말고</b> 선생님께 먼저 전화!</div>
+  </div>
+  <h2 class="sec">🧭 길을 잃었다면</h2>
+  <div class="card">
+    <div class="rule"><span class="e">1️⃣</span><span><span class="t">그 자리에 멈춰 서기</span><span class="s">막 돌아다니면 서로 더 못 찾아요</span></span></div>
+    <div class="rule"><span class="e">2️⃣</span><span><span class="t">모둠 친구·담임 선생님께 전화</span><span class="s">「우리 모둠」 탭에서 친구 번호를 바로 누를 수 있어요</span></span></div>
+    <div class="rule"><span class="e">3️⃣</span><span><span class="t">전화가 안 되면 세계의 광장 종합안내실로</span><span class="s">정문 바로 안쪽. "고천중학교 1학년인데 일행을 잃어버렸어요"</span></span></div>
+    <div class="rule"><span class="e">4️⃣</span><span><span class="t">그래도 못 만나면 지구별 앞</span><span class="s">커다란 공 모양 건물. 최종 집합 장소예요</span></span></div>
+  </div>
+  <h2 class="sec">✅ 꼭 지켜요</h2>
+  <div class="card">
+    <div class="rule"><span class="e">👥</span><span><span class="t">혼자 다니지 않기</span><span class="s">화장실도 2명 이상 같이. 모둠에서 떨어지지 않기 — 이게 제일 중요해요</span></span></div>
+    <div class="rule"><span class="e">⏰</span><span><span class="t">시계 자주 보기</span><span class="s">신나게 놀다 보면 시간이 금방 가요. 3시 10분 집합 꼭 기억!</span></span></div>
+    <div class="rule"><span class="e">🤫</span><span><span class="t">지하철·버스에서 조용히</span><span class="s">출근 시간이라 사람이 아주 많아요. 가방은 앞으로</span></span></div>
+    <div class="rule"><span class="e">🎢</span><span><span class="t">놀이기구 안전띠 꼭 확인</span><span class="s">직원분 안내를 끝까지 듣고, 키 제한 지키기</span></span></div>
+    <div class="rule"><span class="e">🚪</span><span><span class="t">나갈 때는 꼭 정문으로</span><span class="s">반대편 동문으로 나가면 대공원역과 아주 멀어져요</span></span></div>
+    <div class="rule"><span class="e">🤝</span><span><span class="t">소외되는 친구 없게</span><span class="s">우리 모둠원이 다 웃고 있는지 한 번씩 둘러보기</span></span></div>
+    <div class="rule"><span class="e">🔋</span><span><span class="t">배터리 아껴 쓰기</span><span class="s">연락이 끊기면 제일 곤란해요. 보조배터리 꼭!</span></span></div>
+  </div>
+  <h2 class="sec">🌤️ 그날 날씨</h2>
+  <div class="card"><div style="font-size:14px">10월 초 과천은 <b>아침저녁이 꽤 쌀쌀</b>해요. 낮에는 따뜻하니 <b>얇은 겉옷 하나</b>가 정답. 하루 종일 걸으니 <b>운동화</b> 신기!</div></div>
+</section>
+
+<div class="note" id="foot"></div>
+</div>
+
+<nav>
+  <button class="on" data-p="home"><span class="i">⏰</span><span class="l">홈</span></button>
+  <button data-p="way"><span class="i">🚇</span><span class="l">가는 길</span></button>
+  <button data-p="map"><span class="i">🗺️</span><span class="l">지도</span></button>
+  <button data-p="group"><span class="i">🧑‍🤝‍🧑</span><span class="l">우리 모둠</span></button>
+  <button data-p="safe"><span class="i">🆘</span><span class="l">안전</span></button>
+</nav>
+
+<div class="pop" id="pop"><div class="in">
+  <div class="em">🎉</div><h3>미션 올클리어!</h3>
+  <p>우리 모둠 최고! 선생님께 자랑하러 가자</p>
+  <button onclick="document.getElementById('pop').classList.remove('on')">좋아!</button>
+</div></div>
+<div class="toast" id="toast"></div>
+
+<script>
+var S={g:function(k,d){try{var v=localStorage.getItem('gcjl26.'+k);return v==null?d:JSON.parse(v)}catch(e){return d}},
+       s:function(k,v){try{localStorage.setItem('gcjl26.'+k,JSON.stringify(v))}catch(e){}}};
+function toast(m){var t=document.getElementById('toast');t.textContent=m;t.classList.add('on');setTimeout(function(){t.classList.remove('on')},1900)}
+
+var EVENT={y:2026,m:10,d:8};
+var TEACHERS=[{c:1,n:'손윤희',t:'010-9546-2246'},{c:2,n:'현림희',t:'010-9112-5056'},{c:3,n:'신유현',t:'010-7288-1505'},{c:4,n:'김신연',t:'010-6288-5934'}];
+var HEAD={n:'윤미영 학년부장',t:'010-4725-1910'};
+var SCHOOL={n:'고천중 교무실',t:'031-458-8624'};
+
+/* 자유이동 일정: 집합 09:40 / 해산 15:10 */
+var SCHED=[
+ {s:'08:20',e:'09:40',t:'모둠끼리 대중교통으로 이동',d:'버스 → 범계역 → 지하철 → 대공원역. 중간 지점에 선생님이 기다리세요',icon:'🚌'},
+ {s:'09:40',e:'10:00',t:'정문 매표소 앞 집합 · 인원 점검',d:'9시 40분까지 꼭! 반별로 인원을 세고 다 같이 입장해요',icon:'🎪'},
+ {s:'10:00',e:'11:30',t:'모둠별 자유 체험 시작',d:'놀이기구, 체험관을 모둠끼리 자유롭게! 모둠에서 떨어지지 않기',icon:'🎢'},
+ {s:'11:30',e:'12:30',t:'점심 시간 (모둠별)',d:'모둠끼리 같이 먹고 인증샷! 식당가는 정문 안쪽에 많아요',icon:'🍜'},
+ {s:'12:30',e:'15:00',t:'오후 자유 체험',d:'아직 못 타본 놀이기구, 항일역사체험관 같은 체험 전시도 구경해요',icon:'🎠'},
+ {s:'15:00',e:'15:10',t:'지구별 쪽으로 이동 시작',d:'늦지 않게 미리 움직이기! 줄이 길면 과감히 포기',icon:'🚶'},
+ {s:'15:10',e:'15:40',t:'지구별 앞 집합 · 단체사진 · 해산',d:'커다란 공 모양 건물 앞! 인원 점검 후 지하철역으로',icon:'📸'},
+ {s:'15:40',e:'16:40',t:'대중교통으로 귀가',d:'집에 도착하면 부모님께 꼭 연락!',icon:'🏠'}
+];
+var PACK=['교통카드 (충전 완료!)','점심값 · 간식값','보조배터리 + 케이블','물통','얇은 겉옷','편한 운동화','개인 상비약','휴지 · 물티슈','모자 또는 선크림'];
+
+var WAY={go:[
+ {n:1,t:'버스 타고 범계역에서 내리기',img:'go1_beomgye',cap:'<b>10번(서해그랑블)</b> 또는 <b>5-2번(우성고)</b> 버스를 타고 <b>범계역(올림픽스포츠센터)</b> 정류장에서 내려요.',tip:'내릴 정류장을 놓치기 쉬워요. 폰만 보지 말고 안내방송을 들어요.',mz:'📸 모둠인증사진 ① — 범계역에 다 모였으면 한 장!'},
+ {n:2,t:'범계역 3번 출입구로 들어가기',img:'go1_exit3',cap:'사진 속 <b>범계역 3번 출입구</b>가 보이면 제대로 온 거예요. 여기 계단·에스컬레이터로 내려가요.',tip:''},
+ {n:3,t:'지하철 타기 — 방향 꼭 확인!',img:'go1_subway',cap:'<b>불암산행</b>(진접 · 서울역 · 사당 방면)을 타요. 표지판 화살표 방향을 꼭 확인!',tip:'반대 방향으로 타는 사고가 제일 많아요. 타기 전에 한 번 더 확인!'},
+ {n:4,t:'대공원역에서 내리기',img:'go2_daegongwon',cap:'<b>5개 역, 약 11분</b>이면 도착해요. <b>대공원역</b>에서 내려요.',tip:'사람이 많아 문이 금방 닫혀요. 미리 문 쪽으로 이동!'},
+ {n:5,t:'서울랜드 방면으로 직진',img:'go2_straight',cap:'<b>2번 출구</b>로 나와 넓은 길(전디광장 방면)을 따라 <b>계속 직진</b>하면 서울랜드가 나와요. 멀리 산이 보여요.',tip:'생각보다 좀 걸어요(10분쯤). 다른 학교 학생도 많으니 우리 모둠을 놓치지 않게!'},
+ {n:6,t:'정문 매표소 앞에 집합',img:'go2_gate',cap:'<b>9시 40분까지</b> 정문 매표소 앞에 모여요. 반별로 인원을 세고 다 같이 입장!',tip:''}
+],back:[
+ {n:1,t:'15:10 — 지구별 앞에 모이기',img:'back1_jigubyeol',cap:'커다란 공 모양 건물이에요(사진 참고). 멀리서도 잘 보여요. 여기서 <b>인원 점검 + 단체사진</b>.',tip:'놀이기구 줄이 길다고 늦으면 안 돼요. 3시엔 줄 서지 않기!'},
+ {n:2,t:'대공원역 2번 출입구로 이동',img:'back1_exit2',cap:'아침에 왔던 길 그대로 되돌아가요. 선생님을 따라 다 같이 이동해요.',tip:''},
+ {n:3,t:'지하철 타기 — 오이도행!',img:'back1_subway',cap:'아침과 <b>반대 방향</b>인 <b>오이도행</b>(과천 · 안산 방면)을 타고 <b>범계역</b>에서 내려요.',tip:'아침에 탔던 방향 그대로 타면 안 돼요. 오이도행!',mz:'📸 모둠인증사진 ③ — 범계역에 내리면 한 장!'},
+ {n:4,t:'범계역 4-1번 출구로 나가기',img:'back2_exit41',cap:'<b>범계역 4-1번 출구</b>로 나가요.',tip:''},
+ {n:5,t:'버스 타고 집으로',img:'back2_bus',cap:'<b>목련선경아파트</b> 정류장에서 <b>10번·301번(서해그랑블)</b> 또는 <b>5-2번(우성고)</b>을 타요.',tip:'집에 도착하면 부모님께 꼭! 연락드리기.'}
+]};
+
+/* ===== 지도 (공식 가이드맵 배치) ===== */
+var AU=0.82, AV=0.74, UTOP=10.6;
+function uv(u,v,w,d){ var q=UTOP-u; return {x:1+AU*q+AV*v-w/2, y:1+AU*q-AV*v-d/2, w:w, d:d}; }
+var ZDEF=[
+ {n:'동문',s:'동문',u:10.3,v:2.9,w:1.2,d:1.2,h:.9,f:'#B9BFC9',icon:'🚫',key:6},
+ {n:'이벤트홀',s:'이벤트홀',u:9.4,v:0.2,w:1.3,d:1.3,h:1.0,f:'#E0CBA8',icon:'🎤'},
+ {n:'미래의 나라',s:'미래의나라',u:8.4,v:-1.6,w:1.6,d:1.6,h:1.4,f:'#A78BDC',icon:'🚀'},
+ {n:'환상의 나라',s:'환상의나라',u:8.1,v:3.0,w:1.6,d:1.6,h:1.3,f:'#F2A0B4',icon:'🎠'},
+ {n:'크라켄 아일랜드',s:'크라켄',u:7.3,v:1.3,w:1.3,d:1.3,h:1.1,f:'#6FC6C2',icon:'🐙'},
+ {n:'4D · 5D 체험관',s:'4D·5D관',u:6.5,v:-1.1,w:1.4,d:1.4,h:1.3,f:'#5BAEE0',icon:'🥽',key:4},
+ {n:'모험의 나라',s:'모험의나라',u:4.0,v:3.0,w:1.5,d:1.5,h:1.2,f:'#F6A86A',icon:'🏴‍☠️'},
+ {n:'의무실 · 후문',s:'의무실',u:3.6,v:-4.4,w:1.2,d:1.2,h:1.1,f:'#F0776A',icon:'🏥',key:5},
+ {n:'지구별',s:'지구별',u:4.4,v:1.9,w:1.4,d:1.4,h:1.8,f:'#F2D06B',icon:'🌐',key:3},
+ {n:'통나무소극장',s:'소극장',u:2.2,v:2.6,w:1.2,d:1.2,h:.8,f:'#E7A9C4',icon:'🎭'},
+ {n:'삼천리동산',s:'삼천리',u:2.3,v:-3.2,w:1.5,d:1.5,h:.6,f:'#8FCE8F',icon:'🌳'},
+ {n:'세계의 광장',s:'세계의광장',u:1.6,v:-1.2,w:1.5,d:1.5,h:.5,f:'#EBDFC6',icon:'⛲',key:2},
+ {n:'피크닉존',s:'피크닉존',u:0.0,v:-3.6,w:1.3,d:1.3,h:.3,f:'#C7E3A8',icon:'🧺'},
+ {n:'정문 · 매표소',s:'정문',u:0.0,v:0.0,w:1.5,d:1.5,h:1.0,f:'#4FB876',icon:'🎪',key:1}
+];
+var ZONES=ZDEF.map(function(z){var p=uv(z.u,z.v,z.w,z.d);z.x=p.x;z.y=p.y;return z});
+var GROUND=[[-1.0,-1.4],[-0.4,-4.4],[2.5,-5.5],[6,-4.6],[9,-3.4],[11.3,-1.2],[11.5,2.0],[10.8,4.0],[6,4.4],[2.5,4.2],[-0.5,3.0],[-1.1,0.6]];
+var POI=[
+ {k:1,n:'정문 · 매표소',d:'9:40 아침 집합. 코끼리열차 탑승장 옆',c:'#3FA34D'},
+ {k:2,n:'세계의 광장',d:'정문 바로 안쪽 · 종합안내실 · ATM · 물품보관소 · 화장실',c:'#8A7A5E'},
+ {k:3,n:'지구별',d:'15:10 최종 집합! 커다란 공 모양 · 특별 전시장',c:'#C79A00'},
+ {k:4,n:'4D · 5D 체험관',d:'디지털 기술 체험 · 미래의 나라 안쪽',c:'#2E9BD6'},
+ {k:5,n:'의무실',d:'삼천리동산 서쪽 끝 · 후문 옆',c:'#E8543F'},
+ {k:6,n:'동문 (나가면 안 돼요!)',d:'반대편 출구. 대공원역과 멀어져요',c:'#6B7385'}
+];
+var LANDS=[
+ {n:'미래의 나라',e:'🚀',c:'#A78BDC',d:'북서쪽. 가장 크고 스릴 있는 구역',r:'블랙홀2000 · 은하열차888 · 샷드롭 · 엑스플라이어 · 4D깜짝모험관 · 타임머신5D360'},
+ {n:'환상의 나라',e:'🎠',c:'#F2A0B4',d:'북동쪽. 알록달록한 놀이기구',r:'빅회전목마 · 피터팬 · 알포스윙 · 월드컵 · 라바트위스터 · 캐니멀서커스'},
+ {n:'모험의 나라',e:'🏴‍☠️',c:'#F6A86A',d:'동쪽. 물놀이·바이킹 계열',r:'킹바이킹 · 급류타기 · 해적소굴 · 사격장'},
+ {n:'삼천리동산',e:'🌳',c:'#8FCE8F',d:'서쪽. 한옥·숲·항일역사체험관',r:'도깨비바람 · 화랑활터 · 항일역사체험관(자유관람)'},
+ {n:'세계의 광장',e:'⛲',c:'#C9A24B',d:'정문 바로 안쪽. 만나기 좋은 곳',r:'지구별 특별 전시장 · 종합안내실 · ATM · 물품보관소'}
+];
+var EXTRA=['스카이엑스','패들보트','니나노 고카트','VR게이트','미니골프','웰컴투카니발'];
+var FACIL=[
+ ['🚻','화장실은 광장·구역마다','세계의 광장에 가장 많아요. 갈 땐 꼭 2명 이상!'],
+ ['🎒','물품보관소','세계의 광장. 짐이 무거우면 맡기기'],
+ ['🏧','ATM','세계의 광장. 현금이 필요하면 여기'],
+ ['🎭','공연장','지구별 옆 베니스무대, 통나무소극장, 이벤트홀'],
+ ['🌊','급류타기는 젖어요','돌아갈 시간이 가까우면 타지 않기']
+];
+
+/* 미션(예시 — 실제 미션 정해지면 교체) */
+var MISSIONS=[
+ {t:'모둠인증샷 ① 범계역',d:'가는 길, 범계역에 다 모였을 때 한 장',e:'🚇',pin:'가는 길'},
+ {t:'모둠인증샷 ② 점심',d:'다 같이 먹는 모습 한 장',e:'🍜',pin:'점심'},
+ {t:'항일역사체험관 다녀오기',d:'삼천리동산 쪽 자유관람. 인상 깊은 것 한 가지 이야기',e:'🏛️',pin:'자유관람'},
+ {t:'모둠원 전원이 함께 탄 놀이기구',d:'타기 전이나 후에 다 같이 한 장',e:'🎢',pin:'오후'},
+ {t:'지구별 앞 단체사진',d:'15:10 집합할 때',e:'🌐',pin:'집합'},
+ {t:'모둠인증샷 ③ 귀가 범계역',d:'오는 길, 범계역에 내렸을 때 한 장',e:'🏠',pin:'오는 길'}
+];
+
+var myClass=S.g('class',0), myGroup=S.g('group',0);
+
+document.querySelectorAll('nav button').forEach(function(b){
+  b.onclick=function(){
+    document.querySelectorAll('nav button').forEach(function(x){x.classList.remove('on')});
+    document.querySelectorAll('.panel').forEach(function(x){x.classList.remove('on')});
+    b.classList.add('on'); document.getElementById('p-'+b.dataset.p).classList.add('on');
+    window.scrollTo({top:0,behavior:'smooth'});
+  };
+});
+function mins(hm){var p=hm.split(':');return +p[0]*60 + +p[1]}
+function dayState(){var n=new Date();var ev=new Date(EVENT.y,EVENT.m-1,EVENT.d);
+  var td=new Date(n.getFullYear(),n.getMonth(),n.getDate());
+  return {diff:Math.round((ev-td)/86400000), now:n.getHours()*60+n.getMinutes()}}
+function fmtLeft(m){var h=Math.floor(m/60),mm=m%60;return h>0?(h+'시간 '+mm+'분'):(mm+'분')}
+
+function renderCD(){
+  var st=dayState(), cd=document.getElementById('cd'),L=document.getElementById('cdLab'),B=document.getElementById('cdBig'),D=document.getElementById('cdDsc');
+  cd.classList.remove('warn');
+  if(st.diff>0){L.textContent='체험학습까지';B.textContent='D − '+st.diff+'일';
+    D.textContent=st.diff===1?'내일이에요! 교통카드 충전했나요?':'10월 8일 목요일에 만나요 🎒';return}
+  if(st.diff<0){L.textContent='체험학습';B.textContent='잘 다녀왔어요! 🎉';D.textContent='사진 정리하고 소감 나누기';return}
+  var now=st.now, gather=mins('09:40'), disperse=mins('15:10');
+  if(now<gather){var left=gather-now;L.textContent='정문 집합까지';B.textContent='⏰ '+fmtLeft(left);
+    D.textContent='9:40 정문 매표소 앞 · 모둠끼리 이동';if(left<=20)cd.classList.add('warn');return}
+  if(now<disperse){var left2=disperse-now;L.textContent='지구별 집합까지';B.textContent='⏰ '+fmtLeft(left2);
+    D.textContent='15:10 지구별 앞! 미리 움직이기';if(left2<=40)cd.classList.add('warn');return}
+  if(now<mins('16:40')){L.textContent='지금';B.textContent='🏠 집에 가는 길';D.textContent='도착하면 부모님께 꼭 연락!';return}
+  L.textContent='오늘 일정 끝';B.textContent='🏠 잘 도착했나요?';D.textContent='수고했어요!';
+}
+function renderTimeline(){
+  var st=dayState(),on=(st.diff===0),h='';
+  SCHED.forEach(function(s){var a=mins(s.s),b=mins(s.e),cls='';
+    if(on){if(st.now>=b)cls='done';else if(st.now>=a)cls='now'}
+    h+='<div class="ti '+cls+'"><div class="tc"><div class="tt">'+s.s+' ~ '+s.e+(cls==='now'?'<span class="bnow">NOW</span>':'')+'</div>'+
+       '<div class="tb">'+s.icon+' '+s.t+'</div><div class="td">'+s.d+'</div></div></div>';});
+  document.getElementById('timeline').innerHTML=h;
+}
+function renderClassPick(){
+  var h='';for(var c=1;c<=4;c++)h+='<button data-c="'+c+'" class="'+(myClass===c?'on':'')+'">1-'+c+'</button>';
+  ['classPick','regCls'].forEach(function(id){
+    var el=document.getElementById(id);el.innerHTML=h;
+    el.querySelectorAll('button').forEach(function(b){b.onclick=function(){myClass=+b.dataset.c;S.s('class',myClass);renderClassPick();renderGroupPick();renderCalls()}});
+  });
+}
+function renderPack(){
+  var st=S.g('pack',{}),h='';
+  PACK.forEach(function(p,i){h+='<button class="chk '+(st[i]?'on':'')+'" data-i="'+i+'"><span class="b">✓</span><span class="l">'+p+'</span></button>'});
+  var el=document.getElementById('packing');el.innerHTML=h;
+  el.querySelectorAll('.chk').forEach(function(b){b.onclick=function(){var s=S.g('pack',{});s[b.dataset.i]=!s[b.dataset.i];S.s('pack',s);renderPack()}});
+}
+function renderWay(which){
+  var h='';WAY[which].forEach(function(s){
+    h+='<div class="step"><div class="hd"><span class="num">'+s.n+'</span><span class="tx">'+s.t+'</span></div>';
+    if(s.img)h+='<img loading="lazy" decoding="async" src="img/'+s.img+'.jpg" alt="">';
+    h+='<div class="cap">'+s.cap+'</div>';
+    if(s.mz)h+='<div class="mz">'+s.mz+'</div>';
+    if(s.tip)h+='<div class="tip"><b>💡 </b>'+s.tip+'</div>';
+    h+='</div>';});
+  document.getElementById('wayBody').innerHTML=h;
+}
+document.querySelectorAll('#waySeg button').forEach(function(b){
+  b.onclick=function(){document.querySelectorAll('#waySeg button').forEach(function(x){x.classList.remove('on')});b.classList.add('on');renderWay(b.dataset.w)}});
+
+/* 지도 렌더 */
+var K=24,MX=0,MY=0,MZ=1,BB;
+function pj(x,y,z){return [(x-y)*K*0.80,(x+y)*K*0.52 - z*K*0.95]}
+function bb(p){if(!BB)BB=[p[0],p[1],p[0],p[1]];else{BB[0]=Math.min(BB[0],p[0]);BB[1]=Math.min(BB[1],p[1]);BB[2]=Math.max(BB[2],p[0]);BB[3]=Math.max(BB[3],p[1])}return p}
+function face(pts,f,o){return '<polygon points="'+pts.map(function(p){return p[0].toFixed(1)+','+p[1].toFixed(1)}).join(' ')+'" fill="'+f+'" fill-opacity="'+o+'" stroke="rgba(30,40,60,.18)" stroke-width="1" stroke-linejoin="round"/>'}
+function shade(hex,m){var r=parseInt(hex.substr(1,2),16),g=parseInt(hex.substr(3,2),16),b=parseInt(hex.substr(5,2),16);function c(v){return Math.max(0,Math.min(255,Math.round(v*m)))}return 'rgb('+c(r)+','+c(g)+','+c(b)+')'}
+function drawMap(){
+  BB=null;var s='',list=ZONES.slice().sort(function(a,b){return (a.x+a.y)-(b.x+b.y)});
+  var g=GROUND.map(function(c){var p=uv(c[0],c[1],0,0);return bb(pj(p.x,p.y,0))});
+  s+='<polygon points="'+g.map(function(p){return p[0].toFixed(1)+','+p[1].toFixed(1)}).join(' ')+'" fill="#DCEBD6" fill-opacity=".9" stroke="#B4D2AB" stroke-width="2" stroke-linejoin="round"/>';
+  var rr=[[-1.0,-0.42],[10.6,-0.42],[10.6,0.42],[-1.0,0.42]].map(function(c){var p=uv(c[0],c[1],0,0);return pj(p.x,p.y,.03)});
+  s+='<polygon points="'+rr.map(function(p){return p[0].toFixed(1)+','+p[1].toFixed(1)}).join(' ')+'" fill="#F3EBDA" stroke="#DDD0B7" stroke-width="1.2"/>';
+  list.forEach(function(z){var x=z.x,y=z.y,w=z.w,d=z.d,hh=z.h;
+    var t=[pj(x,y,hh),pj(x+w,y,hh),pj(x+w,y+d,hh),pj(x,y+d,hh)];
+    var lf=[pj(x,y+d,hh),pj(x+w,y+d,hh),pj(x+w,y+d,0),pj(x,y+d,0)];
+    var rf=[pj(x+w,y,hh),pj(x+w,y+d,hh),pj(x+w,y+d,0),pj(x+w,y,0)];
+    s+='<g>'+face(lf,shade(z.f,.76),1)+face(rf,shade(z.f,.62),1)+face(t,z.f,1);
+    var c=bb(pj(x+w/2,y+d/2,hh));
+    if(z.icon)s+='<text x="'+c[0].toFixed(1)+'" y="'+(c[1]-1).toFixed(1)+'" font-size="21" text-anchor="middle">'+z.icon+'</text>';
+    if(z.key){bb([c[0],c[1]-40]);
+      s+='<circle class="kd" data-k="'+z.key+'" cx="'+c[0].toFixed(1)+'" cy="'+(c[1]-26).toFixed(1)+'" r="15" fill="#fff" stroke="#23304A" stroke-width="2.5"/>';
+      s+='<text x="'+c[0].toFixed(1)+'" y="'+(c[1]-21).toFixed(1)+'" font-size="17" font-weight="800" text-anchor="middle" fill="#23304A">'+z.key+'</text>';}
+    var lb=z.s||z.n,lw=lb.length*7.6;bb([c[0]-lw,c[1]+26]);bb([c[0]+lw,c[1]+26]);
+    s+='<text x="'+c[0].toFixed(1)+'" y="'+(c[1]+18).toFixed(1)+'" font-size="14" font-weight="800" text-anchor="middle" fill="#25314C" paint-order="stroke" stroke="#fff" stroke-width="4" stroke-linejoin="round">'+lb+'</text>';
+    s+='</g>';});
+  var el=document.getElementById('iso'),pd=14,vw=(BB[2]-BB[0])+pd*2,vh=(BB[3]-BB[1])+pd*2;
+  el.setAttribute('viewBox',(BB[0]-pd).toFixed(1)+' '+(BB[1]-pd).toFixed(1)+' '+vw.toFixed(1)+' '+vh.toFixed(1));
+  el.innerHTML='<g id="cam">'+s+'</g>';applyCam();
+}
+function applyCam(){var c=document.getElementById('cam');if(c)c.setAttribute('transform','translate('+MX+','+MY+') scale('+MZ+')')}
+function zoom(f){MZ=Math.max(.5,Math.min(3,MZ*f));applyCam()}
+function resetMap(){MX=0;MY=0;MZ=1;applyCam()}
+(function(){var el=document.getElementById('iso'),drag=false,px=0,py=0,pd=0;
+  function rt(){var vb=(el.getAttribute('viewBox')||'0 0 100 100').split(' ');var w=el.clientWidth||350;return (+vb[2])/w}
+  function dist(t){var a=t[0],b=t[1];return Math.hypot(a.clientX-b.clientX,a.clientY-b.clientY)}
+  el.addEventListener('touchstart',function(e){if(e.touches.length===1){drag=true;px=e.touches[0].clientX;py=e.touches[0].clientY}else if(e.touches.length===2){drag=false;pd=dist(e.touches)}},{passive:true});
+  el.addEventListener('touchmove',function(e){if(e.touches.length===2&&pd){var n=dist(e.touches);MZ=Math.max(.5,Math.min(3,MZ*(n/pd)));pd=n;applyCam();e.preventDefault()}
+    else if(drag&&e.touches.length===1){var t=e.touches[0],r=rt();MX+=(t.clientX-px)*r;MY+=(t.clientY-py)*r;px=t.clientX;py=t.clientY;applyCam();e.preventDefault()}},{passive:false});
+  el.addEventListener('touchend',function(){drag=false;pd=0});
+  el.addEventListener('mousedown',function(e){drag=true;px=e.clientX;py=e.clientY});
+  window.addEventListener('mousemove',function(e){if(drag){var r=rt();MX+=(e.clientX-px)*r;MY+=(e.clientY-py)*r;px=e.clientX;py=e.clientY;applyCam()}});
+  window.addEventListener('mouseup',function(){drag=false});
+})();
+function renderPOI(){
+  var h='';POI.forEach(function(p){h+='<button class="poi" data-k="'+p.k+'"><span class="pn" style="background:'+p.c+'">'+p.k+'</span><span><span class="nm">'+p.n+'</span><span class="ds">'+p.d+'</span></span></button>'});
+  var el=document.getElementById('poiList');el.innerHTML=h;
+  el.querySelectorAll('.poi').forEach(function(b){b.onclick=function(){
+    el.querySelectorAll('.poi').forEach(function(x){x.classList.remove('hit')});b.classList.add('hit');
+    var c=document.querySelector('#iso .kd[data-k="'+b.dataset.k+'"]');
+    if(c){c.setAttribute('fill','#FFE066');c.setAttribute('r','18');setTimeout(function(){c.setAttribute('fill','#fff');c.setAttribute('r','15')},1100)}
+    document.querySelector('.mapbox').scrollIntoView({behavior:'smooth',block:'center'})}});
+}
+function renderLands(){
+  document.getElementById('landList').innerHTML=LANDS.map(function(L){
+    return '<div class="card" style="border-left:5px solid '+L.c+'"><div style="font-weight:800;font-size:15.5px">'+L.e+' '+L.n+'</div><div class="muted" style="margin-top:2px">'+L.d+'</div><div style="font-size:13.5px;margin-top:7px;line-height:1.7">'+L.r+'</div></div>'}).join('');
+  document.getElementById('extraList').innerHTML=EXTRA.map(function(x){return '<span style="display:inline-block;background:var(--card);border:1.5px solid var(--coral);color:var(--coral);font-weight:700;font-size:13px;padding:5px 11px;border-radius:99px;margin:0 5px 5px 0">'+x+'</span>'}).join('');
+  document.getElementById('facil').innerHTML=FACIL.map(function(f){return '<div class="rule"><span class="e">'+f[0]+'</span><span><span class="t">'+f[1]+'</span><span class="s">'+f[2]+'</span></span></div>'}).join('');
+}
+
+/* 우리 모둠 (실시간 연동) */
+var GROUPS={1:8,2:8,3:8,4:7};
+function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
+function telOf(t){return String(t||'').replace(/[^0-9]/g,'')}
+var ME=S.g('me',null), MATES=S.g('mates',[]), unwatch=null;
+function renderGroupPick(){
+  var n=GROUPS[myClass]||8,h='';
+  for(var g=1;g<=n;g++)h+='<button data-g="'+g+'" class="'+(myGroup===g?'on':'')+'">'+g+'모둠</button>';
+  var el=document.getElementById('groupPick');el.innerHTML=h;
+  el.querySelectorAll('button').forEach(function(b){b.onclick=function(){myGroup=+b.dataset.g;S.s('group',myGroup);renderGroupPick()}});
+}
+function renderReg(){
+  var st=document.getElementById('regState');
+  if(ME){st.className='regstate ok';st.innerHTML='✅ 등록 완료 · 1-'+ME.cls+' '+ME.grp+'모둠 '+esc(ME.name)+(ME.leader?' ⭐모둠장':'');}
+  else if(window.FB){st.className='regstate';st.textContent='아직 등록하지 않았어요. 아래를 채우고 등록해 주세요!';}
+  else{st.className='regstate';st.textContent='연결 준비 중… (인터넷이 연결되면 자동으로 켜져요)';}
+  if(ME&&!document.getElementById('regName').value){
+    document.getElementById('regName').value=ME.name||'';
+    document.getElementById('regTel').value=ME.phone||'';
+    document.getElementById('regLeader').checked=!!ME.leader;
+  }
+}
+document.getElementById('regBtn').onclick=function(){
+  var name=document.getElementById('regName').value.trim(),phone=document.getElementById('regTel').value.trim(),leader=document.getElementById('regLeader').checked;
+  if(!myClass){toast('우리 반을 먼저 골라 주세요');return}
+  if(!myGroup||myGroup>(GROUPS[myClass]||8)){toast('우리 모둠을 골라 주세요');return}
+  if(!name){toast('이름을 써 주세요');return}
+  if(!window.FB){toast('아직 연결 중이에요. 잠시 후 다시 눌러 주세요');return}
+  var d={cls:myClass,grp:myGroup,name:name,phone:phone,leader:leader};
+  var btn=this;btn.disabled=true;btn.textContent='등록하는 중…';
+  FB.register(d).then(function(){ME=d;S.s('me',d);renderReg();startWatch();toast('🎉 등록했어요!')})
+   .catch(function(e){console.warn(e);toast('등록이 안 됐어요. 신호를 확인하고 다시 눌러 주세요')})
+   .then(function(){btn.disabled=false;btn.textContent='📝 등록하기'});
+};
+function startWatch(){
+  if(!window.FB||!ME)return;
+  if(unwatch)unwatch();
+  unwatch=FB.watchGroup(ME.cls,ME.grp,function(list){MATES=list;S.s('mates',list);renderMates();renderCalls()},function(e){console.warn(e)});
+}
+function renderMates(){
+  var el=document.getElementById('mates');
+  if(!ME){el.innerHTML='<div class="card muted">등록하면 우리 모둠 친구들이 여기 보여요. 친구들이 등록할 때마다 자동으로 늘어나요!</div>';return}
+  var list=MATES.slice().sort(function(a,b){return (b.leader?1:0)-(a.leader?1:0)||String(a.name).localeCompare(String(b.name))});
+  if(!list.length){el.innerHTML='<div class="card muted">아직 아무도 없어요. 친구들에게도 등록하라고 알려 주세요!</div>';return}
+  var h='<div class="card">';
+  list.forEach(function(m){
+    var t=telOf(m.phone), me=window.FB&&m.id===FB.uid;
+    h+='<div class="mate"><div class="mn">'+esc(m.name)+(m.leader?'<span class="star">⭐모둠장</span>':'')+(me?'<small>(나)</small>':'')+'</div>'+
+       (t&&!me?'<a class="mtel" href="tel:'+t+'">📞 전화</a>':'<span class="muted">'+(me?'':'번호 없음')+'</span>')+'</div>';
+  });
+  el.innerHTML=h+'<div class="muted" style="margin-top:8px">👥 '+list.length+'명 등록됨</div></div>';
+}
+function report(kind){
+  if(!ME){toast('먼저 위에서 우리 모둠을 등록해 주세요');return}
+  if(kind==='ok'&&!ME.leader){toast('전원 무사 보고는 모둠장이 보내요');return}
+  if(kind==='help'&&!confirm('도움 요청을 보낼까요?\n담임 선생님 화면에 빨간 알림이 떠요.'))return;
+  var msg=kind==='ok'?'전원 이상 없이 잘 지내고 있어요':'도움이 필요해요! 연락 부탁드려요';
+  var t=new Date(),txt='[1-'+ME.cls+' '+ME.grp+'모둠 '+ME.name+'] '+('0'+t.getHours()).slice(-2)+':'+('0'+t.getMinutes()).slice(-2)+' — '+msg;
+  function fallback(){
+    if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(txt).then(function(){toast('전송이 안 돼서 복사했어요. 반 단톡방에 붙여넣어 주세요')},function(){prompt('복사해서 단톡방에 보내 주세요',txt)});
+    else prompt('복사해서 단톡방에 보내 주세요',txt);
+  }
+  if(!window.FB){fallback();return}
+  var done=false;toast('보내는 중…');
+  FB.report({cls:ME.cls,grp:ME.grp,name:ME.name,kind:kind,msg:msg})
+   .then(function(){done=true;toast(kind==='help'?'🆘 전달됐어요! 담임 선생님께 전화도 해 주세요':'✓ 선생님께 전달됐어요')})
+   .catch(function(e){done=true;console.warn(e);fallback()});
+  setTimeout(function(){if(!done)toast('신호가 약해요. 연결되면 자동으로 전송돼요')},6000);
+}
+window.addEventListener('fbready',function(){
+  renderReg();
+  FB.me().then(function(d){
+    if(d){ME={cls:d.cls,grp:d.grp,name:d.name,phone:d.phone,leader:d.leader};S.s('me',ME);
+      if(!myClass){myClass=d.cls;S.s('class',myClass)} if(!myGroup){myGroup=d.grp;S.s('group',myGroup)}
+      renderClassPick();renderGroupPick();}
+    else if(ME){ME=null;S.s('me',null);MATES=[];S.s('mates',[])}
+    renderReg();renderMates();startWatch();
+  });
+});
+function renderMis(){
+  var st=S.g('mis',{}),done=0,h='';
+  MISSIONS.forEach(function(m,i){if(st[i])done++;
+    h+='<button class="ms '+(st[i]?'done':'')+'" data-i="'+i+'"><span class="ck">✓</span><span><span class="mt">'+m.e+' '+m.t+'</span><span class="md">'+m.d+'</span><span class="pin">📍 '+m.pin+'</span></span></button>'});
+  document.getElementById('misList').innerHTML=h;
+  document.getElementById('misCnt').textContent=done+' / '+MISSIONS.length;
+  document.getElementById('misBar').style.width=(done/MISSIONS.length*100)+'%';
+  document.querySelectorAll('#misList .ms').forEach(function(b){b.onclick=function(){
+    var s=S.g('mis',{}),i=b.dataset.i,was=!!s[i];s[i]=!was;S.s('mis',s);renderMis();
+    if(!was){var n=0;for(var k in s)if(s[k])n++;if(n===MISSIONS.length)document.getElementById('pop').classList.add('on')}}});
+}
+function renderCalls(){
+  var h='';
+  if(myClass){var t=TEACHERS[myClass-1];h+='<a class="call" href="tel:'+t.t.replace(/-/g,'')+'"><span class="who">우리 반 담임</span><span class="nm">📞 '+t.n+' 선생님</span><span class="no">'+t.t+'</span></a>';}
+  else h+='<a class="call p" href="#" onclick="alert(\'먼저 「홈」에서 우리 반을 골라 주세요!\');return false"><span class="who">담임 선생님</span><span class="nm">📞 반을 먼저 골라요</span><span class="no">홈 → 반 선택</span></a>';
+  var L=MATES.filter(function(m){return m.leader&&!(window.FB&&m.id===FB.uid)})[0];
+  if(L&&telOf(L.phone))h+='<a class="call p" href="tel:'+telOf(L.phone)+'"><span class="who">우리 모둠장</span><span class="nm">📞 '+esc(L.name)+'</span><span class="no">'+esc(L.phone)+'</span></a>';
+  h+='<a class="call b" href="tel:'+HEAD.t.replace(/-/g,'')+'"><span class="who">학년부장</span><span class="nm">📞 '+HEAD.n.split(' ')[0]+' 선생님</span><span class="no">'+HEAD.t+'</span></a>';
+  h+='<a class="call b" href="tel:'+SCHOOL.t.replace(/-/g,'')+'"><span class="who">학교</span><span class="nm">🏫 교무실</span><span class="no">'+SCHOOL.t+'</span></a>';
+  h+='<a class="call" href="tel:119" style="grid-column:1/-1;background:#C0392B"><span class="who">아주 위급할 때</span><span class="nm">🚑 119</span><span class="no">많이 다쳤거나 의식이 없을 때</span></a>';
+  document.getElementById('callList').innerHTML=h;
+}
+
+renderClassPick();renderCD();renderTimeline();renderPack();
+renderWay('go');drawMap();renderPOI();renderLands();
+renderGroupPick();renderReg();renderMates();renderMis();renderCalls();
+document.getElementById('foot').innerHTML='고천중학교 1학년 · 2026.10.8 현장체험학습<br>모둠 등록·보고는 선생님께 실시간 전달돼요 🌿';
+setInterval(function(){renderCD();renderTimeline()},60000);
+</script>
+<script type="module">
+import {firebaseConfig} from './firebase-config.js';
+if(firebaseConfig&&firebaseConfig.apiKey){
+  try{
+    const B='https://www.gstatic.com/firebasejs/10.12.2/';
+    const [{initializeApp},A,F]=await Promise.all([import(B+'firebase-app.js'),import(B+'firebase-auth.js'),import(B+'firebase-firestore.js')]);
+    const app=initializeApp(firebaseConfig,'student');
+    let db;
+    try{db=F.initializeFirestore(app,{localCache:F.persistentLocalCache({tabManager:F.persistentMultipleTabManager()})})}
+    catch(e){db=F.getFirestore(app)}
+    const auth=A.getAuth(app);
+    await auth.authStateReady();
+    if(!auth.currentUser)await A.signInAnonymously(auth);
+    const uid=auth.currentUser.uid, mref=F.doc(db,'members',uid);
+    window.FB={
+      uid,
+      me:()=>F.getDoc(mref).then(s=>s.exists()?s.data():null).catch(()=>null),
+      register:d=>F.setDoc(mref,{cls:d.cls,grp:d.grp,name:d.name,phone:d.phone,leader:!!d.leader,ts:F.serverTimestamp()}),
+      watchGroup:(c,g,cb,err)=>F.onSnapshot(
+        F.query(F.collection(db,'members'),F.where('cls','==',c),F.where('grp','==',g)),
+        s=>cb(s.docs.map(x=>{const v=x.data();return {id:x.id,name:v.name,phone:v.phone,leader:v.leader}})),err),
+      report:d=>F.addDoc(F.collection(db,'reports'),{cls:d.cls,grp:d.grp,name:d.name,kind:d.kind,msg:d.msg,uid,ts:F.serverTimestamp()})
+    };
+    window.dispatchEvent(new Event('fbready'));
+  }catch(e){console.warn('실시간 연결 실패',e)}
+}
+</script>
+</body>
+</html>

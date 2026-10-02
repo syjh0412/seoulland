@@ -1,0 +1,52 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // 인솔교사 공용 계정만 '교사'로 인정
+    function isTeacher() {
+      return request.auth != null && request.auth.token.email == 'teacher@gocheon.school';
+    }
+    function signedIn() { return request.auth != null; }
+    function myDoc() {
+      return get(/databases/$(database)/documents/members/$(request.auth.uid)).data;
+    }
+    function validMember(d) {
+      return d.keys().hasOnly(['cls','grp','name','phone','leader','ts'])
+        && d.cls is int && d.cls >= 1 && d.cls <= 4
+        && d.grp is int && d.grp >= 1 && d.grp <= 10
+        && d.name is string && d.name.size() >= 1 && d.name.size() <= 20
+        && d.phone is string && d.phone.size() <= 20
+        && d.leader is bool
+        && d.ts == request.time;
+    }
+
+    // 학생 모둠 등록: 본인 것만 쓰기, 같은 반·같은 모둠끼리만 읽기, 교사는 전부
+    match /members/{uid} {
+      allow get: if isTeacher()
+        || (signedIn() && request.auth.uid == uid)
+        || (signedIn() && exists(/databases/$(database)/documents/members/$(request.auth.uid))
+            && resource.data.cls == myDoc().cls && resource.data.grp == myDoc().grp);
+      allow list: if isTeacher()
+        || (signedIn() && resource.data.cls == myDoc().cls && resource.data.grp == myDoc().grp);
+      allow create, update: if signedIn() && request.auth.uid == uid && validMember(request.resource.data);
+      allow delete: if isTeacher() || (signedIn() && request.auth.uid == uid);
+    }
+
+    // 모둠 보고: 학생은 보내기만, 읽기는 교사만
+    match /reports/{id} {
+      allow read: if isTeacher();
+      allow create: if signedIn()
+        && request.resource.data.keys().hasOnly(['cls','grp','name','kind','msg','uid','ts'])
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.kind in ['ok','help']
+        && request.resource.data.cls is int && request.resource.data.grp is int
+        && request.resource.data.name is string && request.resource.data.name.size() <= 20
+        && request.resource.data.msg is string && request.resource.data.msg.size() <= 120
+        && request.resource.data.ts == request.time;
+    }
+
+    // 출결·명단·건강정보: 교사만
+    match /att/{id}     { allow read, write: if isTeacher(); }
+    match /private/{id} { allow read, write: if isTeacher(); }
+  }
+}

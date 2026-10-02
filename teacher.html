@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>[교사용] 1학년 현장체험학습 인솔</title>
+<style>
+:root{
+  --bg:#F4F6FA; --card:#FFFFFF; --ink:#1B2434; --ink2:#5C6B85; --line:#DCE3EE;
+  --blue:#2563C7; --blueS:#E7EFFC; --red:#C63329; --redS:#FCEAE8;
+  --green:#1E8E52; --greenS:#E3F5EB; --amber:#B4700C; --amberS:#FDF1DC;
+  --grape:#6D3FC0; --grapeS:#EFE8FC;
+  --sh:0 1px 2px rgba(20,30,50,.06),0 4px 14px rgba(20,30,50,.06);
+  --navbg:rgba(244,246,250,.95);
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#11151D; --card:#1A202C; --ink:#EAF0F8; --ink2:#95A5BF; --line:#2A3344;
+  --blue:#6BA6F5; --blueS:#14263F; --red:#FF7A6B; --redS:#361713;
+  --green:#5FD08E; --greenS:#0F2B1C; --amber:#F2B44D; --amberS:#332405;
+  --grape:#B492F5; --grapeS:#251A3D;
+  --sh:0 1px 2px rgba(0,0,0,.3),0 4px 14px rgba(0,0,0,.3); --navbg:rgba(17,21,29,.95);
+}}
+:root[data-theme="dark"]{
+  --bg:#11151D; --card:#1A202C; --ink:#EAF0F8; --ink2:#95A5BF; --line:#2A3344;
+  --blue:#6BA6F5; --blueS:#14263F; --red:#FF7A6B; --redS:#361713;
+  --green:#5FD08E; --greenS:#0F2B1C; --amber:#F2B44D; --amberS:#332405;
+  --grape:#B492F5; --grapeS:#251A3D;
+  --sh:0 1px 2px rgba(0,0,0,.3),0 4px 14px rgba(0,0,0,.3); --navbg:rgba(17,21,29,.95);
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);
+ font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Pretendard","Noto Sans KR","Malgun Gothic",sans-serif;
+ font-size:16px;line-height:1.5;letter-spacing:-.01em;
+ padding-bottom:calc(72px + env(safe-area-inset-bottom));overflow-x:hidden}
+button{font:inherit;color:inherit;border:none;background:none;cursor:pointer}
+a{color:var(--blue)}
+.top{background:linear-gradient(120deg,#1E3A6E,#2563C7);color:#fff;padding:calc(13px + env(safe-area-inset-top)) 16px 13px;display:flex;align-items:center;gap:10px}
+.top h1{margin:0;font-size:16.5px;font-weight:800;letter-spacing:-.03em}
+.top .s{font-size:12px;opacity:.9;margin-top:2px}
+.top .out{margin-left:auto;flex:none;font-size:12px;font-weight:700;background:rgba(255,255,255,.18);padding:6px 10px;border-radius:9px;color:#fff}
+.wrap{padding:14px 12px 6px;max-width:680px;margin:0 auto}
+.panel{display:none}.panel.on{display:block}
+h2{font-size:14px;font-weight:800;margin:20px 0 9px;color:var(--ink2);letter-spacing:.01em}
+h2:first-child{margin-top:2px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:13px;box-shadow:var(--sh);margin-bottom:10px}
+.muted{color:var(--ink2);font-size:13px}
+.seg{display:flex;gap:4px;background:var(--line);padding:3px;border-radius:11px;margin-bottom:10px}
+.seg button{flex:1;padding:8px 2px;border-radius:9px;font-size:14px;font-weight:700;color:var(--ink2)}
+.seg button.on{background:var(--card);color:var(--ink);box-shadow:var(--sh)}
+.cpt{display:flex;gap:5px;overflow-x:auto;padding-bottom:3px;margin-bottom:11px;-webkit-overflow-scrolling:touch}
+.cpt button{flex:none;padding:8px 13px;border-radius:11px;border:1.5px solid var(--line);background:var(--card);font-size:13.5px;font-weight:700;color:var(--ink2);white-space:nowrap}
+.cpt button.on{background:var(--blue);border-color:var(--blue);color:#fff}
+.stat{display:flex;align-items:center;gap:12px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:13px;box-shadow:var(--sh);margin-bottom:11px}
+.stat .n{font-size:27px;font-weight:800;line-height:1}
+.stat .n.ok{color:var(--green)}.stat .n.bad{color:var(--red)}
+.stat .t{font-size:13px;color:var(--ink2)}
+.stat .btns{margin-left:auto;display:flex;gap:6px}
+.stat .btns button{padding:9px 12px;border-radius:10px;background:var(--blueS);color:var(--blue);font-weight:700;font-size:13px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:7px}
+.st{border:1.5px solid var(--line);background:var(--card);border-radius:11px;padding:9px 6px;text-align:center;box-shadow:var(--sh);position:relative;transition:.12s}
+.st .no{font-size:10.5px;color:var(--ink2);font-weight:700}
+.st .nm{font-size:14.5px;font-weight:700;margin-top:1px}
+.st.on{background:var(--greenS);border-color:var(--green)}
+.st.on:after{content:"✓";position:absolute;top:3px;right:6px;color:var(--green);font-weight:800;font-size:13px}
+.st.care{box-shadow:inset 0 0 0 2px var(--amber),var(--sh)}
+.st.care .nm:after{content:" ⚠";color:var(--amber);font-size:11px}
+.st.absent{opacity:.42;background:var(--line)}
+.st.absent .nm{text-decoration:line-through}
+.row{display:flex;gap:10px;align-items:flex-start;padding:10px 0;border-bottom:1px solid var(--line)}
+.row:last-child{border:none}
+.row .k{flex:none;width:76px;font-size:13px;font-weight:700;color:var(--ink2)}
+.row .v{flex:1;font-size:14.5px}
+.tel{display:inline-block;margin-top:3px;padding:6px 12px;border-radius:9px;background:var(--blueS);color:var(--blue);font-weight:700;font-size:13.5px;text-decoration:none}
+.tel.r{background:var(--redS);color:var(--red)}
+.tel.g{background:var(--green);color:#fff}
+.care{background:var(--amberS);border:1px solid var(--amber);border-radius:14px;padding:12px;margin-bottom:9px}
+.care .h{font-weight:800;font-size:15px}
+.care .c{font-size:13.5px;color:var(--ink2);margin-top:2px}
+.tl{display:flex;gap:11px;padding:9px 0;border-bottom:1px dashed var(--line)}
+.tl:last-child{border:none}
+.tl .h{flex:none;width:96px;font-size:12.5px;font-weight:800;color:var(--blue);padding-top:1px}
+.tl .b{font-size:14.5px;font-weight:600}
+.tl .d{font-size:13px;color:var(--ink2)}
+nav{position:fixed;left:0;right:0;bottom:0;z-index:50;display:flex;background:var(--navbg);
+ backdrop-filter:blur(12px);border-top:1px solid var(--line);padding:5px 3px calc(5px + env(safe-area-inset-bottom))}
+nav button{flex:1;display:flex;flex-direction:column;align-items:center;gap:1px;padding:5px 1px;border-radius:11px;color:var(--ink2);position:relative}
+nav button .i{font-size:19px;line-height:1}
+nav button .l{font-size:10px;font-weight:700}
+nav button.on{color:var(--blue);background:var(--blueS)}
+nav button .bdg{position:absolute;top:1px;right:calc(50% - 20px);background:var(--red);color:#fff;font-size:10px;font-weight:800;min-width:17px;height:17px;border-radius:99px;display:none;place-items:center;padding:0 4px}
+.note{font-size:11.5px;color:var(--ink2);text-align:center;padding:14px 8px}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:86px;background:#1B2434;color:#fff;
+ padding:11px 18px;border-radius:11px;font-size:14px;font-weight:600;z-index:80;opacity:0;pointer-events:none;transition:.25s;max-width:90%}
+.toast.on{opacity:1}
+.sync{display:flex;align-items:center;gap:7px;font-size:12.5px;font-weight:700;color:var(--ink2);margin-bottom:10px}
+.sync i{width:9px;height:9px;border-radius:50%;background:var(--green);display:inline-block}
+.sync.off i{background:var(--amber)}
+.banner{position:sticky;top:0;z-index:60;background:var(--red);color:#fff;padding:12px 14px;display:none;box-shadow:0 6px 20px rgba(198,51,41,.35)}
+.banner b{font-size:15px}
+.banner .bl{font-size:13.5px;margin-top:3px;line-height:1.5}
+.banner button{margin-top:8px;background:#fff;color:var(--red);font-weight:800;padding:8px 14px;border-radius:10px;font-size:13.5px}
+.dash{width:100%;border-collapse:collapse;font-size:13px}
+.dash th{font-size:11.5px;color:var(--ink2);font-weight:700;padding:6px 3px;text-align:center}
+.dash td{padding:8px 3px;text-align:center;border-top:1px solid var(--line);font-weight:700}
+.dash td:first-child{text-align:left;font-weight:800}
+.ok{color:var(--green)}.bad{color:var(--red)}.dim{color:var(--ink2);font-weight:500}
+.feed{display:flex;gap:10px;padding:9px 0;border-bottom:1px dashed var(--line);align-items:flex-start}
+.feed:last-child{border:none}
+.feed .tm{flex:none;width:44px;font-size:12.5px;font-weight:800;color:var(--ink2)}
+.feed .fx{flex:1;font-size:14px}
+.feed.help{background:var(--redS);border-radius:10px;padding:9px 8px;border:none;margin-bottom:4px}
+.feed.help .fx b{color:var(--red)}
+.gcard{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px;box-shadow:var(--sh);margin-bottom:10px}
+.gh{display:flex;align-items:center;gap:9px;margin-bottom:4px}
+.gnum{flex:none;width:34px;height:34px;border-radius:10px;background:var(--grapeS);color:var(--grape);font-weight:800;display:grid;place-items:center;font-size:15px}
+.gh .gt{font-weight:800;font-size:15px}
+.gh .gs{margin-left:auto;font-size:12px;font-weight:700}
+.mrow{display:flex;align-items:center;gap:8px;padding:8px 0;border-top:1px dashed var(--line)}
+.mrow .mn{flex:1;font-weight:700;font-size:14.5px}
+.mrow .star{display:inline-block;background:var(--amberS);color:var(--amber);font-size:10.5px;font-weight:800;padding:1px 7px;border-radius:99px;margin-left:4px}
+.mrow .dup{display:inline-block;background:var(--redS);color:var(--red);font-size:10.5px;font-weight:800;padding:1px 7px;border-radius:99px;margin-left:4px}
+.mrow .x{flex:none;width:30px;height:30px;border-radius:9px;color:var(--ink2);font-size:15px}
+.chips{display:flex;flex-wrap:wrap;gap:5px;margin-top:6px}
+.chips span{font-size:12.5px;font-weight:700;background:var(--line);color:var(--ink2);padding:4px 9px;border-radius:99px}
+.login{position:fixed;inset:0;z-index:200;background:var(--bg);display:grid;place-items:center;padding:20px}
+.lbox{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:26px 22px;width:100%;max-width:340px;text-align:center;box-shadow:var(--sh)}
+.lbox h3{margin:8px 0 4px;font-size:19px}
+.lfield{width:100%;padding:13px 14px;border:1.5px solid var(--line);border-radius:12px;background:var(--bg);color:var(--ink);font:inherit;margin-top:14px;text-align:center;font-size:17px;letter-spacing:.1em}
+.lbtn{width:100%;margin-top:10px;padding:13px;border-radius:12px;background:var(--blue);color:#fff;font-weight:800;font-size:15.5px}
+.lbtn:disabled{opacity:.5}
+.upl{background:var(--amberS);border:1.5px dashed var(--amber);border-radius:14px;padding:16px;text-align:center}
+.upl input{margin-top:10px;max-width:100%}
+</style>
+</head>
+<body>
+
+<div class="login" id="login"><div class="lbox">
+  <div style="font-size:42px">🔒</div>
+  <h3>인솔교사 로그인</h3>
+  <div class="muted">1학년부에서 공유한 비밀번호를 넣어주세요</div>
+  <input type="password" id="pw" class="lfield" placeholder="비밀번호" autocomplete="current-password">
+  <button id="loginBtn" class="lbtn">들어가기</button>
+  <div id="loginMsg" class="muted" style="margin-top:10px;min-height:20px"></div>
+</div></div>
+
+<div class="banner" id="banner"><b>🆘 도움 요청이 왔어요!</b><div class="bl" id="bannerList"></div><button onclick="ackHelp()">확인했어요</button></div>
+
+<header class="top">
+  <div><h1>🧭 1학년 현장체험학습 · 교사용</h1><div class="s">2026. 10. 8.(목) 서울랜드 · 학생 106명 / 인솔 8명</div></div>
+  <button class="out" onclick="logout()">로그아웃</button>
+</header>
+
+<div class="wrap">
+<div class="sync" id="sync"><i></i><span>연결 중…</span></div>
+
+<!-- 현황 -->
+<section class="panel on" id="p-dash">
+  <h2>📊 4개 반 출결 현황 <span class="dim">— 선생님들 체크가 실시간 반영</span></h2>
+  <div class="card" style="padding:8px 10px"><table class="dash" id="dashTbl"></table></div>
+  <h2>🧑‍🤝‍🧑 모둠 등록 현황</h2>
+  <div class="card" id="regStat"></div>
+  <h2>📣 모둠 보고 <span class="dim">— 최신순</span></h2>
+  <div class="card" id="feed"></div>
+</section>
+
+<!-- 출결 -->
+<section class="panel" id="p-chk">
+  <div class="seg" id="clsSeg"></div>
+  <div class="cpt" id="cptSeg"></div>
+  <div id="chkBody"></div>
+</section>
+
+<!-- 모둠 -->
+<section class="panel" id="p-grp">
+  <div class="seg" id="gClsSeg"></div>
+  <div id="grpBody"></div>
+</section>
+
+<!-- 요양호 -->
+<section class="panel" id="p-care">
+  <h2>⚠️ 요양호(관심) 학생</h2>
+  <div class="card" style="background:var(--amberS);border-color:var(--amber)">
+    <b style="font-size:14.5px">공통 지도 지침</b>
+    <div style="font-size:14px;margin-top:4px">일상생활에는 무리가 없으나 <b>신체 반응이 나타나는지 관찰</b>이 필요합니다. <b>격한 운동은 지양</b>하고, 열이 나거나 피곤을 호소하면 <b>응급상황 파악 후 병원 후송 및 귀가 조치</b>합니다.</div>
+  </div>
+  <div id="careList"></div>
+  <div class="card"><div class="muted">자유이동 중이라 담임 눈에서 벗어나는 시간이 깁니다. 해당 학생의 <b>모둠장에게 미리 당부</b>해 두세요. 출결 화면에서 <b style="color:var(--amber)">주황 테두리 ⚠</b>로 표시됩니다.</div></div>
+</section>
+
+<!-- 연락 -->
+<section class="panel" id="p-call">
+  <h2>🚨 응급 시 보고 순서</h2>
+  <div class="card">
+    <div class="tl"><div class="h">① 담임</div><div><div class="b">학년부장 보고 + 학생 상태 파악</div><div class="d">필요 시 응급처치 · 의무실(후문 옆) 이송 · 학부모 연락</div></div></div>
+    <div class="tl"><div class="h">② 학년부장</div><div><div class="b">관리자(교장/교감) 유선 연락</div><div class="d">상황에 따라 안전복지과 연락</div></div></div>
+    <div class="tl"><div class="h">③ 이송</div><div><div class="b">가까운 병원으로 신속 이송</div><div class="d">교사 동행 필수 · 담임은 병원 상주</div></div></div>
+    <div class="tl"><div class="h">④ 현장총괄</div><div><div class="b">잔여 학생 일정 진행 여부를 학교와 협의</div><div class="d">전체 학생 안정 · 현장 상황 보고</div></div></div>
+  </div>
+  <h2>👩‍🏫 인솔교사</h2>
+  <div class="card" id="teacherList"></div>
+  <h2>🏫 학교</h2>
+  <div class="card" id="schoolList"></div>
+  <h2>🏥 체험학습지 주변 병원</h2>
+  <div class="card" id="hospList"></div>
+</section>
+
+<!-- 일정 -->
+<section class="panel" id="p-sch">
+  <h2>🕘 당일 일정 (모둠별 자유 체험)</h2>
+  <div class="card" id="schedList"></div>
+  <h2>🚇 이동 경로</h2>
+  <div class="card">
+    <div class="tl"><div class="h">갈 때</div><div><div class="b">버스 → 범계역 → 지하철 → 대공원역</div><div class="d">10번(서해그랑블) / 5-2번(우성고) → 범계역(올림픽스포츠센터) 하차 → <b>3번 출입구</b> → <b>불암산행</b>(진접·서울역·사당 방면) → 5개역 11분 → 대공원역 → 2번 출구 방면 직진 → 정문</div></div></div>
+    <div class="tl"><div class="h">올 때</div><div><div class="b">대공원역 → 범계역 → 버스</div><div class="d">대공원역 2번 출입구 → <b>오이도행</b>(과천·안산 방면) → 범계역 <b>4-1번 출구</b> → <b>목련선경아파트</b> 정류장 → 10번 · 301번(서해그랑블) / 5-2번(우성고)</div></div></div>
+  </div>
+  <h2>🧑‍🤝‍🧑 인솔 업무 분장</h2>
+  <div class="card" id="dutyList"></div>
+  <h2>📌 당일 체크 <span class="dim">(이 기기에만 저장)</span></h2>
+  <div class="card" id="todo"></div>
+</section>
+
+<div class="note">고천중학교 1학년부 · 2026.10.8 · 2026 세부운영계획 기준<br>출결·모둠·보고는 인솔교사 전원이 실시간으로 함께 봅니다</div>
+</div>
+
+<nav>
+  <button class="on" data-p="dash"><span class="i">📊</span><span class="l">현황</span><span class="bdg" id="bdgDash"></span></button>
+  <button data-p="chk"><span class="i">✅</span><span class="l">출결</span></button>
+  <button data-p="grp"><span class="i">🧑‍🤝‍🧑</span><span class="l">모둠</span></button>
+  <button data-p="care"><span class="i">⚠️</span><span class="l">요양호</span></button>
+  <button data-p="call"><span class="i">📞</span><span class="l">연락</span></button>
+  <button data-p="sch"><span class="i">🕘</span><span class="l">일정</span></button>
+</nav>
+<div class="toast" id="toast"></div>
+
+<script type="module">
+import {firebaseConfig,TEACHER_EMAIL} from './firebase-config.js';
+
+const $=id=>document.getElementById(id);
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const telOf=t=>String(t||'').replace(/[^0-9]/g,'');
+const LS={g(k,d){try{const v=localStorage.getItem('gcT26.'+k);return v==null?d:JSON.parse(v)}catch(e){return d}},
+          s(k,v){try{localStorage.setItem('gcT26.'+k,JSON.stringify(v))}catch(e){}}};
+function toast(m){const t=$('toast');t.textContent=m;t.classList.add('on');clearTimeout(toast.h);toast.h=setTimeout(()=>t.classList.remove('on'),2000)}
+window.toast=toast;
+
+/* ---- 공개해도 되는 정보만 이 파일에 ---- */
+const GROUPS={1:8,2:8,3:8,4:7};
+const CPTS=[{id:'d1',n:'08:20 출발',s:'출발'},{id:'d2',n:'09:40 정문 집합',s:'09:40'},{id:'d3',n:'점심 무렵',s:'점심'},
+            {id:'d4',n:'15:10 지구별',s:'15:10'},{id:'d5',n:'16:40 귀가',s:'귀가'}];
+const OFFICE=[{n:'교무실',t:'031-458-8624'},{n:'행정실',t:'031-458-8626'},{n:'교장실',t:'031-458-8623'},{n:'서울랜드 대표',t:'02-509-6000'}];
+const HOSP=[
+ {n:'한림대학교 성심병원',a:'안양시 동안구 관평로170번길 22',t:'031-380-1500',m:'택시 22분'},
+ {n:'지샘병원',a:'군포시 군포로 591',t:'031-389-3119',m:'택시 26분'},
+ {n:'안양샘병원',a:'안양시 만안구 삼덕로 9',t:'031-467-9119',m:'택시 25분'}];
+const TIMES=[
+ {h:'08:20~09:40',b:'모둠별 대중교통 이동',d:'중간지점 교사 지도 (범계역·서울랜드역 부근)'},
+ {h:'09:40~10:00',b:'정문 매표소 앞 집합 · 인원 점검',d:'반별 출석 체크 후 단체 입장'},
+ {h:'10:00~15:00',b:'모둠별 자유 체험',d:'놀이기구 · 체험 전시 자유 관람, 점심은 모둠별 · 모둠장 보고 11:00/13:00/14:30'},
+ {h:'15:10~15:40',b:'지구별 앞 집합 · 출석 체크 · 단체사진',d:'이후 지하철역으로 이동'},
+ {h:'15:40~16:40',b:'대중교통 귀가 · 귀가 안전 지도',d:'모둠별 이동 · 중간지점 교사 지도 · 귀가 SMS 발송'}];
+const DUTY=[
+ {n:'윤미영',d:'인솔 지도 총괄 · A팀 안전지도 · 비상 시 학교 관리자 유선 연락 · 필요 시 응급처치 및 의무실 이송'},
+ {n:'담임 4인',d:'학급 학생 인솔 및 안전지도 · 비상 시 학년부장 보고 및 학생 상태 파악 · 응급처치 및 의무실 이송 · 학부모 연락'},
+ {n:'박경희',d:'B팀 안전지도 · 중간지점 승하차 지도 (범계역, 귀가 시)'},
+ {n:'김기정',d:'A팀 안전지도 · 중간지점 승하차 지도 (서울랜드역, 출발·귀가) · 응급 시 병원 동행'},
+ {n:'이경희',d:'B팀 안전지도 · 중간지점 승하차 지도 (범계역, 출발 시) · 응급 시 병원 동행'}];
+const TODO=['학급 비상연락망 1부 소지','학생들 모둠 등록 완료 확인(모둠 탭)','학생 안전디딤돌 앱 설치 확인','교통카드 잔액 확인 안내','모둠 2인 이상 구성 확인','상비약 · 응급키트 지참','귀가 알림 SMS 발송'];
+
+/* ---- 상태 (명단·건강정보는 로그인 후 서버에서) ---- */
+let R=null, ATT={}, MEM=[], REP=[], db=null, F=null, A=null, auth=null, unsubs=[], firstRep=true;
+let myC=LS.g('cls',1), myCp=LS.g('cpt','d2'), gC=LS.g('gcls',1);
+
+document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>{
+  document.querySelectorAll('nav button').forEach(x=>x.classList.remove('on'));
+  document.querySelectorAll('.panel').forEach(x=>x.classList.remove('on'));
+  b.classList.add('on');$('p-'+b.dataset.p).classList.add('on');window.scrollTo({top:0,behavior:'smooth'});
+});
+
+const participants=C=>C.names.map((n,i)=>({no:i+1,n})).filter(x=>C.absent.indexOf(x.no)<0);
+const isCare=(c,no)=>R&&(R.care||[]).some(x=>x.c===c&&x.no===no);
+const attOf=(c,cp)=>(ATT[c+'-'+cp]&&ATT[c+'-'+cp].c)||{};
+const hhmm=ts=>{if(!ts||!ts.toDate)return '··:··';const d=ts.toDate();return ('0'+d.getHours()).slice(-2)+':'+('0'+d.getMinutes()).slice(-2)};
+const isToday=ts=>{if(!ts||!ts.toDate)return true;const d=ts.toDate(),n=new Date();return d.toDateString()===n.toDateString()};
+
+/* ---- 렌더 ---- */
+function needRoster(){return '<div class="upl"><b>📂 명단 파일을 한 번만 올려주세요</b><div class="muted" style="margin-top:5px">Claude가 따로 드린 <b>roster-2026.json</b> 파일입니다. 한 분이 올리면 모든 선생님 화면에 바로 나타나요.</div><input type="file" accept=".json,application/json" onchange="upRoster(this)"></div>'}
+function renderDash(){
+  if(!R){$('dashTbl').innerHTML='<tr><td>'+needRoster()+'</td></tr>';$('regStat').innerHTML='';renderFeed();return}
+  let h='<tr><th></th>'+CPTS.map(p=>'<th>'+p.s+'</th>').join('')+'</tr>';
+  R.classes.forEach(C=>{
+    const P=participants(C);
+    h+='<tr><td>1-'+C.c+'</td>'+CPTS.map(p=>{const a=attOf(C.c,p.id),d=P.filter(x=>a[x.no]).length;
+      return '<td class="'+(d===0?'dim':d===P.length?'ok':'bad')+'">'+(d===0?'–':d+'/'+P.length)+'</td>'}).join('')+'</tr>';
+  });
+  $('dashTbl').innerHTML=h;
+  $('regStat').innerHTML=R.classes.map(C=>{
+    const P=participants(C).filter(x=>x.n.indexOf('(')<0),m=MEM.filter(x=>x.cls===C.c);
+    const gs=new Set(m.map(x=>x.grp)).size, ld=m.filter(x=>x.leader).length;
+    return '<div class="row"><div class="k">1-'+C.c+'</div><div class="v"><b class="'+(m.length>=P.length?'ok':'')+'">'+m.length+'</b> / '+P.length+'명 등록 <span class="dim">· 모둠 '+gs+'개 · 모둠장 '+ld+'명</span></div></div>'}).join('');
+  renderFeed();
+}
+function renderFeed(){
+  const list=REP.filter(r=>isToday(r.ts)).slice(0,40);
+  $('feed').innerHTML=list.length?list.map(r=>'<div class="feed'+(r.kind==='help'?' help':'')+'"><div class="tm">'+hhmm(r.ts)+'</div><div class="fx">'+
+    (r.kind==='help'?'<b>🆘 1-'+r.cls+' '+r.grp+'모둠 '+esc(r.name)+'</b>':'✅ <b>1-'+r.cls+' '+r.grp+'모둠</b> '+esc(r.name))+
+    '<div class="muted">'+esc(r.msg)+'</div></div></div>').join(''):'<div class="muted">아직 보고가 없어요. 학생 화면 「우리 모둠」 탭의 보고 버튼을 누르면 여기 뜹니다.</div>';
+  const ack=LS.g('ack',{}),open=REP.filter(r=>r.kind==='help'&&isToday(r.ts)&&!ack[r.id]);
+  $('banner').style.display=open.length?'block':'none';
+  $('bannerList').innerHTML=open.map(r=>hhmm(r.ts)+' · 1-'+r.cls+' '+r.grp+'모둠 <b>'+esc(r.name)+'</b>'+
+    (()=>{const m=MEM.find(x=>x.id===r.uid);return m&&telOf(m.phone)?' <a href="tel:'+telOf(m.phone)+'" style="color:#fff;font-weight:800">📞 '+esc(m.phone)+'</a>':''})()).join('<br>');
+  const b=$('bdgDash');b.style.display=open.length?'grid':'none';b.textContent=open.length;
+}
+window.ackHelp=()=>{const a=LS.g('ack',{});REP.filter(r=>r.kind==='help').forEach(r=>a[r.id]=1);LS.s('ack',a);renderFeed()};
+
+function renderChk(){
+  $('clsSeg').innerHTML=[1,2,3,4].map(c=>'<button data-c="'+c+'" class="'+(myC===c?'on':'')+'">1-'+c+'</button>').join('');
+  document.querySelectorAll('#clsSeg button').forEach(b=>b.onclick=()=>{myC=+b.dataset.c;LS.s('cls',myC);renderChk()});
+  $('cptSeg').innerHTML=CPTS.map(p=>'<button data-i="'+p.id+'" class="'+(myCp===p.id?'on':'')+'">'+p.n+'</button>').join('');
+  document.querySelectorAll('#cptSeg button').forEach(b=>b.onclick=()=>{myCp=b.dataset.i;LS.s('cpt',myCp);renderChk()});
+  if(!R){$('chkBody').innerHTML=needRoster();return}
+  const C=R.classes[myC-1],a=attOf(myC,myCp),P=participants(C),done=P.filter(x=>a[x.no]).length;
+  let g='';
+  C.names.forEach((n,i)=>{const no=i+1,ab=C.absent.indexOf(no)>=0,on=!ab&&a[no];
+    g+='<button class="st'+(ab?' absent':'')+(on?' on':'')+(isCare(C.c,no)?' care':'')+'" '+(ab?'disabled':'onclick="tAtt('+no+')"')+'><div class="no">'+no+'</div><div class="nm">'+esc(n)+'</div></button>'});
+  $('chkBody').innerHTML='<div class="stat"><div><div class="n '+(done===P.length?'ok':'bad')+'">'+done+' / '+P.length+'</div><div class="t">'+(done===P.length?'전원 확인 완료 ✓':(P.length-done)+'명 미확인')+'</div></div>'+
+    '<div class="btns"><button onclick="allOn()">전원 확인</button><button onclick="clearAll()">해제</button></div></div><div class="grid">'+g+'</div>'+
+    '<div class="card" style="margin-top:12px"><button onclick="copyReport()" style="width:100%;padding:12px;border-radius:11px;background:var(--blueS);color:var(--blue);font-weight:800;font-size:14.5px">📋 점검 결과 복사 (비상용 · 스쿨톡)</button><div class="muted" style="margin-top:6px">평소엔 필요 없어요. 다른 선생님 화면에 자동으로 보입니다.</div></div>';
+}
+window.tAtt=no=>{const k=myC+'-'+myCp,cur=!!attOf(myC,myCp)[no];
+  F.setDoc(F.doc(db,'att',k),{c:{[no]:!cur},ts:F.serverTimestamp()},{merge:true}).catch(onErr)};
+window.allOn=()=>{const C=R.classes[myC-1],c={};participants(C).forEach(x=>c[x.no]=true);
+  F.setDoc(F.doc(db,'att',myC+'-'+myCp),{c,ts:F.serverTimestamp()},{merge:true}).then(()=>toast('전원 확인 처리했습니다')).catch(onErr)};
+window.clearAll=()=>{if(!confirm('이 시점의 체크를 모두 지울까요? 다른 선생님 화면에서도 지워집니다.'))return;
+  F.setDoc(F.doc(db,'att',myC+'-'+myCp),{c:{},ts:F.serverTimestamp()}).then(()=>toast('모두 해제했습니다')).catch(onErr)};
+window.copyReport=()=>{const C=R.classes[myC-1],a=attOf(myC,myCp),P=participants(C),cp=CPTS.find(p=>p.id===myCp),miss=P.filter(x=>!a[x.no]);
+  const txt='[1-'+C.c+' '+C.t+'] '+cp.n+' 점검\n확인 '+(P.length-miss.length)+'/'+P.length+'명'+(miss.length?'\n미확인: '+miss.map(x=>x.no+'.'+x.n).join(', '):'\n전원 확인 완료 ✓');
+  if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(txt).then(()=>toast('복사했습니다'),()=>prompt('복사하세요',txt));else prompt('복사하세요',txt)};
+
+function renderGrp(){
+  $('gClsSeg').innerHTML=[1,2,3,4].map(c=>'<button data-c="'+c+'" class="'+(gC===c?'on':'')+'">1-'+c+'</button>').join('');
+  document.querySelectorAll('#gClsSeg button').forEach(b=>b.onclick=()=>{gC=+b.dataset.c;LS.s('gcls',gC);renderGrp()});
+  const m=MEM.filter(x=>x.cls===gC), nameCnt={};
+  m.forEach(x=>{const k=String(x.name).trim();nameCnt[k]=(nameCnt[k]||0)+1});
+  const n=Math.max(GROUPS[gC]||8,...m.map(x=>x.grp),0);
+  let h='';
+  for(let g=1;g<=n;g++){
+    const ms=m.filter(x=>x.grp===g).sort((a,b)=>(b.leader?1:0)-(a.leader?1:0));
+    const last=REP.find(r=>r.cls===gC&&r.grp===g&&isToday(r.ts));
+    h+='<div class="gcard"><div class="gh"><span class="gnum">'+g+'</span><span class="gt">'+g+'모둠 <span class="dim">· '+ms.length+'명</span></span>'+
+       '<span class="gs '+(last?(last.kind==='help'?'bad':'ok'):'dim')+'">'+(last?(last.kind==='help'?'🆘 ':'✅ ')+hhmm(last.ts)+' 보고':'보고 없음')+'</span></div>';
+    if(!ms.length)h+='<div class="muted" style="padding:6px 0">아직 등록한 학생이 없어요</div>';
+    ms.forEach(x=>{const t=telOf(x.phone);
+      h+='<div class="mrow"><div class="mn">'+esc(x.name)+(x.leader?'<span class="star">⭐모둠장</span>':'')+(nameCnt[String(x.name).trim()]>1?'<span class="dup">중복?</span>':'')+'</div>'+
+         (t?'<a class="tel g" href="tel:'+t+'">📞</a>':'<span class="dim" style="font-size:12px">번호 없음</span>')+
+         '<button class="x" title="등록 삭제" onclick="delMem(\''+x.id+'\')">✕</button></div>'});
+    h+='</div>';
+  }
+  if(R){
+    const C=R.classes[gC-1],reg=new Set(m.map(x=>String(x.name).trim()));
+    const un=participants(C).filter(x=>x.n.indexOf('(')<0&&!reg.has(x.n));
+    h+='<h2>📝 아직 등록 안 한 학생 <span class="dim">'+un.length+'명</span></h2><div class="card">'+
+       (un.length?'<div class="chips">'+un.map(x=>'<span>'+x.no+'. '+esc(x.n)+'</span>').join('')+'</div><div class="muted" style="margin-top:8px">이름을 명단과 다르게 쓴 경우에도 여기 남아요. 모둠 카드의 이름과 비교해 보세요.</div>':'<div class="ok" style="font-weight:800">🎉 전원 등록 완료!</div>')+'</div>';
+  }
+  $('grpBody').innerHTML=h;
+}
+window.delMem=id=>{if(confirm('이 등록을 지울까요? (중복·잘못 등록된 경우)'))F.deleteDoc(F.doc(db,'members',id)).then(()=>toast('지웠습니다')).catch(onErr)};
+
+function renderCare(){
+  $('careList').innerHTML=R?(R.care||[]).map(x=>'<div class="care"><div class="h">1-'+x.c+' '+x.no+'번 '+esc(x.n)+'</div><div class="c">'+esc(x.w)+'</div></div>').join(''):needRoster();
+}
+const tel=t=>'<a class="tel" href="tel:'+telOf(t)+'">📞 '+esc(t)+'</a>';
+function renderCalls(){
+  $('teacherList').innerHTML=R?(R.tch||[]).map(x=>'<div class="row"><div class="k">'+esc(x.n)+'</div><div class="v">'+esc(x.r)+'<br>'+tel(x.t)+'</div></div>').join(''):'<div class="muted">명단 파일을 올리면 표시됩니다</div>';
+  $('schoolList').innerHTML=OFFICE.concat(R?(R.admin||[]):[]).map(x=>'<div class="row"><div class="k">'+esc(x.n)+'</div><div class="v">'+tel(x.t)+'</div></div>').join('');
+  $('hospList').innerHTML=HOSP.map(x=>'<div class="row"><div class="k">'+x.m+'</div><div class="v"><b>'+x.n+'</b><br><span class="muted">'+x.a+'</span><br><a class="tel r" href="tel:'+telOf(x.t)+'">🚑 응급실 '+x.t+'</a></div></div>').join('')+
+    '<div class="row"><div class="k">최우선</div><div class="v"><a class="tel r" href="tel:119">🚑 119</a></div></div>';
+}
+function renderSched(){
+  $('schedList').innerHTML=TIMES.map(x=>'<div class="tl"><div class="h">'+x.h+'</div><div><div class="b">'+x.b+'</div><div class="d">'+x.d+'</div></div></div>').join('');
+  $('dutyList').innerHTML=DUTY.map(x=>'<div class="row"><div class="k">'+x.n+'</div><div class="v">'+x.d+'</div></div>').join('');
+  const td=LS.g('todo',{});
+  $('todo').innerHTML=TODO.map((t,i)=>'<button class="row" data-i="'+i+'" style="width:100%;text-align:left"><div class="k">'+(td[i]?'✅':'⬜')+'</div><div class="v">'+t+'</div></button>').join('');
+  document.querySelectorAll('#todo .row').forEach(b=>b.onclick=()=>{const s=LS.g('todo',{});s[b.dataset.i]=!s[b.dataset.i];LS.s('todo',s);renderSched()});
+}
+function renderAll(){renderDash();renderChk();renderGrp();renderCare();renderCalls()}
+renderSched();renderCalls();
+
+/* ---- 명단 업로드 (최초 1회) ---- */
+window.upRoster=inp=>{const f=inp.files&&inp.files[0];if(!f)return;const rd=new FileReader();
+  rd.onload=()=>{try{const j=JSON.parse(rd.result);if(!j.classes||j.classes.length!==4)throw 0;
+    F.setDoc(F.doc(db,'private','roster'),j).then(()=>toast('✅ 명단을 올렸습니다')).catch(onErr)}catch(e){toast('파일 형식이 맞지 않아요')}};
+  rd.readAsText(f)};
+
+/* ---- 연결 상태 ---- */
+function setSync(){const on=navigator.onLine,s=$('sync');s.className='sync'+(on?'':' off');
+  s.querySelector('span').textContent=on?'실시간 연결됨 · 다른 선생님 체크가 바로 보여요':'오프라인 · 체크는 저장해두고 연결되면 자동 반영돼요'}
+window.addEventListener('online',setSync);window.addEventListener('offline',setSync);
+function onErr(e){console.warn(e);toast(e&&e.code==='permission-denied'?'권한이 없어요. 다시 로그인해 주세요':'저장이 안 됐어요. 신호를 확인해 주세요')}
+
+function buzz(){try{navigator.vibrate&&navigator.vibrate([300,150,300,150,300])}catch(e){}
+  try{const ac=new (window.AudioContext||window.webkitAudioContext)(),o=ac.createOscillator(),g=ac.createGain();
+    o.frequency.value=880;o.connect(g);g.connect(ac.destination);g.gain.value=.15;o.start();setTimeout(()=>{o.frequency.value=660},180);setTimeout(()=>{o.stop();ac.close()},420)}catch(e){}}
+
+function start(){
+  stop();setSync();firstRep=true;
+  unsubs.push(F.onSnapshot(F.doc(db,'private','roster'),s=>{R=s.exists()?s.data():null;renderAll()},onErr));
+  unsubs.push(F.onSnapshot(F.collection(db,'att'),s=>{ATT={};s.forEach(d=>ATT[d.id]=d.data());renderDash();renderChk()},onErr));
+  unsubs.push(F.onSnapshot(F.collection(db,'members'),s=>{MEM=s.docs.map(d=>Object.assign({id:d.id},d.data()));renderDash();renderGrp();renderFeed()},onErr));
+  unsubs.push(F.onSnapshot(F.query(F.collection(db,'reports'),F.orderBy('ts','desc'),F.limit(150)),s=>{
+    const fresh=!firstRep&&s.docChanges().some(c=>c.type==='added'&&c.doc.data().kind==='help');
+    REP=s.docs.map(d=>Object.assign({id:d.id},d.data()));firstRep=false;
+    if(fresh){buzz();toast('🆘 도움 요청이 왔어요!')}
+    renderFeed();renderGrp()},onErr));
+}
+function stop(){unsubs.forEach(u=>{try{u()}catch(e){}});unsubs=[]}
+window.logout=()=>{if(confirm('로그아웃할까요?')&&A)A.signOut(auth)};
+
+/* ---- 부팅 ---- */
+if(!firebaseConfig||!firebaseConfig.apiKey){
+  $('loginMsg').textContent='⚙️ firebase-config.js 설정이 아직 비어 있어요.';$('loginBtn').disabled=true;
+}else{
+  try{
+    const B='https://www.gstatic.com/firebasejs/10.12.2/';
+    const [{initializeApp},Am,Fm]=await Promise.all([import(B+'firebase-app.js'),import(B+'firebase-auth.js'),import(B+'firebase-firestore.js')]);
+    A=Am;F=Fm;
+    const app=initializeApp(firebaseConfig,'teacher');
+    try{db=F.initializeFirestore(app,{localCache:F.persistentLocalCache({tabManager:F.persistentMultipleTabManager()})})}catch(e){db=F.getFirestore(app)}
+    auth=A.getAuth(app);
+    A.onAuthStateChanged(auth,u=>{
+      if(u&&u.email===TEACHER_EMAIL){$('login').style.display='none';start()}
+      else{$('login').style.display='grid';stop();R=null;MEM=[];REP=[];ATT={};renderAll()}
+    });
+    const go=async()=>{const pw=$('pw').value;if(!pw)return;$('loginBtn').disabled=true;$('loginMsg').textContent='확인 중…';
+      try{await A.signInWithEmailAndPassword(auth,TEACHER_EMAIL,pw);$('loginMsg').textContent='';$('pw').value=''}
+      catch(e){$('loginMsg').textContent=e.code==='auth/network-request-failed'?'인터넷 연결을 확인해 주세요':'비밀번호가 맞지 않아요'}
+      $('loginBtn').disabled=false};
+    $('loginBtn').onclick=go;$('pw').onkeydown=e=>{if(e.key==='Enter')go()};
+  }catch(e){console.warn(e);$('loginMsg').textContent='연결 모듈을 불러오지 못했어요. 인터넷을 확인해 주세요.'}
+}
+</script>
+</body>
+</html>
