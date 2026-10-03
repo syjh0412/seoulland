@@ -84,6 +84,17 @@ h2.sec:first-child{margin-top:4px}
 .tip b{color:var(--sun)}
 .mz{margin:0 14px 13px;background:var(--grapeS);border-radius:12px;padding:9px 11px;font-size:13px;color:var(--ink);font-weight:600}
 
+.gmbox{position:relative;height:min(62vh,520px);background:#EAF4FB;border:1.5px solid var(--line);border-radius:18px;overflow:hidden;box-shadow:var(--shadow);touch-action:none;user-select:none;-webkit-user-select:none}
+.gmlayer{position:absolute;left:0;top:0;transform-origin:0 0;will-change:transform}
+.gmlayer img{display:block;width:100%;height:100%;pointer-events:none}
+.gmload{position:absolute;inset:0;display:grid;place-items:center;color:var(--ink2);font-weight:700;font-size:14px}
+.gpin{position:absolute;width:0;height:0}
+.gpin span{position:absolute;left:0;top:0;transform:translate(-50%,-100%) scale(var(--inv,1));transform-origin:50% 100%;display:flex;flex-direction:column;align-items:center;pointer-events:none}
+.gpin b{display:grid;place-items:center;width:30px;height:30px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);color:#fff;font-size:14px;font-weight:800;border:2.5px solid #fff;box-shadow:0 3px 8px rgba(0,0,0,.35)}
+.gpin b i{transform:rotate(45deg);font-style:normal}
+.gpin em{font-style:normal;margin-top:4px;background:rgba(255,255,255,.95);color:#23304A;font-size:11.5px;font-weight:800;padding:2px 7px;border-radius:99px;white-space:nowrap;box-shadow:0 1px 4px rgba(0,0,0,.25)}
+.gpin.hit b{animation:pinpop .5s ease 3}
+@keyframes pinpop{50%{transform:rotate(-45deg) scale(1.45)}}
 .mapbox{position:relative;background:var(--card);border:1.5px solid var(--line);border-radius:18px;overflow:hidden;box-shadow:var(--shadow);touch-action:none}
 #iso{display:block;width:100%;height:auto;background:linear-gradient(180deg,var(--skyS),var(--card))}
 .mapctl{position:absolute;right:9px;bottom:9px;display:flex;gap:6px}
@@ -91,7 +102,8 @@ h2.sec:first-child{margin-top:4px}
 .poi{display:flex;gap:11px;align-items:flex-start;background:var(--card);border:1.5px solid var(--line);border-radius:16px;padding:11px 13px;margin-bottom:9px;box-shadow:var(--shadow);width:100%;text-align:left}
 .poi.hit{border-color:var(--sky);border-width:2px}
 .pn{flex:none;width:27px;height:27px;border-radius:9px;color:#fff;font-weight:800;font-size:13px;display:grid;place-items:center}
-.poi .nm{font-weight:700;font-size:15px}
+.poi .nm{display:block;font-weight:700;font-size:15px}
+.poi .ds{display:block}
 .poi .ds{font-size:13px;color:var(--ink2);margin-top:1px}
 
 .pick{display:flex;flex-wrap:wrap;gap:6px}
@@ -207,16 +219,39 @@ nav button.on{color:var(--sky);background:var(--skyS)}
 
 <!-- 지도 -->
 <section class="panel" id="p-map">
-  <h2 class="sec">🗺️ 서울랜드 한눈에 보기</h2>
-  <div class="mapbox">
-    <svg id="iso" viewBox="0 0 640 430" xmlns="http://www.w3.org/2000/svg"></svg>
-    <div class="mapctl">
-      <button onclick="zoom(1.25)" aria-label="확대">＋</button>
-      <button onclick="zoom(.8)" aria-label="축소">－</button>
-      <button onclick="resetMap()" aria-label="처음으로">⟲</button>
-    </div>
+  <h2 class="sec">🗺️ 서울랜드 지도</h2>
+  <div class="seg" id="mapSeg">
+    <button class="on" data-m="gm">📄 공식 가이드맵</button>
+    <button data-m="iso">🧊 한눈에 보기</button>
   </div>
-  <div class="muted" style="margin:8px 2px 16px">손가락으로 밀면 움직이고, 두 손가락으로 크기를 바꿀 수 있어요. 아래 장소를 누르면 지도에서 반짝여요.</div>
+  <div id="gmWrap">
+    <div class="gmbox" id="gmBox">
+      <div class="gmlayer" id="gmLayer">
+        <img id="gmImg" alt="서울랜드 공식 가이드맵" draggable="false">
+        <div id="gmPins"></div>
+      </div>
+      <div class="gmload" id="gmLoad">지도 불러오는 중…</div>
+      <div class="mapctl">
+        <button onclick="gmZoom(1.4)" aria-label="확대">＋</button>
+        <button onclick="gmZoom(1/1.4)" aria-label="축소">－</button>
+        <button onclick="gmReset()" aria-label="처음으로">⟲</button>
+      </div>
+    </div>
+    <div class="muted" style="margin:8px 2px 0">두 손가락으로 크게 보고, 손가락으로 밀어서 움직여요. 숫자 핀은 우리 학교가 표시한 곳이에요. 오른쪽으로 밀면 <b>놀이기구 목록과 키 제한</b>도 있어요.</div>
+    <a class="bigbtn g" href="media/seoulland-guidemap.pdf" download="서울랜드_가이드맵.pdf" style="display:block;text-align:center;text-decoration:none;margin-top:10px">📥 공식 가이드맵 PDF 내려받기 (3MB)</a>
+    <div class="muted" style="margin:6px 2px 16px;font-size:12px">지도 출처: 서울랜드 가이드맵</div>
+  </div>
+  <div id="isoWrap" style="display:none">
+    <div class="mapbox">
+      <svg id="iso" viewBox="0 0 640 430" xmlns="http://www.w3.org/2000/svg"></svg>
+      <div class="mapctl">
+        <button onclick="zoom(1.25)" aria-label="확대">＋</button>
+        <button onclick="zoom(.8)" aria-label="축소">－</button>
+        <button onclick="resetMap()" aria-label="처음으로">⟲</button>
+      </div>
+    </div>
+    <div class="muted" style="margin:8px 2px 16px">구역 위치를 쉽게 보여주는 입체 그림이에요. 정확한 길은 공식 가이드맵을 보세요.</div>
+  </div>
   <h2 class="sec">📍 꼭 알아야 할 곳</h2>
   <div id="poiList"></div>
   <h2 class="sec">🎡 다섯 개의 나라</h2>
@@ -474,12 +509,12 @@ var ZDEF=[
 var ZONES=ZDEF.map(function(z){var p=uv(z.u,z.v,z.w,z.d);z.x=p.x;z.y=p.y;return z});
 var GROUND=[[-1.0,-1.4],[-0.4,-4.4],[2.5,-5.5],[6,-4.6],[9,-3.4],[11.3,-1.2],[11.5,2.0],[10.8,4.0],[6,4.4],[2.5,4.2],[-0.5,3.0],[-1.1,0.6]];
 var POI=[
- {k:1,n:'정문 · 매표소',d:'9:40 아침 집합. 코끼리열차 탑승장 옆',c:'#3FA34D'},
- {k:2,n:'세계의 광장',d:'정문 바로 안쪽 · 종합안내실 · ATM · 물품보관소 · 화장실',c:'#8A7A5E'},
- {k:3,n:'지구별',d:'15:10 최종 집합! 커다란 공 모양 · 특별 전시장',c:'#C79A00'},
- {k:4,n:'4D · 5D 체험관',d:'디지털 기술 체험 · 미래의 나라 안쪽',c:'#2E9BD6'},
- {k:5,n:'의무실',d:'삼천리동산 서쪽 끝 · 후문 옆',c:'#E8543F'},
- {k:6,n:'동문 (나가면 안 돼요!)',d:'반대편 출구. 대공원역과 멀어져요',c:'#6B7385'}
+ {k:1,n:'정문 · 매표소',d:'9:40 아침 집합. 코끼리열차 탑승장 옆',c:'#3FA34D',gx:.362,gy:.624,gl:'정문 9:40'},
+ {k:2,n:'세계의 광장',d:'정문 바로 안쪽 · 종합안내실 · ATM · 물품보관소 · 화장실',c:'#8A7A5E',gx:.39,gy:.548,gl:'종합안내실'},
+ {k:3,n:'지구별',d:'15:10 최종 집합! 커다란 공 모양 · 특별 전시장',c:'#C79A00',gx:.434,gy:.461,gl:'지구별 15:10'},
+ {k:4,n:'4D · 5D 체험관',d:'디지털 기술 체험 · 미래의 나라 안쪽',c:'#2E9BD6',gx:.287,gy:.26,gl:'4D 깜짝모험관'},
+ {k:5,n:'의무실',d:'삼천리동산 서쪽 끝 · 후문 옆',c:'#E8543F',gx:.165,gy:.464,gl:'의무실'},
+ {k:6,n:'동문 (나가면 안 돼요!)',d:'반대편 출구. 대공원역과 멀어져요',c:'#6B7385',gx:.541,gy:.048,gl:'동문 ✕'}
 ];
 var LANDS=[
  {n:'미래의 나라',e:'🚀',c:'#A78BDC',d:'북서쪽. 가장 크고 스릴 있는 구역',r:'블랙홀2000 · 은하열차888 · 샷드롭 · 엑스플라이어 · 4D깜짝모험관 · 타임머신5D360'},
@@ -514,6 +549,7 @@ document.querySelectorAll('nav button').forEach(function(b){
     document.querySelectorAll('nav button').forEach(function(x){x.classList.remove('on')});
     document.querySelectorAll('.panel').forEach(function(x){x.classList.remove('on')});
     b.classList.add('on'); document.getElementById('p-'+b.dataset.p).classList.add('on');
+    if(b.dataset.p==='map')setTimeout(function(){gmInit();if(GM.ready)gmSetup()},30);
     window.scrollTo({top:0,behavior:'smooth'});
   };
 });
@@ -619,10 +655,60 @@ function renderPOI(){
   var el=document.getElementById('poiList');el.innerHTML=h;
   el.querySelectorAll('.poi').forEach(function(b){b.onclick=function(){
     el.querySelectorAll('.poi').forEach(function(x){x.classList.remove('hit')});b.classList.add('hit');
+    if(mapMode==='gm'){gmFocus(+b.dataset.k);document.getElementById('gmBox').scrollIntoView({behavior:'smooth',block:'center'});return}
     var c=document.querySelector('#iso .kd[data-k="'+b.dataset.k+'"]');
     if(c){c.setAttribute('fill','#FFE066');c.setAttribute('r','18');setTimeout(function(){c.setAttribute('fill','#fff');c.setAttribute('r','15')},1100)}
     document.querySelector('.mapbox').scrollIntoView({behavior:'smooth',block:'center'})}});
 }
+/* ===== 공식 가이드맵 뷰어 ===== */
+var mapMode='gm', GM={w:2441,h:1732,s:1,min:1,tx:0,ty:0,ready:false,base:1};
+function gmBoxSize(){var b=document.getElementById('gmBox');return {w:b.clientWidth,h:b.clientHeight}}
+function gmApply(){
+  var L=document.getElementById('gmLayer'),B=gmBoxSize(),sw=GM.w*GM.base*GM.s,sh=GM.h*GM.base*GM.s;
+  GM.tx=Math.min(0,Math.max(B.w-sw,GM.tx));GM.ty=sh<=B.h?(B.h-sh)/2:Math.min(0,Math.max(B.h-sh,GM.ty));
+  L.style.transform='translate('+GM.tx+'px,'+GM.ty+'px) scale('+GM.s+')';
+  L.style.setProperty('--inv',(1/GM.s).toFixed(3));
+}
+function gmSetup(){
+  var B=gmBoxSize(),L=document.getElementById('gmLayer');if(!B.w)return;
+  GM.base=B.h/GM.h; L.style.width=(GM.w*GM.base)+'px'; L.style.height=(GM.h*GM.base)+'px';
+  GM.min=Math.min(1,B.w/(GM.w*GM.base)); gmReset();
+}
+function gmReset(){var B=gmBoxSize();GM.s=1;GM.tx=B.w/2-GM.w*GM.base*.38;GM.ty=0;gmApply()}
+function gmZoomAt(f,cx,cy){var ns=Math.max(GM.min,Math.min(4,GM.s*f));f=ns/GM.s;GM.tx=cx-(cx-GM.tx)*f;GM.ty=cy-(cy-GM.ty)*f;GM.s=ns;gmApply()}
+function gmZoom(f){var B=gmBoxSize();gmZoomAt(f,B.w/2,B.h/2)}
+function gmFocus(k){
+  var p=POI.filter(function(x){return x.k===k})[0];if(!p||!GM.ready)return;
+  var B=gmBoxSize();GM.s=2;GM.tx=B.w/2-p.gx*GM.w*GM.base*GM.s;GM.ty=B.h/2-p.gy*GM.h*GM.base*GM.s;gmApply();
+  document.querySelectorAll('.gpin').forEach(function(x){x.classList.toggle('hit',+x.dataset.k===k)});
+}
+function gmInit(){
+  if(GM.ready)return;
+  var img=document.getElementById('gmImg');
+  img.onload=function(){GM.ready=true;document.getElementById('gmLoad').style.display='none';gmSetup()};
+  img.src='media/guidemap.jpg';
+  document.getElementById('gmPins').innerHTML=POI.map(function(p){
+    return '<div class="gpin" data-k="'+p.k+'" style="left:'+(p.gx*100)+'%;top:'+(p.gy*100)+'%"><span><b style="background:'+p.c+'"><i>'+p.k+'</i></b><em>'+p.gl+'</em></span></div>'}).join('');
+  var box=document.getElementById('gmBox'),pts={},last=null,lastTap=0;
+  function rel(e){var r=box.getBoundingClientRect();return {x:e.clientX-r.left,y:e.clientY-r.top}}
+  box.addEventListener('pointerdown',function(e){box.setPointerCapture(e.pointerId);pts[e.pointerId]=rel(e);last=null;
+    var now=Date.now();if(Object.keys(pts).length===1&&now-lastTap<300){var q=rel(e);gmZoomAt(GM.s<2?2:1/GM.s,q.x,q.y)}lastTap=now});
+  box.addEventListener('pointermove',function(e){if(!pts[e.pointerId])return;var p=rel(e),ids=Object.keys(pts);
+    if(ids.length===1){GM.tx+=p.x-pts[e.pointerId].x;GM.ty+=p.y-pts[e.pointerId].y;pts[e.pointerId]=p;gmApply()}
+    else if(ids.length>=2){pts[e.pointerId]=p;var a=pts[ids[0]],b=pts[ids[1]],d=Math.hypot(a.x-b.x,a.y-b.y),m={x:(a.x+b.x)/2,y:(a.y+b.y)/2};
+      if(last){GM.tx+=m.x-last.m.x;GM.ty+=m.y-last.m.y;gmZoomAt(d/last.d,m.x,m.y)}last={d:d,m:m}}
+    e.preventDefault()});
+  function up(e){delete pts[e.pointerId];last=null}
+  box.addEventListener('pointerup',up);box.addEventListener('pointercancel',up);
+  box.addEventListener('wheel',function(e){e.preventDefault();var q=rel(e);gmZoomAt(e.deltaY<0?1.15:1/1.15,q.x,q.y)},{passive:false});
+  window.addEventListener('resize',function(){if(GM.ready)gmSetup()});
+}
+document.querySelectorAll('#mapSeg button').forEach(function(b){b.onclick=function(){
+  document.querySelectorAll('#mapSeg button').forEach(function(x){x.classList.remove('on')});b.classList.add('on');
+  mapMode=b.dataset.m;document.getElementById('gmWrap').style.display=mapMode==='gm'?'block':'none';
+  document.getElementById('isoWrap').style.display=mapMode==='iso'?'block':'none';
+  if(mapMode==='gm'&&GM.ready)gmSetup();
+}});
 function renderLands(){
   document.getElementById('landList').innerHTML=LANDS.map(function(L){
     return '<div class="card" style="border-left:5px solid '+L.c+'"><div style="font-weight:800;font-size:15.5px">'+L.e+' '+L.n+'</div><div class="muted" style="margin-top:2px">'+L.d+'</div><div style="font-size:13.5px;margin-top:7px;line-height:1.7">'+L.r+'</div></div>'}).join('');
