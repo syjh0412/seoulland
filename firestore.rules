@@ -45,6 +45,34 @@ service cloud.firestore {
         && request.resource.data.ts == request.time;
     }
 
+    // 모둠 사진: 작은 사진(photos)은 같은 모둠 학생과 교사가 보고, 큰 사진(photofull)은 교사만 봄
+    function isMember() {
+      return signedIn() && exists(/databases/$(database)/documents/members/$(request.auth.uid));
+    }
+    match /photos/{id} {
+      allow get, list: if isTeacher()
+        || (isMember() && resource.data.cls == myDoc().cls && resource.data.grp == myDoc().grp);
+      allow create: if isMember()
+        && request.resource.data.keys().hasOnly(['cls','grp','tag','cap','by','uid','th','ts'])
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.cls == myDoc().cls && request.resource.data.grp == myDoc().grp
+        && request.resource.data.tag in ['출발','점심','도착','미션','자유']
+        && request.resource.data.cap is string && request.resource.data.cap.size() <= 40
+        && request.resource.data.by is string && request.resource.data.by.size() <= 20
+        && request.resource.data.th is string && request.resource.data.th.size() <= 90000
+        && request.resource.data.ts == request.time;
+      allow delete: if isTeacher() || (signedIn() && resource.data.uid == request.auth.uid);
+    }
+    match /photofull/{id} {
+      allow get, list: if isTeacher();
+      allow create: if isMember()
+        && request.resource.data.keys().hasOnly(['cls','grp','uid','img','ts'])
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.img is string && request.resource.data.img.size() <= 900000
+        && request.resource.data.ts == request.time;
+      allow delete: if isTeacher() || (signedIn() && resource.data.uid == request.auth.uid);
+    }
+
     // 출결·명단·건강정보: 교사만
     match /att/{id}     { allow read, write: if isTeacher(); }
     match /private/{id} { allow read, write: if isTeacher(); }

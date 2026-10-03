@@ -116,6 +116,7 @@ h2.sec:first-child{margin-top:4px}
 .ms.done{background:var(--grassS);border-color:var(--grass)}
 .ck{flex:none;width:26px;height:26px;border-radius:9px;border:2.5px solid var(--line);display:grid;place-items:center;font-size:15px;color:#fff;margin-top:1px}
 .ms.done .ck{background:var(--grass);border-color:var(--grass)}
+.ms .mt,.ms .md,.ms .pin{display:block}
 .ms .mt{font-weight:700;font-size:15px}
 .ms.done .mt{text-decoration:line-through;opacity:.62}
 .ms .md{font-size:13px;color:var(--ink2);margin-top:2px}
@@ -166,6 +167,12 @@ nav button.on{color:var(--sky);background:var(--skyS)}
 .mate .mn small{font-weight:600;color:var(--ink2);font-size:12px;margin-left:4px}
 .mate .star{display:inline-block;background:var(--sunS);color:var(--sun);font-size:11px;font-weight:800;padding:2px 7px;border-radius:99px;margin-left:5px}
 .mtel{flex:none;padding:8px 12px;border-radius:11px;background:var(--grass);color:#fff;font-weight:800;font-size:13.5px;text-decoration:none}
+.phgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:10px}
+.phgrid .ph{position:relative;aspect-ratio:1;border-radius:11px;overflow:hidden;background:var(--line)}
+.phgrid .ph img{width:100%;height:100%;object-fit:cover;display:block}
+.phgrid .ph .tg{position:absolute;left:4px;top:4px;background:rgba(0,0,0,.6);color:#fff;font-size:10.5px;font-weight:800;padding:1px 6px;border-radius:99px}
+.phgrid .ph .dl{position:absolute;right:3px;top:3px;width:24px;height:24px;border-radius:50%;background:rgba(0,0,0,.55);color:#fff;font-size:13px;line-height:24px;text-align:center}
+.phgrid .ph.pend{opacity:.55}
 .toast{position:fixed;left:50%;transform:translateX(-50%);bottom:88px;background:#1B2434;color:#fff;padding:11px 18px;border-radius:12px;font-size:14px;font-weight:600;z-index:80;opacity:0;pointer-events:none;transition:.25s;max-width:88%}
 .toast.on{opacity:1}
 </style>
@@ -293,6 +300,17 @@ nav button.on{color:var(--sky);background:var(--skyS)}
     <div class="muted" style="margin-top:9px">모둠장 보고 시각: <b>11:00 · 13:00 · 14:30</b> · 급하면 전화가 먼저예요!</div>
   </div>
 
+  <h2 class="sec">📸 모둠 사진 보내기</h2>
+  <div class="card">
+    <div class="muted" style="margin-bottom:8px">어떤 사진인지 고르고 보내요. 담임 선생님 화면에 바로 떠요.</div>
+    <div class="pick" id="phTag"></div>
+    <input class="field" id="phCap" maxlength="40" placeholder="한 줄 설명 (안 써도 돼요)">
+    <input type="file" id="phFile" accept="image/*" multiple style="display:none">
+    <button class="bigbtn g" id="phBtn" style="margin-top:10px">📷 사진 찍기 · 고르기</button>
+    <div id="phStat" class="muted" style="margin-top:8px"></div>
+    <div class="phgrid" id="phGrid"></div>
+  </div>
+
 <h2 class="sec">🎯 우리 모둠 미션</h2>
   <div class="card">
     <div style="display:flex;justify-content:space-between;align-items:baseline">
@@ -302,8 +320,8 @@ nav button.on{color:var(--sky);background:var(--skyS)}
   </div>
   <div id="misList"></div>
   <div class="card" style="background:var(--grapeS);border-color:var(--grape)">
-    <b style="font-size:14px">📸 사진은 어디에 내나요?</b>
-    <div class="muted" style="margin-top:4px;color:var(--ink)">찍은 사진(모둠인증샷)은 <b>스쿨톡으로 담임 선생님께</b> 보내요. 이 페이지에선 "보냈는지"만 체크!</div>
+    <b style="font-size:14px">📸 사진은 어떻게 내나요?</b>
+    <div class="muted" style="margin-top:4px;color:var(--ink)">위의 <b>「📸 모둠 사진 보내기」</b>로 보내면 담임 선생님께 바로 가요. 인증샷 ①②③을 보내면 미션도 자동으로 체크돼요! (모둠당 40장까지)</div>
   </div>
 </section>
 
@@ -746,7 +764,7 @@ document.getElementById('regBtn').onclick=function(){
   if(!window.FB){toast('아직 연결 중이에요. 잠시 후 다시 눌러 주세요');return}
   var d={cls:myClass,grp:myGroup,name:name,phone:phone,leader:leader};
   var btn=this;btn.disabled=true;btn.textContent='등록하는 중…';
-  FB.register(d).then(function(){ME=d;S.s('me',d);renderReg();startWatch();toast('🎉 등록했어요!')})
+  FB.register(d).then(function(){ME=d;S.s('me',d);renderReg();startWatch();startPhotoWatch();renderPhotos();toast('🎉 등록했어요!')})
    .catch(function(e){console.warn(e);toast('등록이 안 됐어요. 신호를 확인하고 다시 눌러 주세요')})
    .then(function(){btn.disabled=false;btn.textContent='📝 등록하기'});
 };
@@ -768,6 +786,62 @@ function renderMates(){
   });
   el.innerHTML=h+'<div class="muted" style="margin-top:8px">👥 '+list.length+'명 등록됨</div></div>';
 }
+/* 모둠 사진 */
+var PH_TAGS=[['출발','① 출발'],['점심','② 점심'],['도착','③ 도착'],['미션','🎯 미션'],['자유','😊 자유']];
+var PH_MAX=40, phTag=S.g('phTag','출발'), PHOTOS=[], phUnwatch=null, phBusy=false;
+var TAG2MIS={'출발':0,'점심':1,'도착':5};
+function renderPhTag(){
+  var el=document.getElementById('phTag');
+  el.innerHTML=PH_TAGS.map(function(t){return '<button data-t="'+t[0]+'" class="'+(phTag===t[0]?'on':'')+'">'+t[1]+'</button>'}).join('');
+  el.querySelectorAll('button').forEach(function(b){b.onclick=function(){phTag=b.dataset.t;S.s('phTag',phTag);renderPhTag()}});
+}
+function renderPhotos(){
+  var st=document.getElementById('phStat'),g=document.getElementById('phGrid');
+  if(!ME){st.textContent='먼저 위에서 우리 모둠을 등록해야 보낼 수 있어요.';g.innerHTML='';return}
+  if(!window.FB){st.textContent='연결 준비 중…';return}
+  var have={};PHOTOS.forEach(function(p){have[p.tag]=1});
+  st.innerHTML='우리 모둠 사진 <b>'+PHOTOS.length+'</b> / '+PH_MAX+'장 · 인증샷 '+['출발','점심','도착'].map(function(t,i){return (have[t]?'✅':'⬜')+'①②③'[i]}).join(' ');
+  g.innerHTML=PHOTOS.slice().sort(function(a,b){return (b.t||0)-(a.t||0)}).map(function(p){
+    var mine=p.uid===FB.uid;
+    return '<div class="ph'+(p.pend?' pend':'')+'"><img src="'+p.th+'" alt=""><span class="tg">'+esc(p.tag)+'</span>'+(mine?'<span class="dl" onclick="delPhoto(\''+p.id+'\')">✕</span>':'')+'</div>'}).join('');
+}
+function startPhotoWatch(){
+  if(!window.FB||!ME)return;
+  if(phUnwatch)phUnwatch();
+  phUnwatch=FB.watchPhotos(ME.cls,ME.grp,function(list){PHOTOS=list;renderPhotos()},function(e){console.warn(e)});
+}
+function shrink(file,max,q){return new Promise(function(res,rej){
+  var url=URL.createObjectURL(file),im=new Image();
+  im.onload=function(){var r=Math.min(1,max/Math.max(im.naturalWidth,im.naturalHeight)),w=Math.max(1,Math.round(im.naturalWidth*r)),hh=Math.max(1,Math.round(im.naturalHeight*r));
+    var c=document.createElement('canvas');c.width=w;c.height=hh;c.getContext('2d').drawImage(im,0,0,w,hh);URL.revokeObjectURL(url);res(c.toDataURL('image/jpeg',q))};
+  im.onerror=function(){URL.revokeObjectURL(url);rej(new Error('사진을 읽지 못했어요'))};im.src=url})}
+document.getElementById('phBtn').onclick=function(){
+  if(!ME){toast('먼저 위에서 우리 모둠을 등록해 주세요');return}
+  if(!window.FB){toast('아직 연결 중이에요. 잠시 후 다시 눌러 주세요');return}
+  if(phBusy){toast('보내는 중이에요. 잠깐만요!');return}
+  if(PHOTOS.length>=PH_MAX){toast('우리 모둠은 '+PH_MAX+'장을 다 보냈어요');return}
+  document.getElementById('phFile').click();
+};
+document.getElementById('phFile').onchange=function(){
+  var files=[].slice.call(this.files||[]);this.value='';if(!files.length)return;
+  var room=PH_MAX-PHOTOS.length;if(files.length>room){toast('남은 '+room+'장만 보낼게요');files=files.slice(0,room)}
+  var cap=document.getElementById('phCap').value.trim(),tag=phTag,done=0,fail=0;phBusy=true;
+  var st=document.getElementById('phStat');
+  (function next(i){
+    if(i>=files.length){phBusy=false;document.getElementById('phCap').value='';renderPhotos();
+      toast(fail?(done+'장 보냄 · '+fail+'장 실패. 신호를 확인하고 다시 보내 주세요'):('📸 '+done+'장 보냈어요! 선생님께 전달돼요'));
+      if(done&&TAG2MIS[tag]!=null){var s=S.g('mis',{});s[TAG2MIS[tag]]=true;S.s('mis',s);renderMis()}
+      return}
+    st.textContent='사진 줄이는 중… ('+(i+1)+'/'+files.length+')';
+    Promise.all([shrink(files[i],1280,.72),shrink(files[i],320,.55)]).then(function(r){
+      var full=r[0];if(full.length>850000)return shrink(files[i],1000,.6).then(function(f2){return [f2,r[1]]});return r})
+    .then(function(r){st.textContent='보내는 중… ('+(i+1)+'/'+files.length+') 신호가 약하면 조금 걸려요';
+      return FB.sendPhoto({tag:tag,cap:cap,by:ME.name,th:r[1],img:r[0]})})
+    .then(function(){done++;next(i+1)}).catch(function(e){console.warn(e);fail++;next(i+1)});
+  })(0);
+};
+function delPhoto(id){if(!confirm('이 사진을 지울까요?'))return;FB.delPhoto(id).then(function(){toast('지웠어요')}).catch(function(){toast('지우지 못했어요')})}
+
 function report(kind){
   if(!ME){toast('먼저 위에서 우리 모둠을 등록해 주세요');return}
   if(kind==='ok'&&!ME.leader){toast('전원 무사 보고는 모둠장이 보내요');return}
@@ -792,7 +866,7 @@ window.addEventListener('fbready',function(){
       if(!myClass){myClass=d.cls;S.s('class',myClass)} if(!myGroup){myGroup=d.grp;S.s('group',myGroup)}
       renderClassPick();renderGroupPick();}
     else if(ME){ME=null;S.s('me',null);MATES=[];S.s('mates',[])}
-    renderReg();renderMates();startWatch();
+    renderReg();renderMates();startWatch();startPhotoWatch();renderPhotos();
   });
 });
 function renderMis(){
@@ -820,7 +894,7 @@ function renderCalls(){
 
 renderClassPick();renderCD();renderTimeline();renderPack();
 renderWay('go');drawMap();renderPOI();renderLands();
-renderGroupPick();renderReg();renderMates();renderMis();renderCalls();
+renderGroupPick();renderReg();renderMates();renderPhTag();renderPhotos();renderMis();renderCalls();
 document.getElementById('foot').innerHTML='고천중학교 1학년 · 2026.10.8 현장체험학습<br>모둠 등록·보고는 선생님께 실시간 전달돼요 🌿';
 setInterval(function(){renderCD();renderTimeline()},60000);
 </script>
@@ -845,7 +919,18 @@ if(firebaseConfig&&firebaseConfig.apiKey){
       watchGroup:(c,g,cb,err)=>F.onSnapshot(
         F.query(F.collection(db,'members'),F.where('cls','==',c),F.where('grp','==',g)),
         s=>cb(s.docs.map(x=>{const v=x.data();return {id:x.id,name:v.name,phone:v.phone,leader:v.leader}})),err),
-      report:d=>F.addDoc(F.collection(db,'reports'),{cls:d.cls,grp:d.grp,name:d.name,kind:d.kind,msg:d.msg,uid,ts:F.serverTimestamp()})
+      report:d=>F.addDoc(F.collection(db,'reports'),{cls:d.cls,grp:d.grp,name:d.name,kind:d.kind,msg:d.msg,uid,ts:F.serverTimestamp()}),
+      watchPhotos:(c,g,cb,err)=>F.onSnapshot(
+        F.query(F.collection(db,'photos'),F.where('cls','==',c),F.where('grp','==',g)),{includeMetadataChanges:true},
+        s=>cb(s.docs.map(x=>{const v=x.data();return {id:x.id,tag:v.tag,cap:v.cap,by:v.by,uid:v.uid,th:v.th,t:v.ts&&v.ts.toMillis?v.ts.toMillis():Date.now(),pend:x.metadata.hasPendingWrites}})),err),
+      sendPhoto:async d=>{
+        const me=(await F.getDoc(mref)).data();
+        const ref=F.doc(F.collection(db,'photos')),b=F.writeBatch(db);
+        b.set(ref,{cls:me.cls,grp:me.grp,tag:d.tag,cap:d.cap,by:d.by,uid,th:d.th,ts:F.serverTimestamp()});
+        b.set(F.doc(db,'photofull',ref.id),{cls:me.cls,grp:me.grp,uid,img:d.img,ts:F.serverTimestamp()});
+        return b.commit();
+      },
+      delPhoto:id=>{const b=F.writeBatch(db);b.delete(F.doc(db,'photos',id));b.delete(F.doc(db,'photofull',id));return b.commit()}
     };
     window.dispatchEvent(new Event('fbready'));
   }catch(e){console.warn('실시간 연결 실패',e)}
