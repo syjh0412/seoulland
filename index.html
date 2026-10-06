@@ -122,6 +122,10 @@ h2.sec:first-child{margin-top:4px}
 .ms .md{font-size:13px;color:var(--ink2);margin-top:2px}
 .ms .pin{font-size:11px;font-weight:800;color:var(--grape);margin-top:3px}
 .ms .mb{flex:1;min-width:0;cursor:pointer}
+.ms.cmn{background:var(--skyS);border-color:var(--sky);border-left-width:6px}
+.ms.cmn .pin{color:var(--sky)}
+.ms.cmn .mph{background:var(--card);color:var(--sky)}
+.ms.cmn.done{background:var(--grassS);border-color:var(--grass);border-left-color:var(--sky)}
 .ms .ck{cursor:pointer}
 .ms .mph{flex:none;align-self:center;padding:8px 10px;border-radius:11px;background:var(--grapeS);color:var(--grape);font-weight:800;font-size:13px;white-space:nowrap}
 .ms.done .mph{background:var(--card)}
@@ -1179,7 +1183,7 @@ function renderMis(){
     '<br>📷 버튼으로 미션 사진을 보내면 <b>모둠 모두에게 완료</b>로 표시되고 담임 선생님께 모여요.</div>';
   L.forEach(function(m,i){var ps=misPhotos(m),ok=!!st[m.id]||ps.length>0;if(ok)done++;
     var th=ps.slice().sort(function(a,b){return (b.t||0)-(a.t||0)});
-    h+='<div class="ms '+(ok?'done':'')+'"><span class="ck" data-i="'+i+'">✓</span><span class="mb" data-i="'+i+'"><span class="mt">'+m.e+' '+esc(m.t)+'</span>'+(m.d?'<span class="md">'+esc(m.d)+'</span>':'')+'<span class="pin">📍 '+m.pin+(ps.length?' · 사진 '+ps.length+'장':'')+'</span>'+
+    h+='<div class="ms'+(m.tag?' cmn':'')+(ok?' done':'')+'"><span class="ck" data-i="'+i+'">✓</span><span class="mb" data-i="'+i+'"><span class="mt">'+m.e+' '+esc(m.t)+'</span>'+(m.d?'<span class="md">'+esc(m.d)+'</span>':'')+'<span class="pin">📍 '+m.pin+(ps.length?' · 사진 '+ps.length+'장':'')+'</span>'+
       (th.length?'<span class="mthumbs">'+th.slice(0,5).map(function(p){return '<img src="'+p.th+'" alt="">'}).join('')+(th.length>5?'<span class="more">+'+(th.length-5)+'</span>':'')+'</span>':'')+
       '</span><button class="mph" data-i="'+i+'">📷'+(ps.length?' 더':' 보내기')+'</button></div>'});
   document.getElementById('misList').innerHTML=h;
