@@ -416,7 +416,19 @@ nav button.on{color:var(--sky);background:var(--skyS)}
     <div class="phgrid" id="phGrid"></div>
   </div>
 
-<h2 class="sec">🕵️ 힘 탐정 사무소 · 현장 출동! <span style="font-size:13px;color:var(--ink2)">(탐정 1인 1건)</span></h2>
+  <h2 class="sec">#️⃣ 오늘의 해시태그 <span style="font-size:13px;color:var(--ink2)">(모두 1~3개)</span></h2>
+  <div class="card">
+    <div class="muted" style="margin-bottom:6px">오늘 하루를 <b>한 단어 해시태그</b>로! 띄어서 <b>3개까지</b> 쓸 수 있어요. 🔒 <b>내 해시태그를 먼저 남겨야</b> 친구들 것을 볼 수 있어요. 다시 쓰면 바뀌어요.</div>
+    <div class="crow"><input class="field" id="tagIn" maxlength="54" placeholder="#신난다 #꿀잼 (3개까지)" autocomplete="off"><button id="tagBtn">남기기</button></div>
+    <div class="qk" id="tagList"></div>
+    <button class="bigbtn" id="cloudBtn" style="margin-top:10px;background:var(--skyS);color:var(--sky);display:none">☁️ 우리 반 해시태그 클라우드 보기</button>
+    <canvas id="cloudCv" style="width:100%;height:260px;display:none;margin-top:8px;border-radius:14px;background:var(--bg)"></canvas>
+  </div>
+</section>
+
+<!-- 힘 탐정 사무소 -->
+<section class="panel" id="p-detective">
+  <h2 class="sec">🕵️ 힘 탐정 사무소 · 현장 출동! <span style="font-size:13px;color:var(--ink2)">(탐정 1인 1건)</span></h2>
   <div class="card">
     <div class="muted" style="margin-bottom:8px">탐정 여러분, 오늘의 수사 현장은 <b>서울랜드</b>! 힘이 숨어 있는 장면을 찾아 <b>증거 사진</b>을 찍고, <b>힘의 방향을 화살표로 표시</b>해서 <b>소장님께 보고</b>하세요. 탐정 1명당 1건, 다시 보내면 새 보고로 바뀌어요.</div>
     <img src="media/detective-example.jpg?v=2" alt="사건 파일 예시: 물 위에 떠 있는 보트에 부력과 중력을 화살표로 표시한 그림" loading="lazy" style="width:100%;border-radius:12px;margin-bottom:10px;display:block;aspect-ratio:8/5;background:var(--line)">
@@ -427,15 +439,6 @@ nav button.on{color:var(--sky);background:var(--skyS)}
     <div id="sciStat" class="muted" style="margin-top:8px"></div>
     <button class="bigbtn" id="galBtn" style="margin-top:10px;background:var(--grapeS);color:var(--grape)">🗂️ 우리 반 탐정들의 사건 파일 보기</button>
     <div class="phgrid" id="galGrid"></div>
-  </div>
-
-  <h2 class="sec">#️⃣ 오늘의 해시태그 <span style="font-size:13px;color:var(--ink2)">(모두 1~3개)</span></h2>
-  <div class="card">
-    <div class="muted" style="margin-bottom:6px">오늘 하루를 <b>한 단어 해시태그</b>로! 띄어서 <b>3개까지</b> 쓸 수 있어요. 🔒 <b>내 해시태그를 먼저 남겨야</b> 친구들 것을 볼 수 있어요. 다시 쓰면 바뀌어요.</div>
-    <div class="crow"><input class="field" id="tagIn" maxlength="54" placeholder="#신난다 #꿀잼 (3개까지)" autocomplete="off"><button id="tagBtn">남기기</button></div>
-    <div class="qk" id="tagList"></div>
-    <button class="bigbtn" id="cloudBtn" style="margin-top:10px;background:var(--skyS);color:var(--sky);display:none">☁️ 우리 반 해시태그 클라우드 보기</button>
-    <canvas id="cloudCv" style="width:100%;height:260px;display:none;margin-top:8px;border-radius:14px;background:var(--bg)"></canvas>
   </div>
 </section>
 
@@ -571,6 +574,7 @@ nav button.on{color:var(--sky);background:var(--skyS)}
   <button data-p="map"><span class="i">🗺️</span><span class="l">지도</span></button>
   <button data-p="group"><span class="i">🧑‍🤝‍🧑</span><span class="l">우리 모둠</span><span class="ndot" id="chDot"></span></button>
   <button data-p="mission"><span class="i">🎯</span><span class="l">미션</span></button>
+  <button data-p="detective"><span class="i">🕵️</span><span class="l">탐정</span></button>
   <button data-p="safe"><span class="i">🆘</span><span class="l">안전</span></button>
 </nav>
 
