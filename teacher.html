@@ -132,6 +132,13 @@ nav button .l{font-size:9.5px}
 .pthumbs button{position:relative;aspect-ratio:1;border-radius:9px;overflow:hidden;background:var(--line);padding:0}
 .pthumbs img{width:100%;height:100%;object-fit:cover;display:block}
 .pthumbs .tg{position:absolute;left:3px;top:3px;background:rgba(0,0,0,.6);color:#fff;font-size:10px;font-weight:800;padding:0 5px;border-radius:99px}
+.plr{font-size:13px;margin:2px 0 6px;color:var(--ink2)}
+.plr b{color:var(--ink)}
+.plbtn{width:100%;padding:12px;border-radius:11px;background:var(--amberS);color:var(--amber);font-weight:800;font-size:14.5px;margin-bottom:10px}
+.plrow{border:1px solid var(--line);border-radius:12px;padding:8px;margin-bottom:8px;background:var(--card)}
+.plrow .t{font-weight:800;margin-bottom:5px}
+.plrow input{width:100%;padding:9px 10px;border:1.5px solid var(--line);border-radius:9px;background:var(--bg);color:var(--ink);font:inherit;margin-top:4px}
+.plrow .two{display:flex;gap:6px}
 .chv{position:fixed;inset:0;z-index:140;background:rgba(8,10,20,.6);display:none;align-items:flex-end;justify-content:center}
 .chv.on{display:flex}
 .chin{background:var(--card);width:100%;max-width:560px;height:82vh;border-radius:18px 18px 0 0;display:flex;flex-direction:column;padding:12px 12px calc(12px + env(safe-area-inset-bottom))}
@@ -206,6 +213,7 @@ nav button .l{font-size:9.5px}
 <!-- 모둠 -->
 <section class="panel" id="p-grp">
   <div class="seg" id="gClsSeg"></div>
+  <button class="plbtn" onclick="openPlan()">📍 모둠별 모이는 장소·시간 입력</button>
   <div id="grpBody"></div>
   <h2>🧹 체험학습이 끝나면</h2>
   <div class="card">
@@ -286,6 +294,11 @@ nav button .l{font-size:9.5px}
   <div class="chh"><span id="chTitle">대화</span><span class="sp"></span><button onclick="closeChat()">닫기 ✕</button></div>
   <div class="chlist" id="chList"></div>
   <div class="chsend"><input id="chIn" maxlength="200" placeholder="이 모둠에게 보낼 메시지" autocomplete="off"><button onclick="sendTChat()">보내기</button></div>
+</div></div>
+<div class="chv" id="plv"><div class="chin">
+  <div class="chh"><span id="plTitle">출발 계획</span><span class="sp"></span><button onclick="closePlan()">닫기 ✕</button></div>
+  <div class="chlist" id="plList" style="background:var(--card)"></div>
+  <div class="chsend"><button style="background:var(--green);flex:1;padding:13px" onclick="savePlan()">💾 저장해서 학생에게 보이기</button></div>
 </div></div>
 <div class="pv" id="pv"><div class="pvin">
   <div class="pvimg"><img id="pvImg" alt=""><div id="pvLoad" class="muted">큰 사진 불러오는 중…</div></div>
@@ -415,7 +428,7 @@ function renderGrp(){
     const last=REP.find(r=>r.cls===gC&&r.grp===g&&isToday(r.ts));
     h+='<div class="gcard"><div class="gh"><span class="gnum">'+g+'</span><span class="gt">'+g+'모둠 <span class="dim">· '+ms.length+'명</span></span>'+
        '<span class="gs '+(last?(last.kind==='help'?'bad':'ok'):'dim')+'">'+(last?(last.kind==='help'?'🆘 ':'✅ ')+hhmm(last.ts)+' 보고':'보고 없음')+'</span>'+
-       '<button class="chbtn" onclick="openChat('+g+')">💬 '+CH.filter(x=>x.cls===gC&&x.grp===g).length+'</button></div>';
+       '<button class="chbtn" onclick="openChat('+g+')">💬 '+CH.filter(x=>x.cls===gC&&x.grp===g).length+'</button></div>'+planLine(gC,g);
     if(!ms.length)h+='<div class="muted" style="padding:6px 0">아직 등록한 학생이 없어요</div>';
     ms.forEach(x=>{const t=telOf(x.phone);
       h+='<div class="mrow"><div class="mn">'+esc(x.name)+(x.leader?'<span class="star">⭐모둠장</span>':'')+(nameCnt[String(x.name).trim()]>1?'<span class="dup">중복?</span>':'')+'</div>'+
@@ -535,6 +548,36 @@ window.upRoster=inp=>{const f=inp.files&&inp.files[0];if(!f)return;const rd=new 
   rd.readAsText(f)};
 
 
+/* ---- 모둠별 모이는 장소·시간 (plans/{반-모둠}) ---- */
+let PLANS={};
+const planOf=(c,g)=>PLANS[c+'-'+g]||null;
+function planLine(c,g){const p=planOf(c,g);return p&&(p.place||p.time)?'<div class="plr">📍 <b>'+esc(p.time||'시간 미정')+'</b> · '+esc(p.place||'장소 미정')+(p.memo?' <span class="dim">· '+esc(p.memo)+'</span>':'')+'</div>':''}
+window.openPlan=()=>{
+  const n=Math.max(GROUPS[gC]||8,0);
+  $('plTitle').textContent='📍 1-'+gC+' 모이는 장소·시간';
+  let h='<div class="plrow" style="background:var(--amberS)"><div class="t">⚡ 전체 모둠 같은 값으로 채우기</div>'+
+    '<div class="two"><input id="plAllT" type="time" value="08:00"><input id="plAllP" placeholder="장소 (예: 범계역 3번 출구)"></div>'+
+    '<button style="margin-top:6px;padding:8px;width:100%;border-radius:9px;background:var(--card);color:var(--amber);font-weight:800" onclick="plFillAll()">1~'+n+'모둠에 모두 넣기</button></div>';
+  for(let g=1;g<=n;g++){const p=planOf(gC,g)||{};
+    h+='<div class="plrow"><div class="t">'+g+'모둠</div><div class="two"><input type="time" id="plT'+g+'" value="'+esc(p.time||'')+'"><input id="plP'+g+'" maxlength="60" placeholder="장소" value="'+esc(p.place||'')+'"></div>'+
+       '<input id="plM'+g+'" maxlength="120" placeholder="메모 (예: 모둠장이 먼저 와서 기다려요)" value="'+esc(p.memo||'')+'"></div>'}
+  $('plList').innerHTML=h;$('plv').classList.add('on');
+};
+window.closePlan=()=>$('plv').classList.remove('on');
+window.plFillAll=()=>{const n=GROUPS[gC]||8,t=$('plAllT').value,pl=$('plAllP').value;for(let g=1;g<=n;g++){$('plT'+g).value=t;$('plP'+g).value=pl}toast('모두 채웠어요. 모둠별로 고치고 저장하세요')};
+window.savePlan=async()=>{
+  const n=GROUPS[gC]||8;
+  try{
+    const b=F.writeBatch(db);
+    for(let g=1;g<=n;g++){
+      const time=$('plT'+g).value.trim(),place=$('plP'+g).value.trim(),memo=$('plM'+g).value.trim(),ref=F.doc(db,'plans',gC+'-'+g);
+      if(!time&&!place&&!memo)b.delete(ref);
+      else b.set(ref,{cls:gC,grp:g,time:time,place:place.slice(0,60),memo:memo.slice(0,120),ts:F.serverTimestamp()});
+    }
+    await b.commit();closePlan();toast('✅ 저장했어요. 학생 화면에 바로 나타나요');
+  }catch(e){onErr(e)}
+};
+
 /* ---- 모둠 채팅 (반별로 불러오고, 모둠 카드의 💬로 열어요) ---- */
 let CH=[], chUnsub=null, chOpen=0, chStarted=false;
 function watchChat(){
@@ -591,10 +634,11 @@ function start(){
     REP=s.docs.map(d=>Object.assign({id:d.id},d.data()));firstRep=false;
     if(fresh){buzz();toast('🆘 도움 요청이 왔어요!')}
     renderFeed();renderGrp()},onErr));
+  unsubs.push(F.onSnapshot(F.collection(db,'plans'),s=>{PLANS={};s.forEach(d=>PLANS[d.id]=d.data());renderGrp()},onErr));
   if($('p-pho').classList.contains('on')){phoTabStarted=true;watchPho()}
   if($('p-grp').classList.contains('on')){chStarted=true;watchChat()}
 }
-function stop(){unsubs.forEach(u=>{try{u()}catch(e){}});unsubs=[];if(phoUnsub){phoUnsub();phoUnsub=null}PHO=[];phoTabStarted=false;if(chUnsub){chUnsub();chUnsub=null}CH=[];chStarted=false;closeChat()}
+function stop(){unsubs.forEach(u=>{try{u()}catch(e){}});unsubs=[];if(phoUnsub){phoUnsub();phoUnsub=null}PHO=[];phoTabStarted=false;if(chUnsub){chUnsub();chUnsub=null}CH=[];chStarted=false;closeChat();PLANS={}}
 window.logout=()=>{if(confirm('로그아웃할까요?')&&A)A.signOut(auth)};
 
 /* ---- 부팅 ---- */

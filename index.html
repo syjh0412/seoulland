@@ -159,6 +159,10 @@ nav .ndot.on{display:block}
 .cm .ct{font-size:15px;line-height:1.4;word-break:break-word;white-space:pre-wrap}
 .cm .cx{font-size:10.5px;color:var(--ink2);text-align:right;margin-top:1px}
 .chat .empty{margin:auto;text-align:center;color:var(--ink2);font-size:13.5px;line-height:1.6}
+.plan{background:linear-gradient(135deg,var(--sunS),var(--skyS));border-color:var(--sun)}
+.plan .pt{font-weight:800;font-size:13px;color:var(--ink2)}
+.plan .pw{font-size:19px;font-weight:800;margin-top:3px;line-height:1.35}
+.plan .pm{font-size:14px;color:var(--ink2);margin-top:5px;line-height:1.5;white-space:pre-wrap}
 .qk{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
 .qk button{padding:7px 11px;border-radius:99px;background:var(--skyS);color:var(--sky);font-weight:800;font-size:13px;border:1.5px solid transparent}
 .crow{display:flex;gap:8px;margin-top:8px}
@@ -210,6 +214,7 @@ nav button.on{color:var(--sky);background:var(--skyS)}
 
 <!-- 홈 -->
 <section class="panel on" id="p-home">
+  <div class="card plan" id="homePlan" style="display:none"></div>
   <h2 class="sec">🗓️ 오늘 하루</h2>
   <div class="card" style="padding:12px 13px">
     <div class="muted" style="margin-bottom:8px">우리 반을 고르면 연락처가 맞게 설정돼요</div>
@@ -305,6 +310,9 @@ nav button.on{color:var(--sky);background:var(--skyS)}
     <button class="bigbtn g" id="regBtn" style="margin-top:10px">📝 등록하기</button>
     <div class="muted" style="margin-top:8px">등록하면 <b>우리 모둠 친구들</b>과 <b>담임 선생님</b>께 이름·번호가 보여요. 잘못 넣었으면 고쳐서 다시 누르면 돼요.</div>
   </div>
+
+  <h2 class="sec">📍 우리 모둠 출발 계획</h2>
+  <div id="planBox"></div>
 
   <h2 class="sec">📒 우리 모둠 친구들</h2>
   <div id="mates"></div>
@@ -790,7 +798,7 @@ document.getElementById('regBtn').onclick=function(){
   if(!window.FB){toast('아직 연결 중이에요. 잠시 후 다시 눌러 주세요');return}
   var d={cls:myClass,grp:myGroup,name:name,phone:phone,leader:leader};
   var btn=this;btn.disabled=true;btn.textContent='등록하는 중…';
-  FB.register(d).then(function(){ME=d;S.s('me',d);renderReg();startWatch();startPhotoWatch();renderPhotos();startChatWatch();renderChat();toast('🎉 등록했어요!')})
+  FB.register(d).then(function(){ME=d;S.s('me',d);renderReg();startWatch();startPhotoWatch();renderPhotos();startChatWatch();renderChat();startPlanWatch();renderPlan();toast('🎉 등록했어요!')})
    .catch(function(e){console.warn(e);toast('등록이 안 됐어요. 신호를 확인하고 다시 눌러 주세요')})
    .then(function(){btn.disabled=false;btn.textContent='📝 등록하기'});
 };
@@ -811,6 +819,22 @@ function renderMates(){
        (t&&!me?'<a class="mtel" href="tel:'+t+'">📞 전화</a>':'<span class="muted">'+(me?'':'번호 없음')+'</span>')+'</div>';
   });
   el.innerHTML=h+'<div class="muted" style="margin-top:8px">👥 '+list.length+'명 등록됨</div></div>';
+}
+/* 모둠 출발 계획 (선생님이 입력) */
+var PLAN=null, planUnwatch=null;
+function planHTML(){
+  return '<div class="pt">📍 우리 모둠 · 어디서 몇 시에 모일까요?</div><div class="pw">'+(PLAN.time?'⏰ '+esc(PLAN.time)+' ':'')+(PLAN.place?'· '+esc(PLAN.place):'')+'</div>'+(PLAN.memo?'<div class="pm">'+esc(PLAN.memo)+'</div>':'');
+}
+function renderPlan(){
+  var box=document.getElementById('planBox'),hp=document.getElementById('homePlan');
+  if(PLAN&&(PLAN.place||PLAN.time||PLAN.memo)){box.innerHTML='<div class="card plan">'+planHTML()+'</div>';hp.innerHTML=planHTML();hp.style.display='block';return}
+  hp.style.display='none';
+  box.innerHTML='<div class="card muted">'+(ME?'아직 선생님이 입력하지 않았어요. 입력하면 여기와 「홈」 맨 위에 나타나요!':'위에서 우리 모둠을 등록하면 모이는 장소와 시간이 여기 나타나요.')+'</div>';
+}
+function startPlanWatch(){
+  if(!window.FB||!ME)return;
+  if(planUnwatch)planUnwatch();
+  planUnwatch=FB.watchPlan(ME.cls,ME.grp,function(p){PLAN=p;renderPlan()},function(e){console.warn(e)});
 }
 /* 모둠 채팅 */
 var CHAT=[], chUnwatch=null, chLastSend=0, chSeen=S.g('chSeen',0);
@@ -933,8 +957,8 @@ window.addEventListener('fbready',function(){
     if(d){ME={cls:d.cls,grp:d.grp,name:d.name,phone:d.phone,leader:d.leader};S.s('me',ME);
       if(!myClass){myClass=d.cls;S.s('class',myClass)} if(!myGroup){myGroup=d.grp;S.s('group',myGroup)}
       renderClassPick();renderGroupPick();}
-    else if(ME){ME=null;S.s('me',null);MATES=[];S.s('mates',[]);CHAT=[]}
-    renderReg();renderMates();startWatch();startPhotoWatch();renderPhotos();startChatWatch();renderChat();
+    else if(ME){ME=null;S.s('me',null);MATES=[];S.s('mates',[]);CHAT=[];PLAN=null}
+    renderReg();renderMates();startWatch();startPhotoWatch();renderPhotos();startChatWatch();renderChat();startPlanWatch();renderPlan();
   });
 });
 function renderMis(){
@@ -962,7 +986,7 @@ function renderCalls(){
 
 renderClassPick();renderCD();renderTimeline();renderPack();
 renderWay('go');drawMap();renderPOI();renderLands();
-renderGroupPick();renderReg();renderMates();renderPhTag();renderPhotos();renderChat();renderMis();renderCalls();
+renderGroupPick();renderReg();renderMates();renderPhTag();renderPhotos();renderChat();renderPlan();renderMis();renderCalls();
 document.getElementById('foot').innerHTML='고천중학교 1학년 · 2026.10.8 현장체험학습<br>모둠 등록·보고는 선생님께 실시간 전달돼요 🌿';
 setInterval(function(){renderCD();renderTimeline()},60000);
 </script>
@@ -1005,6 +1029,7 @@ if(firebaseConfig&&firebaseConfig.apiKey){
         const me=(await F.getDoc(mref)).data();
         return F.addDoc(F.collection(db,'chat'),{cls:me.cls,grp:me.grp,name:me.name,text,uid,ts:F.serverTimestamp()});
       },
+      watchPlan:(c,g,cb,err)=>F.onSnapshot(F.doc(db,'plans',c+'-'+g),s=>cb(s.exists()?s.data():null),err),
       delPhoto:id=>{const b=F.writeBatch(db);b.delete(F.doc(db,'photos',id));b.delete(F.doc(db,'photofull',id));return b.commit()}
     };
     window.dispatchEvent(new Event('fbready'));
