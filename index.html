@@ -123,6 +123,11 @@ h2.sec:first-child{margin-top:4px}
 .ms .pin{font-size:11px;font-weight:800;color:var(--grape);margin-top:3px}
 .ms .mb{flex:1;min-width:0;cursor:pointer}
 .ms.cmn{background:var(--skyS);border-color:var(--sky);border-left-width:6px}
+.ms{cursor:pointer}
+.ms .mph{font-size:20px;padding:10px}
+.mgh{font-weight:800;font-size:15px;margin:14px 2px 8px;padding:8px 12px;border-radius:12px;background:var(--grapeS);color:var(--grape)}
+.mgh.cmn{background:var(--skyS);color:var(--sky);margin-top:4px}
+.mgh span{font-size:12px;font-weight:700;opacity:.8;margin-left:4px}
 .ms.cmn .pin{color:var(--sky)}
 .ms.cmn .mph{background:var(--card);color:var(--sky)}
 .ms.cmn.done{background:var(--grassS);border-color:var(--grass);border-left-color:var(--sky)}
@@ -383,7 +388,7 @@ nav button.on{color:var(--sky);background:var(--skyS)}
   <div id="misList"></div>
   <div class="card" style="background:var(--grapeS);border-color:var(--grape)">
     <b style="font-size:14px">📸 사진은 어떻게 내나요?</b>
-    <div class="muted" style="margin-top:4px;color:var(--ink)">미션마다 있는 <b>「📷 보내기」</b>를 누르면 그 미션 칸에 사진이 모이고, 모둠 모두에게 완료로 표시돼요. 미션과 상관없는 사진은 아래 <b>「📸 모둠 사진 보내기」</b>로 보내요. (모둠당 40장까지)</div>
+    <div class="muted" style="margin-top:4px;color:var(--ink)"><b>미션 칸을 누르면</b> 그 칸에 사진이 모이고, 모둠 모두에게 완료로 표시돼요. 미션과 상관없는 사진은 아래 <b>「📸 모둠 사진 보내기」</b>로 보내요. (모둠당 40장까지)</div>
   </div>
 
   <h2 class="sec">📸 모둠 사진 보내기</h2>
@@ -1178,22 +1183,26 @@ function misList(){
 }
 function misPhotos(m){return PHOTOS.filter(function(p){return m.tag?(p.tag===m.tag&&!p.mis):(p.mis===m.t)})}
 function renderMis(){
-  var L=misList(),st=S.g('mis3',{}),done=0,c=(ME&&ME.cls)||myClass;
-  var h='<div class="muted" style="margin:0 2px 8px">'+(CLS_MIS&&CLS_MIS.length?'🏫 <b>1-'+c+'반 선생님이 정한 미션</b>이에요. 인증샷 3개는 모든 반 공통!':(c?'아직 1-'+c+'반 미션이 올라오지 않아서 기본 미션을 보여 줘요. 선생님이 올리면 바로 바뀌어요.':'「홈」에서 우리 반을 고르면 우리 반 미션이 나와요.'))+
-    '<br>📷 버튼으로 미션 사진을 보내면 <b>모둠 모두에게 완료</b>로 표시되고 담임 선생님께 모여요.</div>';
-  L.forEach(function(m,i){var ps=misPhotos(m),ok=!!st[m.id]||ps.length>0;if(ok)done++;
+  var L=misList(),st=S.g('mis3',{}),done=0,c=(ME&&ME.cls)||myClass,own=CLS_MIS&&CLS_MIS.length;
+  function card(m,i){var ps=misPhotos(m),ok=!!st[m.id]||ps.length>0;if(ok)done++;
     var th=ps.slice().sort(function(a,b){return (b.t||0)-(a.t||0)});
-    h+='<div class="ms'+(m.tag?' cmn':'')+(ok?' done':'')+'"><span class="ck" data-i="'+i+'">✓</span><span class="mb" data-i="'+i+'"><span class="mt">'+m.e+' '+esc(m.t)+'</span>'+(m.d?'<span class="md">'+esc(m.d)+'</span>':'')+'<span class="pin">📍 '+m.pin+(ps.length?' · 사진 '+ps.length+'장':'')+'</span>'+
+    return '<div class="ms'+(m.tag?' cmn':'')+(ok?' done':'')+'" data-i="'+i+'"><span class="ck" data-i="'+i+'">✓</span><span class="mb"><span class="mt">'+m.e+' '+esc(m.t)+'</span>'+(m.d?'<span class="md">'+esc(m.d)+'</span>':'')+'<span class="pin">'+(ps.length?'📷 사진 '+ps.length+'장 · 누르면 더 보내요':'👆 누르면 이 칸에 사진을 보내요')+'</span>'+
       (th.length?'<span class="mthumbs">'+th.slice(0,5).map(function(p){return '<img src="'+p.th+'" alt="">'}).join('')+(th.length>5?'<span class="more">+'+(th.length-5)+'</span>':'')+'</span>':'')+
-      '</span><button class="mph" data-i="'+i+'">📷'+(ps.length?' 더':' 보내기')+'</button></div>'});
+      '</span><span class="mph">📷</span></div>'}
+  var com=L.filter(function(m){return m.tag}),cl=L.filter(function(m){return !m.tag});
+  var h='<div class="mgh cmn">📸 공통 인증샷 <span>모든 반 · 모둠당 한 장 이상</span></div>';
+  com.forEach(function(m){h+=card(m,L.indexOf(m))});
+  h+='<div class="mgh">🏫 '+(c?'1-'+c+'반 ':'')+'우리 반 미션 <span>'+(own?'담임 선생님이 정한 미션':(c?'기본 미션 · 선생님이 올리면 바뀌어요':'「홈」에서 반을 고르면 나와요'))+'</span></div>';
+  cl.forEach(function(m){h+=card(m,L.indexOf(m))});
+  h+='<div class="muted" style="margin:2px 2px 10px">한 명이 보내면 <b>모둠 모두에게 완료</b>로 표시되고 담임 선생님께 모여요. 사진이 필요 없는 미션은 왼쪽 네모만 눌러 체크해요.</div>';
   document.getElementById('misList').innerHTML=h;
   document.getElementById('misCnt').textContent=done+' / '+L.length;
   document.getElementById('misBar').style.width=(done/L.length*100)+'%';
-  document.querySelectorAll('#misList .ck,#misList .mb').forEach(function(b){b.onclick=function(){
+  document.querySelectorAll('#misList .ck').forEach(function(b){b.onclick=function(e){e.stopPropagation();
     var m=L[+b.dataset.i];if(misPhotos(m).length){toast('사진을 보내서 이미 완료된 미션이에요 📸');return}
     var s=S.g('mis3',{}),was=!!s[m.id];s[m.id]=!was;S.s('mis3',s);renderMis();
     if(!was&&L.every(function(x){return s[x.id]||misPhotos(x).length}))document.getElementById('pop').classList.add('on')}});
-  document.querySelectorAll('#misList .mph').forEach(function(b){b.onclick=function(){
+  document.querySelectorAll('#misList .ms').forEach(function(b){b.onclick=function(){
     var m=L[+b.dataset.i];phTarget=m.tag?{tag:m.tag,mis:'',name:m.t}:{tag:'미션',mis:m.t.slice(0,40),name:m.t};startPhotoPick()}});
 }
 function startMisWatch(){
