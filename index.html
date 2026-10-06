@@ -410,7 +410,7 @@ nav button.on{color:var(--sky);background:var(--skyS)}
   </div>
   <h2 class="sec">✅ 제일 중요한 세 가지</h2>
   <div class="card">
-    <div class="rule"><span class="e">⏰</span><span><span class="t">집합 시간 지키기</span><span class="s"><b>9:40 정문 매표소</b> · <b>15:10 지구별</b>. 모둠별 이동 시간도 꼭 지켜요</span></span></div>
+    <div class="rule"><span class="e">⏰</span><span><span class="t">집합 시간 지키기</span><span class="s"><b>9:00 정문 매표소</b> · <b>15:10 지구별</b>. 모둠별 이동 시간도 꼭 지켜요</span></span></div>
     <div class="rule"><span class="e">👥</span><span><span class="t">모둠에서 떨어지지 않기</span><span class="s">혼자 다니기 금지! 화장실도 2명 이상 같이</span></span></div>
     <div class="rule"><span class="e">📸</span><span><span class="t">모둠 인증사진 3번</span><span class="s">출발(범계역) · 점심 · 도착(범계역) 때 꼭 찍어서 담임 선생님께</span></span></div>
   </div>
@@ -477,11 +477,11 @@ var TEACHERS=[{c:1,n:'손윤희',t:'010-9546-2246'},{c:2,n:'현림희',t:'010-91
 var HEAD={n:'윤미영 학년부장',t:'010-4725-1910'};
 var SCHOOL={n:'고천중 교무실',t:'031-458-8624'};
 
-/* 자유이동 일정: 집합 09:40 / 해산 15:10 */
+/* 자유이동 일정: 집합 09:00 / 해산 15:10 */
 var SCHED=[
- {s:'08:20',e:'09:40',t:'모둠끼리 대중교통으로 이동',d:'버스 → 범계역 → 지하철 → 대공원역. 중간 지점에 선생님이 기다리세요',icon:'🚌'},
- {s:'09:40',e:'10:00',t:'정문 매표소 앞 집합 · 인원 점검',d:'9시 40분까지 꼭! 반별로 인원을 세고 다 같이 입장해요',icon:'🎪'},
- {s:'10:00',e:'11:30',t:'모둠별 자유 체험 시작',d:'놀이기구, 체험관을 모둠끼리 자유롭게! 모둠에서 떨어지지 않기',icon:'🎢'},
+ {s:'08:00',e:'09:00',t:'모둠끼리 대중교통으로 이동',d:'버스 → 범계역 → 지하철 → 대공원역. 중간 지점에 선생님이 기다리세요',icon:'🚌'},
+ {s:'09:00',e:'09:20',t:'정문 매표소 앞 집합 · 인원 점검',d:'9시까지 꼭! 반별로 인원을 세고 다 같이 입장해요',icon:'🎪'},
+ {s:'09:20',e:'11:30',t:'모둠별 자유 체험 시작',d:'놀이기구, 체험관을 모둠끼리 자유롭게! 모둠에서 떨어지지 않기',icon:'🎢'},
  {s:'11:30',e:'12:30',t:'점심 시간 (모둠별)',d:'모둠끼리 같이 먹고 인증샷! 식당가는 정문 안쪽에 많아요',icon:'🍜'},
  {s:'12:30',e:'15:00',t:'오후 자유 체험',d:'아직 못 타본 놀이기구, 항일역사체험관 같은 체험 전시도 구경해요',icon:'🎠'},
  {s:'15:00',e:'15:10',t:'지구별 쪽으로 이동 시작',d:'늦지 않게 미리 움직이기! 줄이 길면 과감히 포기',icon:'🚶'},
@@ -496,7 +496,7 @@ var WAY={go:[
  {n:3,t:'지하철 타기 — 방향 꼭 확인!',img:'go1_subway',cap:'<b>불암산행</b>(진접 · 서울역 · 사당 방면)을 타요. 표지판 화살표 방향을 꼭 확인!',tip:'반대 방향으로 타는 사고가 제일 많아요. 타기 전에 한 번 더 확인!'},
  {n:4,t:'대공원역에서 내리기',img:'go2_daegongwon',cap:'<b>5개 역, 약 11분</b>이면 도착해요. <b>대공원역</b>에서 내려요.',tip:'사람이 많아 문이 금방 닫혀요. 미리 문 쪽으로 이동!'},
  {n:5,t:'서울랜드 방면으로 직진',img:'go2_straight',cap:'<b>2번 출구</b>로 나와 넓은 길(전디광장 방면)을 따라 <b>계속 직진</b>하면 서울랜드가 나와요. 멀리 산이 보여요.',tip:'생각보다 좀 걸어요(10분쯤). 다른 학교 학생도 많으니 우리 모둠을 놓치지 않게!'},
- {n:6,t:'정문 매표소 앞에 집합',img:'go2_gate',cap:'<b>9시 40분까지</b> 정문 매표소 앞에 모여요. 반별로 인원을 세고 다 같이 입장!',tip:''}
+ {n:6,t:'정문 매표소 앞에 집합',img:'go2_gate',cap:'<b>9시까지</b> 정문 매표소 앞에 모여요. 반별로 인원을 세고 다 같이 입장!',tip:''}
 ],back:[
  {n:1,t:'15:10 — 지구별 앞에 모이기',img:'back1_jigubyeol',cap:'커다란 공 모양 건물이에요(사진 참고). 멀리서도 잘 보여요. 여기서 <b>인원 점검 + 단체사진</b>.',tip:'놀이기구 줄이 길다고 늦으면 안 돼요. 3시엔 줄 서지 않기!'},
  {n:2,t:'대공원역 2번 출입구로 이동',img:'back1_exit2',cap:'아침에 왔던 길 그대로 되돌아가요. 선생님을 따라 다 같이 이동해요.',tip:''},
@@ -527,7 +527,7 @@ var ZDEF=[
 var ZONES=ZDEF.map(function(z){var p=uv(z.u,z.v,z.w,z.d);z.x=p.x;z.y=p.y;return z});
 var GROUND=[[-1.0,-1.4],[-0.4,-4.4],[2.5,-5.5],[6,-4.6],[9,-3.4],[11.3,-1.2],[11.5,2.0],[10.8,4.0],[6,4.4],[2.5,4.2],[-0.5,3.0],[-1.1,0.6]];
 var POI=[
- {k:1,n:'정문 · 매표소',d:'9:40 아침 집합. 코끼리열차 탑승장 옆',c:'#3FA34D',gx:.362,gy:.624,gl:'정문 9:40'},
+ {k:1,n:'정문 · 매표소',d:'9:00 아침 집합. 코끼리열차 탑승장 옆',c:'#3FA34D',gx:.362,gy:.624,gl:'정문 9:00'},
  {k:2,n:'세계의 광장',d:'정문 바로 안쪽 · 종합안내실 · ATM · 물품보관소 · 화장실',c:'#8A7A5E',gx:.39,gy:.548,gl:'종합안내실'},
  {k:3,n:'지구별',d:'15:10 최종 집합! 커다란 공 모양 · 특별 전시장',c:'#C79A00',gx:.434,gy:.461,gl:'지구별 15:10'},
  {k:4,n:'4D · 5D 체험관',d:'디지털 기술 체험 · 미래의 나라 안쪽',c:'#2E9BD6',gx:.287,gy:.26,gl:'4D 깜짝모험관'},
@@ -583,9 +583,9 @@ function renderCD(){
   if(st.diff>0){L.textContent='체험학습까지';B.textContent='D − '+st.diff+'일';
     D.textContent=st.diff===1?'내일이에요! 교통카드 충전했나요?':'10월 8일 목요일에 만나요 🎒';return}
   if(st.diff<0){L.textContent='체험학습';B.textContent='잘 다녀왔어요! 🎉';D.textContent='사진 정리하고 소감 나누기';return}
-  var now=st.now, gather=mins('09:40'), disperse=mins('15:10');
+  var now=st.now, gather=mins('09:00'), disperse=mins('15:10');
   if(now<gather){var left=gather-now;L.textContent='정문 집합까지';B.textContent='⏰ '+fmtLeft(left);
-    D.textContent='9:40 정문 매표소 앞 · 모둠끼리 이동';if(left<=20)cd.classList.add('warn');return}
+    D.textContent='9:00 정문 매표소 앞 · 모둠끼리 이동';if(left<=20)cd.classList.add('warn');return}
   if(now<disperse){var left2=disperse-now;L.textContent='지구별 집합까지';B.textContent='⏰ '+fmtLeft(left2);
     D.textContent='15:10 지구별 앞! 미리 움직이기';if(left2<=40)cd.classList.add('warn');return}
   if(now<mins('16:40')){L.textContent='지금';B.textContent='🏠 집에 가는 길';D.textContent='도착하면 부모님께 꼭 연락!';return}
