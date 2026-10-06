@@ -241,7 +241,7 @@ nav button .l{font-size:9.5px}
   <h2>🧹 체험학습이 끝나면</h2>
   <div class="card">
     <button onclick="zipClass()" style="width:100%;padding:12px;border-radius:11px;background:var(--blueS);color:var(--blue);font-weight:800;font-size:14.5px">💾 지금 보는 반 사진 전체 내려받기 (zip)</button>
-    <button onclick="wipePhotos()" style="width:100%;padding:12px;border-radius:11px;background:var(--redS);color:var(--red);font-weight:800;font-size:14.5px;margin-top:8px">🗑 모든 반 사진·과학 사진·해시태그 한꺼번에 지우기</button>
+    <button onclick="wipePhotos()" style="width:100%;padding:12px;border-radius:11px;background:var(--redS);color:var(--red);font-weight:800;font-size:14.5px;margin-top:8px">🗑 모든 반 사진·탐정 보고·해시태그 한꺼번에 지우기</button>
     <div class="muted" style="margin-top:7px">학생 얼굴이 담긴 개인정보예요. 필요한 사진을 내려받은 뒤 지워 주세요.</div>
   </div>
 </section>
@@ -498,7 +498,7 @@ let pMode=LS.g('pmode','grp'), SCI=[], TAGL=[];
 let pC=LS.g('pcls',1), PHO=[], phoUnsub=null, phoSeen=LS.g('phoSeen',{}), pvCur=null;
 const TAGS=['출발','점심','도착'];
 function renderPhoSeg(){
-  $('pModeSeg').innerHTML=[['grp','📸 모둠 사진'],['sci','🔬 힘의 작용'],['tag','#️⃣ 해시태그']].map(m=>'<button data-m="'+m[0]+'" class="'+(pMode===m[0]?'on':'')+'">'+m[1]+'</button>').join('');
+  $('pModeSeg').innerHTML=[['grp','📸 모둠 사진'],['sci','🕵️ 힘 탐정'],['tag','#️⃣ 해시태그']].map(m=>'<button data-m="'+m[0]+'" class="'+(pMode===m[0]?'on':'')+'">'+m[1]+'</button>').join('');
   document.querySelectorAll('#pModeSeg button').forEach(b=>b.onclick=()=>{pMode=b.dataset.m;LS.s('pmode',pMode);renderPhoSeg();watchPho()});
   $('pClsSeg').innerHTML=[1,2,3,4].map(c=>'<button data-c="'+c+'" class="'+(pC===c?'on':'')+'">1-'+c+'</button>').join('');
   document.querySelectorAll('#pClsSeg button').forEach(b=>b.onclick=()=>{pC=+b.dataset.c;LS.s('pcls',pC);renderPhoSeg();watchPho()});
@@ -519,9 +519,9 @@ function sciUnsent(names){
 function renderSciView(){
   const l=SCI.slice().sort((a,b)=>a.grp-b.grp||String(a.name).localeCompare(String(b.name))),cnt={};l.forEach(x=>cnt[x.force]=(cnt[x.force]||0)+1);
   const un=sciUnsent(l.map(x=>x.name));
-  let h='<div class="card" style="padding:10px 12px"><b>🔬 1-'+pC+' 힘의 작용 '+l.length+'장</b> <span class="dim">· 1인 1장</span><div class="chips">'+Object.keys(cnt).map(k=>'<span>'+esc(k)+' '+cnt[k]+'</span>').join('')+'</div></div>';
+  let h='<div class="card" style="padding:10px 12px"><b>🕵️ 1-'+pC+' 힘 탐정 보고 '+l.length+'건</b> <span class="dim">· 탐정 1인 1건</span><div class="chips">'+Object.keys(cnt).map(k=>'<span>'+esc(k)+' '+cnt[k]+'</span>').join('')+'</div></div>';
   h+=l.length?'<div class="pgrp"><div class="pthumbs">'+l.map(p=>'<button onclick="pvOpen(\''+p.id+'\',\'sci\')"><img src="'+p.th+'" alt="" loading="lazy"><span class="tg">'+esc(p.force)+'</span><span class="tg" style="top:auto;bottom:3px">'+esc(p.name)+'</span></button>').join('')+'</div></div>':'<div class="card muted">아직 보낸 학생이 없어요</div>';
-  if(un)h+='<h2>📝 아직 안 보낸 학생 <span class="dim">'+un.length+'명</span></h2><div class="card">'+(un.length?'<div class="chips">'+un.map(x=>'<span>'+x.no+'. '+esc(x.n)+'</span>').join('')+'</div>':'<div class="ok" style="font-weight:800">🎉 전원 보냈어요</div>')+'</div>';
+  if(un)h+='<h2>🕵️ 아직 보고 안 한 탐정 <span class="dim">'+un.length+'명</span></h2><div class="card">'+(un.length?'<div class="chips">'+un.map(x=>'<span>'+x.no+'. '+esc(x.n)+'</span>').join('')+'</div>':'<div class="ok" style="font-weight:800">🎉 모든 탐정이 보고했어요</div>')+'</div>';
   $('phoBody').innerHTML=h;
 }
 function drawCloud(cv,words){
@@ -584,11 +584,11 @@ window.pvOpen=async (id,kind)=>{
   $('pv').classList.add('on');$('pvImg').src=p.th;$('pvLoad').style.display='block';$('pvSave').removeAttribute('href');
   const t=p.ts&&p.ts.toDate?p.ts.toDate():null;
   const hm=t?('0'+t.getHours()).slice(-2)+':'+('0'+t.getMinutes()).slice(-2):'';
-  $('pvMeta').innerHTML=sci?'<b>🔬 1-'+p.cls+' '+p.grp+'모둠 '+esc(p.name)+' · '+esc(p.force)+'</b> <span class="dim">'+hm+'</span>'+(p.cap?'<div style="margin-top:3px">'+esc(p.cap)+'</div>':'')
+  $('pvMeta').innerHTML=sci?'<b>🕵️ 1-'+p.cls+' '+p.grp+'모둠 '+esc(p.name)+' · '+esc(p.force)+'</b> <span class="dim">'+hm+'</span>'+(p.cap?'<div style="margin-top:3px">'+esc(p.cap)+'</div>':'')
     :'<b>1-'+p.cls+' '+p.grp+'모둠 · '+esc(p.mis?'🎯 '+p.mis:p.tag)+'</b> <span class="dim">'+hm+' · '+esc(p.by)+'</span>'+(p.cap?'<div style="margin-top:3px">'+esc(p.cap)+'</div>':'');
   try{const s=await F.getDoc(F.doc(db,sci?'scifull':'photofull',id));
     if(pvCur&&pvCur.id===id&&s.exists()){const img=s.data().img;$('pvImg').src=img;$('pvSave').href=img;
-      $('pvSave').setAttribute('download',sci?'힘의작용_1-'+p.cls+'_'+p.name+'_'+p.force+'.jpg':'1-'+p.cls+'_'+p.grp+'모둠_'+String(p.mis||p.tag).replace(/[\\/:*?"<>|]/g,'')+'_'+id.slice(0,5)+'.jpg')}
+      $('pvSave').setAttribute('download',sci?'힘탐정_1-'+p.cls+'_'+p.name+'_'+p.force+'.jpg':'1-'+p.cls+'_'+p.grp+'모둠_'+String(p.mis||p.tag).replace(/[\\/:*?"<>|]/g,'')+'_'+id.slice(0,5)+'.jpg')}
   }catch(e){onErr(e)}
   $('pvLoad').style.display='none';
 };
@@ -611,7 +611,7 @@ window.zipClass=async()=>{
   }catch(e){console.warn(e);toast('내려받기에 실패했어요. 인터넷을 확인해 주세요')}
 };
 async function zipSci(){
-  if(!SCI.length){toast('이 반에는 과학 사진이 없어요');return}
+  if(!SCI.length){toast('이 반에는 아직 탐정 보고가 없어요');return}
   toast('사진 모으는 중… ('+SCI.length+'장)');
   try{
     if(!window.JSZip)await new Promise((ok,no)=>{const s=document.createElement('script');s.src='https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js';s.onload=ok;s.onerror=no;document.head.appendChild(s)});
@@ -619,7 +619,7 @@ async function zipSci(){
     for(const p of SCI){const s=await F.getDoc(F.doc(db,'scifull',p.id));if(!s.exists())continue;
       k++;z.file(p.force+'/'+p.grp+'모둠_'+String(p.name).replace(/[\\/:*?"<>|]/g,'')+'_'+String(k).padStart(2,'0')+'.jpg',s.data().img.split(',')[1],{base64:true})}
     const blob=await z.generateAsync({type:'blob'}),a=document.createElement('a');
-    a.href=URL.createObjectURL(blob);a.download='서울랜드_1-'+pC+'_힘의작용.zip';document.body.appendChild(a);a.click();a.remove();
+    a.href=URL.createObjectURL(blob);a.download='서울랜드_1-'+pC+'_힘탐정_사건파일.zip';document.body.appendChild(a);a.click();a.remove();
     toast(k+'장을 내려받았어요');
   }catch(e){console.warn(e);toast('내려받기에 실패했어요. 인터넷을 확인해 주세요')}
 }
@@ -631,7 +631,7 @@ window.wipePhotos=async()=>{
     const c=await F.getDocs(F.collection(db,'sci')),e=await F.getDocs(F.collection(db,'scifull')),f=await F.getDocs(F.collection(db,'tags'));
     const refs=[a,b,c,e,f].flatMap(q=>q.docs.map(d=>d.ref));
     for(let i=0;i<refs.length;i+=400){const bt=F.writeBatch(db);refs.slice(i,i+400).forEach(r=>bt.delete(r));await bt.commit()}
-    toast('모둠 사진 '+a.size+'장 · 과학 사진 '+c.size+'장 · 해시태그 '+f.size+'개를 지웠습니다');
+    toast('모둠 사진 '+a.size+'장 · 탐정 보고 '+c.size+'건 · 해시태그 '+f.size+'개를 지웠습니다');
   }catch(e){onErr(e)}
 };
 let phoTabStarted=false;

@@ -416,15 +416,15 @@ nav button.on{color:var(--sky);background:var(--skyS)}
     <div class="phgrid" id="phGrid"></div>
   </div>
 
-<h2 class="sec">🔬 과학 미션 · 힘을 찾아라! <span style="font-size:13px;color:var(--ink2)">(개인)</span></h2>
+<h2 class="sec">🕵️ 힘 탐정 사무소 · 현장 출동! <span style="font-size:13px;color:var(--ink2)">(탐정 1인 1건)</span></h2>
   <div class="card">
-    <div class="muted" style="margin-bottom:8px">서울랜드에서 <b>힘이 작용하는 장면</b>을 찾아 찍고, <b>힘의 방향을 화살표로 그려서</b> 보내요. <b>한 사람당 한 장</b>, 다시 보내면 바뀌어요.</div>
+    <div class="muted" style="margin-bottom:8px">탐정 여러분, 오늘의 수사 현장은 <b>서울랜드</b>! 힘이 숨어 있는 장면을 찾아 <b>증거 사진</b>을 찍고, <b>힘의 방향을 화살표로 표시</b>해서 <b>소장님께 보고</b>하세요. 탐정 1명당 1건, 다시 보내면 새 보고로 바뀌어요.</div>
     <div class="pick" id="sciForce"></div>
-    <input class="field" id="sciCap" maxlength="80" placeholder="어디에서 어떤 힘이? (예: 바이킹이 내려올 때 중력)">
+    <input class="field" id="sciCap" maxlength="80" placeholder="수사 메모: 어디에서 어떤 힘이? (예: 바이킹이 내려올 때 중력)">
     <input type="file" id="sciFile" accept="image/*" style="display:none">
-    <button class="bigbtn g" id="sciBtn" style="margin-top:10px">📷 찍고 화살표 그려서 보내기</button>
+    <button class="bigbtn g" id="sciBtn" style="margin-top:10px">📷 증거 사진 찍고 화살표 표시하기</button>
     <div id="sciStat" class="muted" style="margin-top:8px"></div>
-    <button class="bigbtn" id="galBtn" style="margin-top:10px;background:var(--grapeS);color:var(--grape)">🖼️ 우리 반 힘 사진 갤러리 보기</button>
+    <button class="bigbtn" id="galBtn" style="margin-top:10px;background:var(--grapeS);color:var(--grape)">🗂️ 우리 반 탐정들의 사건 파일 보기</button>
     <div class="phgrid" id="galGrid"></div>
   </div>
 
@@ -574,10 +574,10 @@ nav button.on{color:var(--sky);background:var(--skyS)}
 </nav>
 
 <div class="arw" id="arw">
-  <div class="arh">👆 힘을 받는 곳에서 <b>힘의 방향</b>으로 손가락을 끌어 화살표를 그려요</div>
+  <div class="arh">🕵️ 증거에 힘을 표시해요! 힘을 받는 곳에서 <b>힘의 방향</b>으로 손가락을 끌어요</div>
   <div class="arc"><canvas id="arCv"></canvas></div>
   <div class="arcol" id="arCol"></div>
-  <div class="arbt"><button onclick="arUndo()">↩ 되돌리기</button><button onclick="arClose()">✕ 취소</button><button class="go" onclick="arSend()">🔬 보내기</button></div>
+  <div class="arbt"><button onclick="arUndo()">↩ 되돌리기</button><button onclick="arClose()">✕ 취소</button><button class="go" onclick="arSend()">📨 소장님께 보고</button></div>
 </div>
 <div class="gv" id="gv"><img id="gvImg" alt=""><div class="gc" id="gvCap"></div><button onclick="document.getElementById('gv').classList.remove('on')">닫기</button></div>
 <div class="nt" id="nt"><div class="ntin">
@@ -1023,7 +1023,7 @@ function sendChat(text){
 document.getElementById('chatSend').onclick=function(){sendChat(document.getElementById('chatIn').value)};
 document.getElementById('chatIn').onkeydown=function(e){if(e.key==='Enter'&&!e.isComposing){e.preventDefault();sendChat(this.value)}};
 document.querySelector('nav button[data-p="group"]').addEventListener('click',function(){setTimeout(chUpdateDot,50)});
-/* 과학 미션: 힘의 작용 사진 (개인 1장) */
+/* 힘 탐정 사무소: 힘의 작용 증거 사진 (탐정 1인 1건) */
 var SCI_F=['중력','탄성력','마찰력','부력','기타'], sciForce=S.g('sciF','중력'), SCI_ME=null, sciUnwatch=null, sciBusy=false;
 function renderSciForce(){
   var el=document.getElementById('sciForce');
@@ -1033,8 +1033,8 @@ function renderSciForce(){
 function renderSci(){
   var st=document.getElementById('sciStat'),btn=document.getElementById('sciBtn');
   if(!ME){st.textContent='먼저 「우리 모둠」 탭에서 등록해야 보낼 수 있어요.';return}
-  if(SCI_ME){st.innerHTML='<div style="display:flex;gap:10px;align-items:center"><img src="'+SCI_ME.th+'" alt="" style="width:64px;height:64px;object-fit:cover;border-radius:10px"><div>✅ <b>보냈어요!</b> · '+esc(SCI_ME.force)+(SCI_ME.cap?'<br>'+esc(SCI_ME.cap):'')+'</div></div>';btn.textContent='🔄 다른 사진으로 바꿔 보내기'}
-  else{st.textContent='아직 안 보냈어요. 힘이 보이는 장면을 찾아봐요!';btn.textContent='📷 찍고 화살표 그려서 보내기'}
+  if(SCI_ME){st.innerHTML='<div style="display:flex;gap:10px;align-items:center"><img src="'+SCI_ME.th+'" alt="" style="width:64px;height:64px;object-fit:cover;border-radius:10px"><div>✅ <b>소장님께 보고 완료!</b> · '+esc(SCI_ME.force)+(SCI_ME.cap?'<br>'+esc(SCI_ME.cap):'')+'</div></div>';btn.textContent='🔄 다른 증거로 다시 보고하기'}
+  else{st.textContent='아직 보고 전이에요. 힘의 흔적을 찾아봐요, 탐정님!';btn.textContent='📷 증거 사진 찍고 화살표 표시하기'}
 }
 function startSciWatch(){
   if(!window.FB||!ME)return;
@@ -1096,7 +1096,7 @@ function arSend(){
   t.getContext('2d').drawImage(AR.cv,0,0,t.width,t.height);var th=t.toDataURL('image/jpeg',.6);
   arClose();sciBusy=true;st.textContent='보내는 중… 신호가 약하면 조금 걸려요';
   FB.sendSci({force:sciForce,cap:cap,th:th,img:full})
-   .then(function(){toast('🔬 과학 선생님께 보냈어요!');document.getElementById('sciCap').value=''})
+   .then(function(){toast('🕵️ 소장님께 보고 완료! 수고했어요, 탐정님');document.getElementById('sciCap').value=''})
    .catch(function(e){console.warn(e);toast('보내지 못했어요. 신호를 확인하고 다시 보내 주세요')})
    .then(function(){sciBusy=false;renderSci()});
 }
@@ -1109,10 +1109,10 @@ document.getElementById('galBtn').onclick=function(){
   var b=this,g=document.getElementById('galGrid');b.disabled=true;b.textContent='불러오는 중…';
   FB.listSci(ME.cls).then(function(l){
     GAL=l.sort(function(a,c){return (c.ts&&c.ts.toMillis?c.ts.toMillis():0)-(a.ts&&a.ts.toMillis?a.ts.toMillis():0)});
-    g.innerHTML=GAL.length?GAL.map(function(p,i){return '<div class="ph" data-i="'+i+'"><img src="'+p.th+'" alt="" loading="lazy"><span class="tg">'+esc(p.force)+'</span><span class="nm">'+esc(p.name)+'</span></div>'}).join(''):'<div class="muted" style="grid-column:1/-1">아직 아무도 안 보냈어요. 첫 번째 주인공이 되어 봐요!</div>';
+    g.innerHTML=GAL.length?GAL.map(function(p,i){return '<div class="ph" data-i="'+i+'"><img src="'+p.th+'" alt="" loading="lazy"><span class="tg">'+esc(p.force)+'</span><span class="nm">'+esc(p.name)+'</span></div>'}).join(''):'<div class="muted" style="grid-column:1/-1">아직 보고한 탐정이 없어요. 첫 번째 사건을 해결해 봐요!</div>';
     g.querySelectorAll('.ph').forEach(function(el){el.onclick=function(){galOpen(+el.dataset.i)}});
-    b.textContent='🔄 1-'+ME.cls+'반 힘 사진 '+GAL.length+'장 · 새로 불러오기';
-  }).catch(function(e){console.warn(e);toast('불러오지 못했어요. 신호를 확인해 주세요');b.textContent='🖼️ 우리 반 힘 사진 갤러리 보기'})
+    b.textContent='🔄 1-'+ME.cls+'반 사건 파일 '+GAL.length+'건 · 새로 불러오기';
+  }).catch(function(e){console.warn(e);toast('불러오지 못했어요. 신호를 확인해 주세요');b.textContent='🗂️ 우리 반 탐정들의 사건 파일 보기'})
   .then(function(){b.disabled=false});
 };
 function galOpen(i){
