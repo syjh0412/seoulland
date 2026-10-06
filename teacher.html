@@ -196,6 +196,16 @@ nav button .l{font-size:9.5px}
 
 <!-- 현황 -->
 <section class="panel on" id="p-dash">
+  <h2>📢 학생에게 공지 보내기 <span class="dim">— 학생 앱에 크게 떠요</span></h2>
+  <div class="card">
+    <div class="seg" id="ntScope"></div>
+    <div class="seg" id="ntCls"></div>
+    <div class="seg" id="ntGrp" style="flex-wrap:wrap"></div>
+    <div class="chips" id="ntQuick" style="margin:0 0 8px"></div>
+    <textarea id="ntText" maxlength="200" rows="3" placeholder="공지 내용 (200자까지)" style="width:100%;padding:11px 12px;border:1.5px solid var(--line);border-radius:11px;background:var(--bg);color:var(--ink);font:inherit;resize:vertical"></textarea>
+    <button onclick="sendNotice()" style="width:100%;margin-top:8px;padding:13px;border-radius:11px;background:var(--red);color:#fff;font-weight:800;font-size:15px" id="ntSend">📢 공지 보내기</button>
+    <div id="ntList" style="margin-top:10px"></div>
+  </div>
   <h2>📊 4개 반 출결 현황 <span class="dim">— 선생님들 체크가 실시간 반영</span></h2>
   <div class="card" style="padding:8px 10px"><table class="dash" id="dashTbl"></table></div>
   <h2>🧑‍🤝‍🧑 모둠 등록 현황</h2>
@@ -635,6 +645,37 @@ window.upRoster=inp=>{const f=inp.files&&inp.files[0];if(!f)return;const rd=new 
   rd.readAsText(f)};
 
 
+/* ---- 선생님 공지 ---- */
+let NTS=[], ACKS={}, ntScope=LS.g('ntScope','cls'), ntC=LS.g('ntC',1), ntG=LS.g('ntG',1);
+const NT_QUICK=['지금 바로 지구별 앞으로 모이세요','10분 뒤 집합이에요. 미리 움직여요','점심 먹고 모둠장이 보고해 주세요','비가 와요. 실내로 이동하세요','모둠원이 다 있는지 확인하고 보고해 주세요'];
+function ntTarget(){return ntScope==='all'?'1학년 전체':ntScope==='cls'?'1-'+ntC+'반 전체':'1-'+ntC+' '+ntG+'모둠'}
+function ntExpect(n){return MEM.filter(x=>n.scope==='all'||(x.cls===n.cls&&(n.scope==='cls'||x.grp===n.grp))).length}
+function renderNtForm(){
+  $('ntScope').innerHTML=[['all','전체'],['cls','반'],['grp','모둠']].map(s=>'<button data-s="'+s[0]+'" class="'+(ntScope===s[0]?'on':'')+'">'+s[1]+'</button>').join('');
+  $('ntCls').style.display=ntScope==='all'?'none':'flex';$('ntGrp').style.display=ntScope==='grp'?'flex':'none';
+  $('ntCls').innerHTML=[1,2,3,4].map(c=>'<button data-c="'+c+'" class="'+(ntC===c?'on':'')+'">1-'+c+'</button>').join('');
+  $('ntGrp').innerHTML=Array.from({length:GROUPS[ntC]||8},(_,i)=>i+1).map(g=>'<button data-g="'+g+'" class="'+(ntG===g?'on':'')+'" style="flex:1 0 22%">'+g+'모둠</button>').join('');
+  $('ntQuick').innerHTML=NT_QUICK.map((q,i)=>'<span data-i="'+i+'" style="cursor:pointer">'+esc(q)+'</span>').join('');
+  $('ntSend').textContent='📢 '+ntTarget()+'에게 보내기';
+  document.querySelectorAll('#ntScope button').forEach(b=>b.onclick=()=>{ntScope=b.dataset.s;LS.s('ntScope',ntScope);renderNtForm()});
+  document.querySelectorAll('#ntCls button').forEach(b=>b.onclick=()=>{ntC=+b.dataset.c;LS.s('ntC',ntC);if(ntG>(GROUPS[ntC]||8))ntG=1;renderNtForm()});
+  document.querySelectorAll('#ntGrp button').forEach(b=>b.onclick=()=>{ntG=+b.dataset.g;LS.s('ntG',ntG);renderNtForm()});
+  document.querySelectorAll('#ntQuick span').forEach(b=>b.onclick=()=>{$('ntText').value=NT_QUICK[+b.dataset.i];$('ntText').focus()});
+}
+function renderNtList(){
+  const k=new Date().toDateString(),L=NTS.filter(n=>!n.ts||!n.ts.toDate||n.ts.toDate().toDateString()===k).slice(0,10);
+  $('ntList').innerHTML=L.length?'<div class="dim" style="font-size:12.5px;margin-bottom:4px">오늘 보낸 공지 · 확인 = 학생이 「확인했어요」를 누른 수</div>'+L.map(n=>{const a=ACKS[n.id]||0,e=ntExpect(n);
+    return '<div class="mrow"><div class="mn" style="font-weight:600"><b>'+hhmm(n.ts)+' · '+(n.scope==='all'?'전체':n.scope==='cls'?'1-'+n.cls+'반':'1-'+n.cls+' '+n.grp+'모둠')+'</b><br>'+esc(n.text)+'</div><span class="gs '+(e&&a>=e?'ok':'dim')+'" style="white-space:nowrap">확인 '+a+' / '+e+'</span><button class="x" title="공지 삭제" onclick="delNotice(\''+n.id+'\')">✕</button></div>'}).join(''):'';
+}
+window.sendNotice=()=>{
+  const t=$('ntText').value.trim();if(!t){toast('공지 내용을 써 주세요');return}
+  if(!confirm(ntTarget()+'에게 공지를 보낼까요?\n\n'+t))return;
+  F.addDoc(F.collection(db,'notices'),{scope:ntScope,cls:ntScope==='all'?0:ntC,grp:ntScope==='grp'?ntG:0,text:t.slice(0,200),ts:F.serverTimestamp()})
+   .then(()=>{$('ntText').value='';toast('📢 '+ntTarget()+'에게 보냈어요')}).catch(onErr);
+};
+window.delNotice=id=>{if(!confirm('이 공지를 지울까요? 학생 화면에서도 사라져요.'))return;F.deleteDoc(F.doc(db,'notices',id)).catch(onErr)};
+renderNtForm();
+
 /* ---- 반별 미션 (missions/{반}) ---- */
 let MISD={}, msWork=[];
 function misBtnText(){const m=MISD[String(gC)],n=m&&m.items?m.items.length:0;$('misBtn').textContent='🎯 1-'+gC+'반 미션 입력'+(n?' · 지금 '+n+'개':' · 아직 없음(기본 미션 표시 중)')}
@@ -724,13 +765,15 @@ function start(){
     if(fresh){buzz();toast('🆘 도움 요청이 왔어요!')}
     renderFeed();renderGrp()},onErr));
   unsubs.push(F.onSnapshot(F.collection(db,'missions'),s=>{MISD={};s.forEach(d=>MISD[d.id]=d.data());misBtnText();if(phoTabStarted)renderPho()},onErr));
+  unsubs.push(F.onSnapshot(F.query(F.collection(db,'notices'),F.orderBy('ts','desc'),F.limit(50)),s=>{NTS=s.docs.map(d=>Object.assign({id:d.id},d.data()));renderNtList()},onErr));
+  unsubs.push(F.onSnapshot(F.collection(db,'acks'),s=>{ACKS={};s.forEach(d=>{const v=d.data();ACKS[v.nid]=(ACKS[v.nid]||0)+1});renderNtList()},onErr));
   firstPlans=true;unsubs.push(F.onSnapshot(F.collection(db,'plans'),s=>{
     if(!firstPlans)s.docChanges().forEach(c=>{if(c.type==='added'||c.type==='modified'){const v=c.doc.data();toast('🤝 1-'+v.cls+' '+v.grp+'모둠이 약속을 정했어요')}});
     firstPlans=false;PLANS={};s.forEach(d=>PLANS[d.id]=d.data());renderGrp()},onErr));
   if($('p-pho').classList.contains('on')){phoTabStarted=true;watchPho()}
   if($('p-grp').classList.contains('on')){chStarted=true;watchChat()}
 }
-function stop(){unsubs.forEach(u=>{try{u()}catch(e){}});unsubs=[];if(phoUnsub){phoUnsub();phoUnsub=null}PHO=[];SCI=[];TAGL=[];phoTabStarted=false;if(chUnsub){chUnsub();chUnsub=null}CH=[];chStarted=false;closeChat();PLANS={};MISD={}}
+function stop(){unsubs.forEach(u=>{try{u()}catch(e){}});unsubs=[];if(phoUnsub){phoUnsub();phoUnsub=null}PHO=[];SCI=[];TAGL=[];phoTabStarted=false;if(chUnsub){chUnsub();chUnsub=null}CH=[];chStarted=false;closeChat();PLANS={};MISD={};NTS=[];ACKS={}}
 window.logout=()=>{if(confirm('로그아웃할까요?')&&A)A.signOut(auth)};
 
 /* ---- 부팅 ---- */

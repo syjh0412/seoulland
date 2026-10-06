@@ -169,6 +169,29 @@ service cloud.firestore {
       allow delete: if isTeacher() || (signedIn() && request.auth.uid == uid);
     }
 
+    // 선생님 공지: 교사가 보내고(전체·반·모둠), 로그인한 학생은 읽기만
+    match /notices/{id} {
+      allow read: if signedIn();
+      allow create: if isTeacher()
+        && request.resource.data.keys().hasOnly(['scope','cls','grp','text','ts'])
+        && request.resource.data.scope in ['all','cls','grp']
+        && request.resource.data.cls is int && request.resource.data.grp is int
+        && request.resource.data.text is string && request.resource.data.text.size() >= 1 && request.resource.data.text.size() <= 200
+        && request.resource.data.ts == request.time;
+      allow delete: if isTeacher();
+    }
+    // 공지 확인: 학생은 자기 확인만 남기고, 읽기는 교사만
+    match /acks/{id} {
+      allow read, delete: if isTeacher();
+      allow create, update: if isMember()
+        && request.resource.data.keys().hasOnly(['nid','uid','cls','grp','name','ts'])
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.cls == myDoc().cls && request.resource.data.grp == myDoc().grp
+        && request.resource.data.name == myDoc().name
+        && request.resource.data.nid is string && request.resource.data.nid.size() <= 40
+        && request.resource.data.ts == request.time;
+    }
+
     // 출결·명단·건강정보: 교사만
     match /att/{id}     { allow read, write: if isTeacher(); }
     match /private/{id} { allow read, write: if isTeacher(); }

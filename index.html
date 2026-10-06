@@ -196,6 +196,20 @@ nav .ndot.on{display:block}
 .arbt{display:flex;gap:8px}
 .arbt button{flex:1;padding:13px 6px;border-radius:12px;background:#2A3346;color:#fff;font-weight:800;font-size:15px}
 .arbt button.go{background:var(--grape);flex:1.4}
+.nt{position:fixed;inset:0;z-index:200;display:none;align-items:center;justify-content:center;padding:18px;background:rgba(214,51,40,.93);animation:ntbg 1.2s ease-in-out infinite alternate}
+@keyframes ntbg{from{background:rgba(214,51,40,.93)}to{background:rgba(240,120,30,.93)}}
+.nt.on{display:flex}
+.ntin{background:#fff;color:#1B2434;border-radius:24px;padding:24px 20px;width:100%;max-width:420px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.35)}
+.ntt{font-size:24px;font-weight:900;color:#D63328}
+.ntw{font-size:13.5px;font-weight:700;color:#5C6B85;margin-top:4px}
+.ntx{font-size:24px;font-weight:800;line-height:1.45;margin:16px 0 8px;word-break:keep-all;white-space:pre-wrap}
+.ntm{font-size:13px;color:#5C6B85;min-height:18px}
+.ntin button{margin-top:14px;width:100%;padding:16px;border-radius:16px;background:#D63328;color:#fff;font-weight:900;font-size:19px}
+.ntcard{background:var(--coralS);border:1.5px solid var(--coral);border-radius:18px;padding:12px 14px;margin-bottom:12px;box-shadow:var(--shadow)}
+.ntcard .h{font-weight:900;color:var(--coral);font-size:14.5px;margin-bottom:4px}
+.ntcard .r{font-size:14.5px;line-height:1.5;padding:6px 0;border-top:1px dashed var(--coral)}
+.ntcard .r:first-of-type{border-top:none}
+.ntcard .r small{color:var(--ink2);font-weight:700;margin-right:6px}
 .qk{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
 .qk button{padding:7px 11px;border-radius:99px;background:var(--skyS);color:var(--sky);font-weight:800;font-size:13px;border:1.5px solid transparent}
 .crow{display:flex;gap:8px;margin-top:8px}
@@ -247,6 +261,7 @@ nav button.on{color:var(--sky);background:var(--skyS)}
 
 <!-- 홈 -->
 <section class="panel on" id="p-home">
+  <div id="ntHome"></div>
   <div class="card plan" id="homePlan" style="display:none"></div>
   <h2 class="sec">🗓️ 오늘 하루</h2>
   <div class="card" style="padding:12px 13px">
@@ -566,6 +581,13 @@ nav button.on{color:var(--sky);background:var(--skyS)}
   <div class="arbt"><button onclick="arUndo()">↩ 되돌리기</button><button onclick="arClose()">✕ 취소</button><button class="go" onclick="arSend()">🔬 보내기</button></div>
 </div>
 <div class="gv" id="gv"><img id="gvImg" alt=""><div class="gc" id="gvCap"></div><button onclick="document.getElementById('gv').classList.remove('on')">닫기</button></div>
+<div class="nt" id="nt"><div class="ntin">
+  <div class="ntt">📢 선생님 공지</div>
+  <div class="ntw" id="ntWho"></div>
+  <div class="ntx" id="ntText"></div>
+  <div class="ntm" id="ntMore"></div>
+  <button id="ntOk">✅ 확인했어요</button>
+</div></div>
 <div class="pop" id="pop"><div class="in">
   <div class="em">🎉</div><h3>미션 올클리어!</h3>
   <p>우리 모둠 최고! 선생님께 자랑하러 가자</p>
@@ -708,7 +730,7 @@ function renderClassPick(){
   var h='';for(var c=1;c<=4;c++)h+='<button data-c="'+c+'" class="'+(myClass===c?'on':'')+'">1-'+c+'</button>';
   ['classPick','regCls'].forEach(function(id){
     var el=document.getElementById(id);el.innerHTML=h;
-    el.querySelectorAll('button').forEach(function(b){b.onclick=function(){myClass=+b.dataset.c;S.s('class',myClass);renderClassPick();renderGroupPick();renderCalls();startMisWatch();renderMis()}});
+    el.querySelectorAll('button').forEach(function(b){b.onclick=function(){myClass=+b.dataset.c;S.s('class',myClass);renderClassPick();renderGroupPick();renderCalls();startMisWatch();renderMis();renderNotices()}});
   });
 }
 function renderPack(){
@@ -869,7 +891,7 @@ document.getElementById('regBtn').onclick=function(){
   if(!window.FB){toast('아직 연결 중이에요. 잠시 후 다시 눌러 주세요');return}
   var d={cls:myClass,grp:myGroup,name:name,phone:phone,leader:leader};
   var btn=this;btn.disabled=true;btn.textContent='등록하는 중…';
-  FB.register(d).then(function(){ME=d;S.s('me',d);renderReg();startWatch();startPhotoWatch();renderPhotos();startChatWatch();renderChat();startPlanWatch();renderPlan();startMisWatch();startSciWatch();renderSci();startTagWatch();renderTags();toast('🎉 등록했어요!')})
+  FB.register(d).then(function(){ME=d;S.s('me',d);renderReg();startWatch();startPhotoWatch();renderPhotos();startChatWatch();renderChat();startPlanWatch();renderPlan();startMisWatch();startSciWatch();renderSci();startTagWatch();renderTags();renderNotices();toast('🎉 등록했어요!')})
    .catch(function(e){console.warn(e);toast('등록이 안 됐어요. 신호를 확인하고 다시 눌러 주세요')})
    .then(function(){btn.disabled=false;btn.textContent='📝 등록하기'});
 };
@@ -891,6 +913,41 @@ function renderMates(){
   });
   el.innerHTML=h+'<div class="muted" style="margin-top:8px">👥 '+list.length+'명 등록됨</div></div>';
 }
+/* 선생님 공지 (전체·반·모둠) — 앱이 열려 있으면 크게 뜨고, 다시 열면 못 본 공지가 떠요 */
+var NOTICES=[], ntSeen=S.g('ntSeen',[]), ntQueue=[], ntCur=null, ntUnwatch=null;
+function ntMine(n){var c=(ME&&ME.cls)||myClass,g=ME&&ME.grp;
+  return n.scope==='all'||(n.scope==='cls'&&n.cls===c)||(n.scope==='grp'&&ME&&n.cls===c&&n.grp===g)}
+function ntToday(n){var d=new Date(n.t),k=new Date();return d.toDateString()===k.toDateString()}
+function ntWho(n){return n.scope==='all'?'1학년 전체':n.scope==='cls'?'1-'+n.cls+'반 전체':'1-'+n.cls+' '+n.grp+'모둠'}
+function renderNotices(){
+  var L=NOTICES.filter(function(n){return ntMine(n)&&ntToday(n)}).slice(0,5),el=document.getElementById('ntHome');
+  el.innerHTML=L.length?'<div class="ntcard"><div class="h">📢 선생님 공지</div>'+L.map(function(n){return '<div class="r"><small>'+chHM(n.t)+' · '+ntWho(n)+'</small>'+esc(n.text)+'</div>'}).join('')+'</div>':'';
+  L.slice().reverse().forEach(function(n){if(ntSeen.indexOf(n.id)<0&&ntQueue.indexOf(n.id)<0&&(!ntCur||ntCur.id!==n.id))ntQueue.push(n.id)});
+  if(!ntCur)ntNext();
+}
+function ntBuzz(){try{navigator.vibrate&&navigator.vibrate([400,150,400,150,400])}catch(e){}
+  try{var ac=new (window.AudioContext||window.webkitAudioContext)(),o=ac.createOscillator(),g=ac.createGain();o.frequency.value=880;o.connect(g);g.connect(ac.destination);g.gain.value=.2;o.start();
+    setTimeout(function(){o.frequency.value=660},200);setTimeout(function(){o.frequency.value=880},400);setTimeout(function(){o.stop();ac.close()},650)}catch(e){}}
+function ntNext(){
+  while(ntQueue.length){var id=ntQueue.shift(),n=NOTICES.filter(function(x){return x.id===id})[0];
+    if(n&&ntSeen.indexOf(id)<0){ntCur=n;
+      document.getElementById('ntWho').textContent=chHM(n.t)+' · '+ntWho(n)+'에게';
+      document.getElementById('ntText').textContent=n.text;
+      document.getElementById('ntMore').textContent=ntQueue.length?'공지가 '+ntQueue.length+'개 더 있어요':'';
+      document.getElementById('nt').classList.add('on');ntBuzz();return}}
+  ntCur=null;document.getElementById('nt').classList.remove('on');
+}
+document.getElementById('ntOk').onclick=function(){
+  if(ntCur){ntSeen.push(ntCur.id);if(ntSeen.length>200)ntSeen=ntSeen.slice(-200);S.s('ntSeen',ntSeen);
+    if(window.FB&&ME)FB.ackNotice(ntCur.id).catch(function(e){console.warn(e)})}
+  ntNext();
+};
+function startNoticeWatch(){
+  if(!window.FB||ntUnwatch)return;
+  ntUnwatch=FB.watchNotices(function(l){NOTICES=l;renderNotices()},function(e){console.warn(e)});
+}
+window.addEventListener('fbready',startNoticeWatch);
+
 /* 모둠 약속 (모둠원이 정해서 담임에게 알림) */
 var PLAN=null, planUnwatch=null;
 function planHTML(){
@@ -1327,6 +1384,10 @@ if(firebaseConfig&&firebaseConfig.apiKey){
         const me=(await F.getDoc(mref)).data();
         return F.setDoc(F.doc(db,'tags',uid),{cls:me.cls,grp:me.grp,name:me.name,tag:t[0],tags:t,uid,ts:F.serverTimestamp()});
       },
+      watchNotices:(cb,err)=>F.onSnapshot(F.query(F.collection(db,'notices'),F.orderBy('ts','desc'),F.limit(30)),
+        s=>cb(s.docs.map(x=>{const v=x.data();return {id:x.id,scope:v.scope,cls:v.cls,grp:v.grp,text:v.text,t:v.ts&&v.ts.toMillis?v.ts.toMillis():Date.now()}})),err),
+      ackNotice:async nid=>{const me=(await F.getDoc(mref)).data();
+        return F.setDoc(F.doc(db,'acks',nid+'_'+uid),{nid,uid,cls:me.cls,grp:me.grp,name:me.name,ts:F.serverTimestamp()})},
       delPhoto:id=>{const b=F.writeBatch(db);b.delete(F.doc(db,'photos',id));b.delete(F.doc(db,'photofull',id));return b.commit()}
     };
     window.dispatchEvent(new Event('fbready'));
