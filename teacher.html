@@ -224,12 +224,13 @@ nav button .l{font-size:9.5px}
 
 <!-- 사진 -->
 <section class="panel" id="p-pho">
+  <div class="seg" id="pModeSeg"></div>
   <div class="seg" id="pClsSeg"></div>
   <div id="phoBody"><div class="card muted">반을 고르면 그 반 사진만 불러와요.</div></div>
   <h2>🧹 체험학습이 끝나면</h2>
   <div class="card">
-    <button onclick="zipClass()" style="width:100%;padding:12px;border-radius:11px;background:var(--blueS);color:var(--blue);font-weight:800;font-size:14.5px">💾 이 반 사진 전체 내려받기 (zip)</button>
-    <button onclick="wipePhotos()" style="width:100%;padding:12px;border-radius:11px;background:var(--redS);color:var(--red);font-weight:800;font-size:14.5px;margin-top:8px">🗑 모든 반 사진 한꺼번에 지우기</button>
+    <button onclick="zipClass()" style="width:100%;padding:12px;border-radius:11px;background:var(--blueS);color:var(--blue);font-weight:800;font-size:14.5px">💾 지금 보는 반 사진 전체 내려받기 (zip)</button>
+    <button onclick="wipePhotos()" style="width:100%;padding:12px;border-radius:11px;background:var(--redS);color:var(--red);font-weight:800;font-size:14.5px;margin-top:8px">🗑 모든 반 사진·과학 사진·해시태그 한꺼번에 지우기</button>
     <div class="muted" style="margin-top:7px">학생 얼굴이 담긴 개인정보예요. 필요한 사진을 내려받은 뒤 지워 주세요.</div>
   </div>
 </section>
@@ -478,19 +479,50 @@ function renderAll(){renderDash();renderChk();renderGrp();renderCare();renderCal
 renderSched();renderCalls();
 
 /* ---- 모둠 사진 ---- */
+let pMode=LS.g('pmode','grp'), SCI=[], TAGL=[];
 let pC=LS.g('pcls',1), PHO=[], phoUnsub=null, phoSeen=LS.g('phoSeen',{}), pvCur=null;
 const TAGS=['출발','점심','도착'];
 function renderPhoSeg(){
+  $('pModeSeg').innerHTML=[['grp','📸 모둠 사진'],['sci','🔬 힘의 작용'],['tag','#️⃣ 해시태그']].map(m=>'<button data-m="'+m[0]+'" class="'+(pMode===m[0]?'on':'')+'">'+m[1]+'</button>').join('');
+  document.querySelectorAll('#pModeSeg button').forEach(b=>b.onclick=()=>{pMode=b.dataset.m;LS.s('pmode',pMode);renderPhoSeg();watchPho()});
   $('pClsSeg').innerHTML=[1,2,3,4].map(c=>'<button data-c="'+c+'" class="'+(pC===c?'on':'')+'">1-'+c+'</button>').join('');
   document.querySelectorAll('#pClsSeg button').forEach(b=>b.onclick=()=>{pC=+b.dataset.c;LS.s('pcls',pC);renderPhoSeg();watchPho()});
 }
 function watchPho(){
   if(!db)return; if(phoUnsub)phoUnsub();
-  $('phoBody').innerHTML='<div class="card muted">1-'+pC+' 사진 불러오는 중…</div>';
-  phoUnsub=F.onSnapshot(F.query(F.collection(db,'photos'),F.where('cls','==',pC)),s=>{
-    PHO=s.docs.map(d=>Object.assign({id:d.id},d.data()));renderPho()},onErr);
+  $('phoBody').innerHTML='<div class="card muted">1-'+pC+' 불러오는 중…</div>';
+  const col=pMode==='sci'?'sci':pMode==='tag'?'tags':'photos';
+  phoUnsub=F.onSnapshot(F.query(F.collection(db,col),F.where('cls','==',pC)),s=>{
+    const l=s.docs.map(d=>Object.assign({id:d.id},d.data()));
+    if(pMode==='sci')SCI=l;else if(pMode==='tag')TAGL=l;else PHO=l;renderPho()},onErr);
+}
+const tsMs=t=>t&&t.toMillis?t.toMillis():0;
+function sciUnsent(names){
+  if(!R)return null;const C=R.classes[pC-1],got=new Set(names.map(baseName));
+  return participants(C).filter(x=>x.n.indexOf('(')<0&&!got.has(x.n));
+}
+function renderSciView(){
+  const l=SCI.slice().sort((a,b)=>a.grp-b.grp||String(a.name).localeCompare(String(b.name))),cnt={};l.forEach(x=>cnt[x.force]=(cnt[x.force]||0)+1);
+  const un=sciUnsent(l.map(x=>x.name));
+  let h='<div class="card" style="padding:10px 12px"><b>🔬 1-'+pC+' 힘의 작용 '+l.length+'장</b> <span class="dim">· 1인 1장</span><div class="chips">'+Object.keys(cnt).map(k=>'<span>'+esc(k)+' '+cnt[k]+'</span>').join('')+'</div></div>';
+  h+=l.length?'<div class="pgrp"><div class="pthumbs">'+l.map(p=>'<button onclick="pvOpen(\''+p.id+'\',\'sci\')"><img src="'+p.th+'" alt="" loading="lazy"><span class="tg">'+esc(p.force)+'</span><span class="tg" style="top:auto;bottom:3px">'+esc(p.name)+'</span></button>').join('')+'</div></div>':'<div class="card muted">아직 보낸 학생이 없어요</div>';
+  if(un)h+='<h2>📝 아직 안 보낸 학생 <span class="dim">'+un.length+'명</span></h2><div class="card">'+(un.length?'<div class="chips">'+un.map(x=>'<span>'+x.no+'. '+esc(x.n)+'</span>').join('')+'</div>':'<div class="ok" style="font-weight:800">🎉 전원 보냈어요</div>')+'</div>';
+  $('phoBody').innerHTML=h;
+}
+function renderTagView(){
+  const l=TAGL,cnt={};l.forEach(x=>cnt[x.tag]=(cnt[x.tag]||0)+1);
+  const top=Object.keys(cnt).sort((a,b)=>cnt[b]-cnt[a]);
+  const n=Math.max(GROUPS[pC]||8,...l.map(x=>x.grp),0),m=MEM.filter(x=>x.cls===pC),got=new Set(l.map(x=>x.uid));
+  let h='<div class="card" style="padding:10px 12px"><b>#️⃣ 1-'+pC+' 오늘의 해시태그 '+l.length+'개</b>'+(top.length?'<div class="chips">'+top.map(k=>'<span style="font-size:'+Math.min(20,12.5+cnt[k]*1.5)+'px">#'+esc(k)+(cnt[k]>1?' ×'+cnt[k]:'')+'</span>').join('')+'</div>':'<div class="muted" style="margin-top:4px">아직 남긴 학생이 없어요</div>')+'</div>';
+  for(let g=1;g<=n;g++){const ts=l.filter(x=>x.grp===g),miss=m.filter(x=>x.grp===g&&!got.has(x.id));
+    if(!ts.length&&!miss.length)continue;
+    h+='<div class="pgrp"><div class="ph"><span class="gnum">'+g+'</span><b>'+g+'모둠</b><span class="dim" style="font-size:12.5px">'+ts.length+'개</span></div><div class="chips">'+
+      ts.map(x=>'<span style="background:var(--blueS);color:var(--blue)">#'+esc(x.tag)+' · '+esc(x.name)+'</span>').join('')+miss.map(x=>'<span>'+esc(x.name)+' 아직</span>').join('')+'</div></div>'}
+  $('phoBody').innerHTML=h;
 }
 function renderPho(){
+  if(pMode==='sci')return renderSciView();
+  if(pMode==='tag')return renderTagView();
   const m=MEM.filter(x=>x.cls===pC),n=Math.max(GROUPS[pC]||8,...m.map(x=>x.grp),...PHO.map(x=>x.grp),0);
   const sorted=PHO.slice().sort((a,b)=>((b.ts&&b.ts.toMillis?b.ts.toMillis():0)-(a.ts&&a.ts.toMillis?a.ts.toMillis():0)));
   let h='<div class="card" style="padding:10px 12px"><b>1-'+pC+' 사진 '+PHO.length+'장</b> <span class="dim">· 인증샷 ①출발 ②점심 ③도착 받은 모둠 표시</span></div>';
@@ -503,21 +535,25 @@ function renderPho(){
   $('phoBody').innerHTML=h;
   const seen=phoSeen[pC]||0; phoSeen[pC]=PHO.length; LS.s('phoSeen',phoSeen);
 }
-window.pvOpen=async id=>{
-  const p=PHO.find(x=>x.id===id);if(!p)return;pvCur=p;
+window.pvOpen=async (id,kind)=>{
+  const sci=kind==='sci',p=(sci?SCI:PHO).find(x=>x.id===id);if(!p)return;pvCur=Object.assign({kind:sci?'sci':'grp'},p);
   $('pv').classList.add('on');$('pvImg').src=p.th;$('pvLoad').style.display='block';$('pvSave').removeAttribute('href');
   const t=p.ts&&p.ts.toDate?p.ts.toDate():null;
-  $('pvMeta').innerHTML='<b>1-'+p.cls+' '+p.grp+'모둠 · '+esc(p.tag)+'</b> <span class="dim">'+(t?('0'+t.getHours()).slice(-2)+':'+('0'+t.getMinutes()).slice(-2):'')+' · '+esc(p.by)+'</span>'+(p.cap?'<div style="margin-top:3px">'+esc(p.cap)+'</div>':'');
-  try{const s=await F.getDoc(F.doc(db,'photofull',id));
+  const hm=t?('0'+t.getHours()).slice(-2)+':'+('0'+t.getMinutes()).slice(-2):'';
+  $('pvMeta').innerHTML=sci?'<b>🔬 1-'+p.cls+' '+p.grp+'모둠 '+esc(p.name)+' · '+esc(p.force)+'</b> <span class="dim">'+hm+'</span>'+(p.cap?'<div style="margin-top:3px">'+esc(p.cap)+'</div>':'')
+    :'<b>1-'+p.cls+' '+p.grp+'모둠 · '+esc(p.tag)+'</b> <span class="dim">'+hm+' · '+esc(p.by)+'</span>'+(p.cap?'<div style="margin-top:3px">'+esc(p.cap)+'</div>':'');
+  try{const s=await F.getDoc(F.doc(db,sci?'scifull':'photofull',id));
     if(pvCur&&pvCur.id===id&&s.exists()){const img=s.data().img;$('pvImg').src=img;$('pvSave').href=img;
-      $('pvSave').setAttribute('download','1-'+p.cls+'_'+p.grp+'모둠_'+p.tag+'_'+id.slice(0,5)+'.jpg')}
+      $('pvSave').setAttribute('download',sci?'힘의작용_1-'+p.cls+'_'+p.name+'_'+p.force+'.jpg':'1-'+p.cls+'_'+p.grp+'모둠_'+p.tag+'_'+id.slice(0,5)+'.jpg')}
   }catch(e){onErr(e)}
   $('pvLoad').style.display='none';
 };
 window.pvClose=()=>{$('pv').classList.remove('on');pvCur=null};
-window.pvDel=()=>{if(!pvCur||!confirm('이 사진을 지울까요?'))return;const id=pvCur.id,b=F.writeBatch(db);
-  b.delete(F.doc(db,'photos',id));b.delete(F.doc(db,'photofull',id));b.commit().then(()=>{toast('지웠습니다');pvClose()}).catch(onErr)};
+window.pvDel=()=>{if(!pvCur||!confirm('이 사진을 지울까요?'))return;const id=pvCur.id,b=F.writeBatch(db),sci=pvCur.kind==='sci';
+  b.delete(F.doc(db,sci?'sci':'photos',id));b.delete(F.doc(db,sci?'scifull':'photofull',id));b.commit().then(()=>{toast('지웠습니다');pvClose()}).catch(onErr)};
 window.zipClass=async()=>{
+  if(pMode==='tag'){toast('해시태그는 사진이 없어요. 사진 보기로 바꿔 주세요');return}
+  if(pMode==='sci')return zipSci();
   if(!PHO.length){toast('이 반에는 사진이 없어요');return}
   toast('사진 모으는 중… ('+PHO.length+'장)');
   try{
@@ -530,14 +566,28 @@ window.zipClass=async()=>{
     toast(k+'장을 내려받았어요');
   }catch(e){console.warn(e);toast('내려받기에 실패했어요. 인터넷을 확인해 주세요')}
 };
+async function zipSci(){
+  if(!SCI.length){toast('이 반에는 과학 사진이 없어요');return}
+  toast('사진 모으는 중… ('+SCI.length+'장)');
+  try{
+    if(!window.JSZip)await new Promise((ok,no)=>{const s=document.createElement('script');s.src='https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js';s.onload=ok;s.onerror=no;document.head.appendChild(s)});
+    const z=new JSZip();let k=0;
+    for(const p of SCI){const s=await F.getDoc(F.doc(db,'scifull',p.id));if(!s.exists())continue;
+      k++;z.file(p.force+'/'+p.grp+'모둠_'+String(p.name).replace(/[\\/:*?"<>|]/g,'')+'_'+String(k).padStart(2,'0')+'.jpg',s.data().img.split(',')[1],{base64:true})}
+    const blob=await z.generateAsync({type:'blob'}),a=document.createElement('a');
+    a.href=URL.createObjectURL(blob);a.download='서울랜드_1-'+pC+'_힘의작용.zip';document.body.appendChild(a);a.click();a.remove();
+    toast(k+'장을 내려받았어요');
+  }catch(e){console.warn(e);toast('내려받기에 실패했어요. 인터넷을 확인해 주세요')}
+}
 window.wipePhotos=async()=>{
   const w=prompt('모든 반의 모둠 사진을 지웁니다. 되돌릴 수 없어요.\n지우려면 "삭제"라고 입력하세요.');
   if(w!=='삭제')return;
   try{
     const a=await F.getDocs(F.collection(db,'photos')),b=await F.getDocs(F.collection(db,'photofull'));
-    const refs=a.docs.map(d=>d.ref).concat(b.docs.map(d=>d.ref));
+    const c=await F.getDocs(F.collection(db,'sci')),e=await F.getDocs(F.collection(db,'scifull')),f=await F.getDocs(F.collection(db,'tags'));
+    const refs=[a,b,c,e,f].flatMap(q=>q.docs.map(d=>d.ref));
     for(let i=0;i<refs.length;i+=400){const bt=F.writeBatch(db);refs.slice(i,i+400).forEach(r=>bt.delete(r));await bt.commit()}
-    toast('사진 '+a.size+'장을 모두 지웠습니다');
+    toast('모둠 사진 '+a.size+'장 · 과학 사진 '+c.size+'장 · 해시태그 '+f.size+'개를 지웠습니다');
   }catch(e){onErr(e)}
 };
 let phoTabStarted=false;
@@ -646,7 +696,7 @@ function start(){
   if($('p-pho').classList.contains('on')){phoTabStarted=true;watchPho()}
   if($('p-grp').classList.contains('on')){chStarted=true;watchChat()}
 }
-function stop(){unsubs.forEach(u=>{try{u()}catch(e){}});unsubs=[];if(phoUnsub){phoUnsub();phoUnsub=null}PHO=[];phoTabStarted=false;if(chUnsub){chUnsub();chUnsub=null}CH=[];chStarted=false;closeChat();PLANS={};MISD={}}
+function stop(){unsubs.forEach(u=>{try{u()}catch(e){}});unsubs=[];if(phoUnsub){phoUnsub();phoUnsub=null}PHO=[];SCI=[];TAGL=[];phoTabStarted=false;if(chUnsub){chUnsub();chUnsub=null}CH=[];chStarted=false;closeChat();PLANS={};MISD={}}
 window.logout=()=>{if(confirm('로그아웃할까요?')&&A)A.signOut(auth)};
 
 /* ---- 부팅 ---- */

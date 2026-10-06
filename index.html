@@ -351,6 +351,23 @@ nav button.on{color:var(--sky);background:var(--skyS)}
     <div class="phgrid" id="phGrid"></div>
   </div>
 
+<h2 class="sec">🔬 과학 미션 · 힘을 찾아라! <span style="font-size:13px;color:var(--ink2)">(개인)</span></h2>
+  <div class="card">
+    <div class="muted" style="margin-bottom:8px">서울랜드에서 <b>힘이 작용하는 장면</b>을 찾아 <b>한 사람당 한 장</b> 찍어서 과학 선생님께 보내요. 다시 보내면 새 사진으로 바뀌어요.</div>
+    <div class="pick" id="sciForce"></div>
+    <input class="field" id="sciCap" maxlength="80" placeholder="어디에서 어떤 힘이? (예: 바이킹이 내려올 때 중력)">
+    <input type="file" id="sciFile" accept="image/*" style="display:none">
+    <button class="bigbtn g" id="sciBtn" style="margin-top:10px">📷 찍어서 과학 선생님께 보내기</button>
+    <div id="sciStat" class="muted" style="margin-top:8px"></div>
+  </div>
+
+  <h2 class="sec">#️⃣ 오늘의 해시태그 <span style="font-size:13px;color:var(--ink2)">(모두 한 개씩)</span></h2>
+  <div class="card">
+    <div class="muted" style="margin-bottom:6px">오늘 하루를 <b>한 단어</b>로! 모둠 친구들과 담임 선생님이 볼 수 있어요. 다시 쓰면 바뀌어요.</div>
+    <div class="crow"><input class="field" id="tagIn" maxlength="16" placeholder="#신난다" autocomplete="off"><button id="tagBtn">남기기</button></div>
+    <div class="qk" id="tagList"></div>
+  </div>
+
 <h2 class="sec">🎯 우리 모둠 미션</h2>
   <div class="card">
     <div style="display:flex;justify-content:space-between;align-items:baseline">
@@ -803,7 +820,7 @@ document.getElementById('regBtn').onclick=function(){
   if(!window.FB){toast('아직 연결 중이에요. 잠시 후 다시 눌러 주세요');return}
   var d={cls:myClass,grp:myGroup,name:name,phone:phone,leader:leader};
   var btn=this;btn.disabled=true;btn.textContent='등록하는 중…';
-  FB.register(d).then(function(){ME=d;S.s('me',d);renderReg();startWatch();startPhotoWatch();renderPhotos();startChatWatch();renderChat();startPlanWatch();renderPlan();startMisWatch();toast('🎉 등록했어요!')})
+  FB.register(d).then(function(){ME=d;S.s('me',d);renderReg();startWatch();startPhotoWatch();renderPhotos();startChatWatch();renderChat();startPlanWatch();renderPlan();startMisWatch();startSciWatch();renderSci();startTagWatch();renderTags();toast('🎉 등록했어요!')})
    .catch(function(e){console.warn(e);toast('등록이 안 됐어요. 신호를 확인하고 다시 눌러 주세요')})
    .then(function(){btn.disabled=false;btn.textContent='📝 등록하기'});
 };
@@ -901,6 +918,69 @@ function sendChat(text){
 document.getElementById('chatSend').onclick=function(){sendChat(document.getElementById('chatIn').value)};
 document.getElementById('chatIn').onkeydown=function(e){if(e.key==='Enter'&&!e.isComposing){e.preventDefault();sendChat(this.value)}};
 document.querySelector('nav button[data-p="group"]').addEventListener('click',function(){setTimeout(chUpdateDot,50)});
+/* 과학 미션: 힘의 작용 사진 (개인 1장) */
+var SCI_F=['중력','탄성력','마찰력','부력','기타'], sciForce=S.g('sciF','중력'), SCI_ME=null, sciUnwatch=null, sciBusy=false;
+function renderSciForce(){
+  var el=document.getElementById('sciForce');
+  el.innerHTML=SCI_F.map(function(f){return '<button data-f="'+f+'" class="'+(sciForce===f?'on':'')+'">'+f+'</button>'}).join('');
+  el.querySelectorAll('button').forEach(function(b){b.onclick=function(){sciForce=b.dataset.f;S.s('sciF',sciForce);renderSciForce()}});
+}
+function renderSci(){
+  var st=document.getElementById('sciStat'),btn=document.getElementById('sciBtn');
+  if(!ME){st.textContent='먼저 위에서 우리 모둠을 등록해야 보낼 수 있어요.';return}
+  if(SCI_ME){st.innerHTML='<div style="display:flex;gap:10px;align-items:center"><img src="'+SCI_ME.th+'" alt="" style="width:64px;height:64px;object-fit:cover;border-radius:10px"><div>✅ <b>보냈어요!</b> · '+esc(SCI_ME.force)+(SCI_ME.cap?'<br>'+esc(SCI_ME.cap):'')+'</div></div>';btn.textContent='🔄 다른 사진으로 바꿔 보내기'}
+  else{st.textContent='아직 안 보냈어요. 힘이 보이는 장면을 찾아봐요!';btn.textContent='📷 찍어서 과학 선생님께 보내기'}
+}
+function startSciWatch(){
+  if(!window.FB||!ME)return;
+  if(sciUnwatch)sciUnwatch();
+  sciUnwatch=FB.watchSci(function(d){SCI_ME=d;renderSci()},function(e){console.warn(e)});
+}
+document.getElementById('sciBtn').onclick=function(){
+  if(!ME){toast('먼저 위에서 우리 모둠을 등록해 주세요');return}
+  if(!window.FB){toast('아직 연결 중이에요. 잠시 후 다시 눌러 주세요');return}
+  if(sciBusy){toast('보내는 중이에요. 잠깐만요!');return}
+  document.getElementById('sciFile').click();
+};
+document.getElementById('sciFile').onchange=function(){
+  var f=(this.files||[])[0];this.value='';if(!f)return;
+  var cap=document.getElementById('sciCap').value.trim().slice(0,80),st=document.getElementById('sciStat');
+  sciBusy=true;st.textContent='사진 줄이는 중…';
+  Promise.all([shrink(f,1280,.72),shrink(f,320,.55)]).then(function(r){
+    if(r[0].length>850000)return shrink(f,1000,.6).then(function(f2){return [f2,r[1]]});return r})
+  .then(function(r){st.textContent='보내는 중… 신호가 약하면 조금 걸려요';return FB.sendSci({force:sciForce,cap:cap,th:r[1],img:r[0]})})
+  .then(function(){toast('🔬 과학 선생님께 보냈어요!');document.getElementById('sciCap').value=''})
+  .catch(function(e){console.warn(e);toast('보내지 못했어요. 신호를 확인하고 다시 보내 주세요')})
+  .then(function(){sciBusy=false;renderSci()});
+};
+
+/* 오늘의 해시태그 (개인 1개) */
+var TAGS_G=[], tagUnwatch=null;
+function cleanTag(t){return String(t||'').replace(/[#\s]/g,'').slice(0,15)}
+function renderTags(){
+  var el=document.getElementById('tagList');
+  if(!ME){el.innerHTML='<span class="muted">등록하면 해시태그를 남길 수 있어요.</span>';return}
+  if(!TAGS_G.length){el.innerHTML='<span class="muted">아직 아무도 안 남겼어요. 첫 번째로 남겨 봐요!</span>';return}
+  el.innerHTML=TAGS_G.map(function(t){var me=window.FB&&t.uid===FB.uid;return '<button style="cursor:default'+(me?';background:var(--sky);color:#fff':'')+'">#'+esc(t.tag)+' <span style="opacity:.75;font-weight:600">'+esc(me?'나':t.name)+'</span></button>'}).join('');
+  var mine=TAGS_G.filter(function(t){return window.FB&&t.uid===FB.uid})[0],inp=document.getElementById('tagIn');
+  if(mine&&!inp.value&&document.activeElement!==inp)inp.value='#'+mine.tag;
+}
+function startTagWatch(){
+  if(!window.FB||!ME)return;
+  if(tagUnwatch)tagUnwatch();
+  tagUnwatch=FB.watchTags(ME.cls,ME.grp,function(l){TAGS_G=l;renderTags()},function(e){console.warn(e)});
+}
+function saveTag(){
+  var t=cleanTag(document.getElementById('tagIn').value);
+  if(!ME){toast('먼저 위에서 우리 모둠을 등록해 주세요');return}
+  if(!window.FB){toast('아직 연결 중이에요. 잠시 후 다시 눌러 주세요');return}
+  if(!t){toast('한 단어를 써 주세요');return}
+  document.getElementById('tagIn').value='#'+t;
+  FB.saveTag(t).then(function(){toast('#️⃣ #'+t+' 남겼어요!')}).catch(function(e){console.warn(e);toast('남기지 못했어요. 신호를 확인해 주세요')});
+}
+document.getElementById('tagBtn').onclick=saveTag;
+document.getElementById('tagIn').onkeydown=function(e){if(e.key==='Enter'&&!e.isComposing){e.preventDefault();saveTag()}};
+
 /* 모둠 사진 */
 var PH_TAGS=[['출발','① 출발'],['점심','② 점심'],['도착','③ 도착'],['미션','🎯 미션'],['자유','😊 자유']];
 var PH_MAX=40, phTag=S.g('phTag','출발'), PHOTOS=[], phUnwatch=null, phBusy=false;
@@ -980,8 +1060,8 @@ window.addEventListener('fbready',function(){
     if(d){ME={cls:d.cls,grp:d.grp,name:d.name,phone:d.phone,leader:d.leader};S.s('me',ME);
       if(!myClass){myClass=d.cls;S.s('class',myClass)} if(!myGroup){myGroup=d.grp;S.s('group',myGroup)}
       renderClassPick();renderGroupPick();}
-    else if(ME){ME=null;S.s('me',null);MATES=[];S.s('mates',[]);CHAT=[];PLAN=null}
-    renderReg();renderMates();startWatch();startPhotoWatch();renderPhotos();startChatWatch();renderChat();startPlanWatch();renderPlan();startMisWatch();
+    else if(ME){ME=null;S.s('me',null);MATES=[];S.s('mates',[]);CHAT=[];PLAN=null;SCI_ME=null;TAGS_G=[]}
+    renderReg();renderMates();startWatch();startPhotoWatch();renderPhotos();startChatWatch();renderChat();startPlanWatch();renderPlan();startMisWatch();startSciWatch();renderSci();startTagWatch();renderTags();
   });
 });
 function misList(){
@@ -1022,7 +1102,7 @@ function renderCalls(){
 
 renderClassPick();renderCD();renderTimeline();renderPack();
 renderWay('go');drawMap();renderPOI();renderLands();
-renderGroupPick();renderReg();renderMates();renderPhTag();renderPhotos();renderChat();renderPlan();renderMis();renderCalls();
+renderGroupPick();renderReg();renderMates();renderPhTag();renderPhotos();renderChat();renderPlan();renderSciForce();renderSci();renderTags();renderMis();renderCalls();
 document.getElementById('foot').innerHTML='고천중학교 1학년 · 2026.10.8 현장체험학습<br>모둠 등록·보고는 선생님께 실시간 전달돼요 🌿';
 setInterval(function(){renderCD();renderTimeline()},60000);
 </script>
@@ -1071,6 +1151,20 @@ if(firebaseConfig&&firebaseConfig.apiKey){
         return F.setDoc(F.doc(db,'plans',me.cls+'-'+me.grp),{cls:me.cls,grp:me.grp,place:d.place,time:d.time,memo:d.memo,by:me.name,uid,ts:F.serverTimestamp()});
       },
       watchMissions:(c,cb,err)=>F.onSnapshot(F.doc(db,'missions',String(c)),s=>cb(s.exists()?s.data():null),err),
+      watchSci:(cb,err)=>F.onSnapshot(F.doc(db,'sci',uid),s=>cb(s.exists()?s.data():null),err),
+      sendSci:async d=>{
+        const me=(await F.getDoc(mref)).data(),b=F.writeBatch(db);
+        b.set(F.doc(db,'sci',uid),{cls:me.cls,grp:me.grp,name:me.name,force:d.force,cap:d.cap,th:d.th,uid,ts:F.serverTimestamp()});
+        b.set(F.doc(db,'scifull',uid),{cls:me.cls,uid,img:d.img,ts:F.serverTimestamp()});
+        return b.commit();
+      },
+      watchTags:(c,g,cb,err)=>F.onSnapshot(
+        F.query(F.collection(db,'tags'),F.where('cls','==',c),F.where('grp','==',g)),
+        s=>cb(s.docs.map(x=>{const v=x.data();return {uid:v.uid,name:v.name,tag:v.tag}})),err),
+      saveTag:async t=>{
+        const me=(await F.getDoc(mref)).data();
+        return F.setDoc(F.doc(db,'tags',uid),{cls:me.cls,grp:me.grp,name:me.name,tag:t,uid,ts:F.serverTimestamp()});
+      },
       delPhoto:id=>{const b=F.writeBatch(db);b.delete(F.doc(db,'photos',id));b.delete(F.doc(db,'photofull',id));return b.commit()}
     };
     window.dispatchEvent(new Event('fbready'));

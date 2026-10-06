@@ -119,6 +119,47 @@ service cloud.firestore {
       allow write: if isTeacher();
     }
 
+    // 과학 미션(힘의 작용) 사진: 학생 1명당 1장(문서 이름 = 본인 uid). 작은 사진은 본인과 교사, 큰 사진은 교사만
+    match /sci/{uid} {
+      allow get: if isTeacher() || (signedIn() && request.auth.uid == uid);
+      allow list: if isTeacher();
+      allow create, update: if isMember() && request.auth.uid == uid
+        && request.resource.data.keys().hasOnly(['cls','grp','name','force','cap','th','uid','ts'])
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.cls == myDoc().cls && request.resource.data.grp == myDoc().grp
+        && request.resource.data.name == myDoc().name
+        && request.resource.data.force in ['중력','탄성력','마찰력','부력','기타']
+        && request.resource.data.cap is string && request.resource.data.cap.size() <= 80
+        && request.resource.data.th is string && request.resource.data.th.size() <= 90000
+        && request.resource.data.ts == request.time;
+      allow delete: if isTeacher() || (signedIn() && request.auth.uid == uid);
+    }
+    match /scifull/{uid} {
+      allow get, list: if isTeacher();
+      allow create, update: if isMember() && request.auth.uid == uid
+        && request.resource.data.keys().hasOnly(['cls','uid','img','ts'])
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.img is string && request.resource.data.img.size() <= 900000
+        && request.resource.data.ts == request.time;
+      allow delete: if isTeacher() || (signedIn() && request.auth.uid == uid);
+    }
+
+    // 오늘의 해시태그: 학생 1명당 1개. 같은 모둠 학생과 교사가 봄
+    match /tags/{uid} {
+      allow get: if isTeacher() || (signedIn() && request.auth.uid == uid)
+        || (isMember() && resource.data.cls == myDoc().cls && resource.data.grp == myDoc().grp);
+      allow list: if isTeacher()
+        || (isMember() && resource.data.cls == myDoc().cls && resource.data.grp == myDoc().grp);
+      allow create, update: if isMember() && request.auth.uid == uid
+        && request.resource.data.keys().hasOnly(['cls','grp','name','tag','uid','ts'])
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.cls == myDoc().cls && request.resource.data.grp == myDoc().grp
+        && request.resource.data.name == myDoc().name
+        && request.resource.data.tag is string && request.resource.data.tag.size() >= 1 && request.resource.data.tag.size() <= 20
+        && request.resource.data.ts == request.time;
+      allow delete: if isTeacher() || (signedIn() && request.auth.uid == uid);
+    }
+
     // 출결·명단·건강정보: 교사만
     match /att/{id}     { allow read, write: if isTeacher(); }
     match /private/{id} { allow read, write: if isTeacher(); }
