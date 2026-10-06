@@ -473,8 +473,8 @@ var S={g:function(k,d){try{var v=localStorage.getItem('gcjl26.'+k);return v==nul
 function toast(m){var t=document.getElementById('toast');t.textContent=m;t.classList.add('on');setTimeout(function(){t.classList.remove('on')},1900)}
 
 var EVENT={y:2026,m:10,d:8};
-var TEACHERS=[{c:1,n:'손윤희',t:'010-9546-2246'},{c:2,n:'현림희',t:'010-9112-5056'},{c:3,n:'신유현',t:'010-7288-1505'},{c:4,n:'김신연',t:'010-6288-5934'}];
-var HEAD={n:'윤미영 학년부장',t:'010-4725-1910'};
+var TEACHERS=[{c:1,n:'손윤희'},{c:2,n:'현림희'},{c:3,n:'신유현'},{c:4,n:'김신연'}];
+var HEAD={n:'윤미영 학년부장'};
 var SCHOOL={n:'고천중 교무실',t:'031-458-8624'};
 
 /* 자유이동 일정: 집합 09:00 / 해산 15:10 */
@@ -883,11 +883,11 @@ function renderMis(){
 }
 function renderCalls(){
   var h='';
-  if(myClass){var t=TEACHERS[myClass-1];h+='<a class="call" href="tel:'+t.t.replace(/-/g,'')+'"><span class="who">우리 반 담임</span><span class="nm">📞 '+t.n+' 선생님</span><span class="no">'+t.t+'</span></a>';}
+  if(myClass){var t=TEACHERS[myClass-1];h+='<a class="call" href="#" onclick="alert(\'담임 선생님 연락처는 스쿨톡으로 안내해 드려요.\');return false"><span class="who">우리 반 담임</span><span class="nm">👩‍🏫 '+t.n+' 선생님</span><span class="no">연락처는 스쿨톡 안내</span></a>';}
   else h+='<a class="call p" href="#" onclick="alert(\'먼저 「홈」에서 우리 반을 골라 주세요!\');return false"><span class="who">담임 선생님</span><span class="nm">📞 반을 먼저 골라요</span><span class="no">홈 → 반 선택</span></a>';
   var L=MATES.filter(function(m){return m.leader&&!(window.FB&&m.id===FB.uid)})[0];
   if(L&&telOf(L.phone))h+='<a class="call p" href="tel:'+telOf(L.phone)+'"><span class="who">우리 모둠장</span><span class="nm">📞 '+esc(L.name)+'</span><span class="no">'+esc(L.phone)+'</span></a>';
-  h+='<a class="call b" href="tel:'+HEAD.t.replace(/-/g,'')+'"><span class="who">학년부장</span><span class="nm">📞 '+HEAD.n.split(' ')[0]+' 선생님</span><span class="no">'+HEAD.t+'</span></a>';
+  h+='<a class="call b" href="#" onclick="alert(\'학년부장 선생님 연락처는 스쿨톡으로 안내해 드려요.\');return false"><span class="who">학년부장</span><span class="nm">👩‍🏫 '+HEAD.n.split(' ')[0]+' 선생님</span><span class="no">연락처는 스쿨톡 안내</span></a>';
   h+='<a class="call b" href="tel:'+SCHOOL.t.replace(/-/g,'')+'"><span class="who">학교</span><span class="nm">🏫 교무실</span><span class="no">'+SCHOOL.t+'</span></a>';
   h+='<a class="call" href="tel:119" style="grid-column:1/-1;background:#C0392B"><span class="who">아주 위급할 때</span><span class="nm">🚑 119</span><span class="no">많이 다쳤거나 의식이 없을 때</span></a>';
   document.getElementById('callList').innerHTML=h;
