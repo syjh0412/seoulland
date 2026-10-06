@@ -311,8 +311,15 @@ nav button.on{color:var(--sky);background:var(--skyS)}
     <div class="muted" style="margin-top:8px">등록하면 <b>우리 모둠 친구들</b>과 <b>담임 선생님</b>께 이름·번호가 보여요. 잘못 넣었으면 고쳐서 다시 누르면 돼요.</div>
   </div>
 
-  <h2 class="sec">📍 우리 모둠 출발 계획</h2>
-  <div id="planBox"></div>
+  <h2 class="sec">🤝 우리 모둠 약속 정하기</h2>
+  <div class="card">
+    <div class="muted">모둠 친구들과 이야기해서 <b>어디서 몇 시에 만나 출발할지</b> 정해요. 정해지면 아래에 쓰고 눌러요. <b>담임 선생님께 바로 전달돼요.</b></div>
+    <div id="planBox" style="margin-top:10px"></div>
+    <div style="display:flex;gap:8px"><input type="time" class="field" id="planTime" style="flex:0 0 40%"><input class="field" id="planPlace" maxlength="60" placeholder="만나는 장소 (예: 범계역 3번 출구)"></div>
+    <input class="field" id="planMemo" maxlength="120" placeholder="메모 (안 써도 돼요)">
+    <button class="bigbtn g" id="planBtn" style="margin-top:10px">🤝 약속했어요! 담임 선생님께 알리기</button>
+    <div class="muted" style="margin-top:8px">모둠 친구 누구든 다시 눌러서 고칠 수 있어요. 고치면 선생님께 다시 전달돼요.</div>
+  </div>
 
   <h2 class="sec">📒 우리 모둠 친구들</h2>
   <div id="mates"></div>
@@ -506,8 +513,9 @@ var S={g:function(k,d){try{var v=localStorage.getItem('gcjl26.'+k);return v==nul
 function toast(m){var t=document.getElementById('toast');t.textContent=m;t.classList.add('on');setTimeout(function(){t.classList.remove('on')},1900)}
 
 var EVENT={y:2026,m:10,d:8};
-var TEACHERS=[{c:1,n:'손윤희'},{c:2,n:'현림희'},{c:3,n:'신유현'},{c:4,n:'김신연'}];
-var HEAD={n:'윤미영 학년부장'};
+var TEACHERS=[{c:1,n:'손윤희',t:'0508-2301-7112'},{c:2,n:'현림희',t:'0508-2301-0359'},{c:3,n:'신유현',t:'0508-2301-6785'},{c:4,n:'김신연',t:'0508-2301-0487'}];
+var HEAD={n:'윤미영 학년부장',t:'0508-2301-3522'};
+var CREW=[{n:'박경희',t:'0508-2301-8473'},{n:'이하나',t:'0508-2301-3291'},{n:'김기정',t:'0508-2301-9283'}];
 var SCHOOL={n:'고천중 교무실',t:'031-458-8624'};
 
 /* 자유이동 일정: 집합 09:00 / 해산 15:10 */
@@ -820,22 +828,40 @@ function renderMates(){
   });
   el.innerHTML=h+'<div class="muted" style="margin-top:8px">👥 '+list.length+'명 등록됨</div></div>';
 }
-/* 모둠 출발 계획 (선생님이 입력) */
+/* 모둠 약속 (모둠원이 정해서 담임에게 알림) */
 var PLAN=null, planUnwatch=null;
 function planHTML(){
-  return '<div class="pt">📍 우리 모둠 · 어디서 몇 시에 모일까요?</div><div class="pw">'+(PLAN.time?'⏰ '+esc(PLAN.time)+' ':'')+(PLAN.place?'· '+esc(PLAN.place):'')+'</div>'+(PLAN.memo?'<div class="pm">'+esc(PLAN.memo)+'</div>':'');
+  return '<div class="pt">🤝 우리 모둠 약속</div><div class="pw">'+(PLAN.time?'⏰ '+esc(PLAN.time)+' ':'')+(PLAN.place?'· '+esc(PLAN.place):'')+'</div>'+(PLAN.memo?'<div class="pm">'+esc(PLAN.memo)+'</div>':'')+
+    '<div class="pt" style="margin-top:7px;color:var(--grass)">✅ 담임 선생님께 전달됨'+(PLAN.by?' · '+esc(PLAN.by)+' 님이 정했어요':'')+'</div>';
+}
+function fillPlanForm(force){
+  var t=document.getElementById('planTime'),p=document.getElementById('planPlace'),m=document.getElementById('planMemo');
+  if(!PLAN)return;
+  if(force||(!t.value&&!p.value&&!m.value)){t.value=PLAN.time||'';p.value=PLAN.place||'';m.value=PLAN.memo||''}
 }
 function renderPlan(){
-  var box=document.getElementById('planBox'),hp=document.getElementById('homePlan');
-  if(PLAN&&(PLAN.place||PLAN.time||PLAN.memo)){box.innerHTML='<div class="card plan">'+planHTML()+'</div>';hp.innerHTML=planHTML();hp.style.display='block';return}
-  hp.style.display='none';
-  box.innerHTML='<div class="card muted">'+(ME?'아직 선생님이 입력하지 않았어요. 입력하면 여기와 「홈」 맨 위에 나타나요!':'위에서 우리 모둠을 등록하면 모이는 장소와 시간이 여기 나타나요.')+'</div>';
+  var box=document.getElementById('planBox'),hp=document.getElementById('homePlan'),btn=document.getElementById('planBtn');
+  if(PLAN&&(PLAN.place||PLAN.time)){box.innerHTML='<div class="card plan" style="margin-bottom:10px">'+planHTML()+'</div>';hp.innerHTML=planHTML();hp.style.display='block';btn.textContent='✏️ 약속 고쳐서 다시 알리기';fillPlanForm(false);return}
+  hp.style.display='none';btn.textContent='🤝 약속했어요! 담임 선생님께 알리기';
+  box.innerHTML=ME?'':'<div class="muted" style="margin-bottom:8px">위에서 우리 모둠을 등록하면 약속을 정할 수 있어요.</div>';
 }
 function startPlanWatch(){
   if(!window.FB||!ME)return;
   if(planUnwatch)planUnwatch();
   planUnwatch=FB.watchPlan(ME.cls,ME.grp,function(p){PLAN=p;renderPlan()},function(e){console.warn(e)});
 }
+document.getElementById('planBtn').onclick=function(){
+  var time=document.getElementById('planTime').value.trim(),place=document.getElementById('planPlace').value.trim(),memo=document.getElementById('planMemo').value.trim();
+  if(!ME){toast('먼저 위에서 우리 모둠을 등록해 주세요');return}
+  if(!window.FB){toast('아직 연결 중이에요. 잠시 후 다시 눌러 주세요');return}
+  if(!place){toast('만나는 장소를 써 주세요');return}
+  if(!time){toast('만나는 시각을 골라 주세요');return}
+  var b=this;b.disabled=true;
+  FB.savePlan({time:time,place:place.slice(0,60),memo:memo.slice(0,120)})
+   .then(function(){toast('🤝 약속을 담임 선생님께 알렸어요!')})
+   .catch(function(e){console.warn(e);toast('보내지 못했어요. 신호를 확인하고 다시 눌러 주세요')})
+   .then(function(){b.disabled=false});
+};
 /* 모둠 채팅 */
 var CHAT=[], chUnwatch=null, chLastSend=0, chSeen=S.g('chSeen',0);
 var CH_QUICK=['📍 나 여기 있어','❓ 어디야?','🚻 화장실 다녀올게','🍜 밥 먹으러 가자','⏰ 시간 확인!','👍 알겠어'];
@@ -974,11 +1000,12 @@ function renderMis(){
 }
 function renderCalls(){
   var h='';
-  if(myClass){var t=TEACHERS[myClass-1];h+='<a class="call" href="#" onclick="alert(\'담임 선생님 연락처는 스쿨톡으로 안내해 드려요.\');return false"><span class="who">우리 반 담임</span><span class="nm">👩‍🏫 '+t.n+' 선생님</span><span class="no">연락처는 스쿨톡 안내</span></a>';}
+  if(myClass){var t=TEACHERS[myClass-1];h+='<a class="call" href="tel:'+t.t.replace(/-/g,'')+'"><span class="who">우리 반 담임</span><span class="nm">📞 '+t.n+' 선생님</span><span class="no">'+t.t+'</span></a>';}
   else h+='<a class="call p" href="#" onclick="alert(\'먼저 「홈」에서 우리 반을 골라 주세요!\');return false"><span class="who">담임 선생님</span><span class="nm">📞 반을 먼저 골라요</span><span class="no">홈 → 반 선택</span></a>';
   var L=MATES.filter(function(m){return m.leader&&!(window.FB&&m.id===FB.uid)})[0];
   if(L&&telOf(L.phone))h+='<a class="call p" href="tel:'+telOf(L.phone)+'"><span class="who">우리 모둠장</span><span class="nm">📞 '+esc(L.name)+'</span><span class="no">'+esc(L.phone)+'</span></a>';
-  h+='<a class="call b" href="#" onclick="alert(\'학년부장 선생님 연락처는 스쿨톡으로 안내해 드려요.\');return false"><span class="who">학년부장</span><span class="nm">👩‍🏫 '+HEAD.n.split(' ')[0]+' 선생님</span><span class="no">연락처는 스쿨톡 안내</span></a>';
+  h+='<a class="call b" href="tel:'+HEAD.t.replace(/-/g,'')+'"><span class="who">학년부장</span><span class="nm">📞 '+HEAD.n.split(' ')[0]+' 선생님</span><span class="no">'+HEAD.t+'</span></a>';
+  CREW.forEach(function(c){h+='<a class="call b" href="tel:'+c.t.replace(/-/g,'')+'"><span class="who">인솔 선생님</span><span class="nm">📞 '+c.n+' 선생님</span><span class="no">'+c.t+'</span></a>'});
   h+='<a class="call b" href="tel:'+SCHOOL.t.replace(/-/g,'')+'"><span class="who">학교</span><span class="nm">🏫 교무실</span><span class="no">'+SCHOOL.t+'</span></a>';
   h+='<a class="call" href="tel:119" style="grid-column:1/-1;background:#C0392B"><span class="who">아주 위급할 때</span><span class="nm">🚑 119</span><span class="no">많이 다쳤거나 의식이 없을 때</span></a>';
   document.getElementById('callList').innerHTML=h;
@@ -1030,6 +1057,10 @@ if(firebaseConfig&&firebaseConfig.apiKey){
         return F.addDoc(F.collection(db,'chat'),{cls:me.cls,grp:me.grp,name:me.name,text,uid,ts:F.serverTimestamp()});
       },
       watchPlan:(c,g,cb,err)=>F.onSnapshot(F.doc(db,'plans',c+'-'+g),s=>cb(s.exists()?s.data():null),err),
+      savePlan:async d=>{
+        const me=(await F.getDoc(mref)).data();
+        return F.setDoc(F.doc(db,'plans',me.cls+'-'+me.grp),{cls:me.cls,grp:me.grp,place:d.place,time:d.time,memo:d.memo,by:me.name,uid,ts:F.serverTimestamp()});
+      },
       delPhoto:id=>{const b=F.writeBatch(db);b.delete(F.doc(db,'photos',id));b.delete(F.doc(db,'photofull',id));return b.commit()}
     };
     window.dispatchEvent(new Event('fbready'));

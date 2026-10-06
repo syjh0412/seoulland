@@ -97,10 +97,20 @@ service cloud.firestore {
       allow delete: if isTeacher();
     }
 
-    // 모둠별 모이는 장소·시간 계획: 로그인한 학생은 읽기만, 쓰기는 교사만
+    // 모둠 약속(만나는 장소·시간): 같은 모둠 학생이 정해서 쓰고, 같은 모둠 학생과 교사가 읽음. 삭제는 교사만
     match /plans/{id} {
-      allow read: if signedIn();
-      allow write: if isTeacher();
+      allow get, list: if isTeacher()
+        || (isMember() && resource.data.cls == myDoc().cls && resource.data.grp == myDoc().grp);
+      allow create, update: if isMember()
+        && request.resource.data.keys().hasOnly(['cls','grp','place','time','memo','by','uid','ts'])
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.cls == myDoc().cls && request.resource.data.grp == myDoc().grp
+        && request.resource.data.by == myDoc().name
+        && request.resource.data.place is string && request.resource.data.place.size() >= 1 && request.resource.data.place.size() <= 60
+        && request.resource.data.time is string && request.resource.data.time.size() >= 1 && request.resource.data.time.size() <= 10
+        && request.resource.data.memo is string && request.resource.data.memo.size() <= 120
+        && request.resource.data.ts == request.time;
+      allow delete: if isTeacher();
     }
 
     // 출결·명단·건강정보: 교사만
