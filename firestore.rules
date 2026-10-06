@@ -147,12 +147,14 @@ service cloud.firestore {
       allow delete: if isTeacher() || (signedIn() && request.auth.uid == uid);
     }
 
-    // 오늘의 해시태그: 학생 1명당 1개. 같은 모둠 학생과 교사가 봄
+    // 오늘의 해시태그: 학생 1명당 1개. 자기 해시태그를 먼저 남긴 학생만 같은 반 해시태그를 볼 수 있음(따라 쓰기 방지)
     match /tags/{uid} {
       allow get: if isTeacher() || (signedIn() && request.auth.uid == uid)
-        || (isMember() && resource.data.cls == myDoc().cls && resource.data.grp == myDoc().grp);
+        || (isMember() && exists(/databases/$(database)/documents/tags/$(request.auth.uid))
+            && resource.data.cls == myDoc().cls);
       allow list: if isTeacher()
-        || (isMember() && resource.data.cls == myDoc().cls && resource.data.grp == myDoc().grp);
+        || (isMember() && exists(/databases/$(database)/documents/tags/$(request.auth.uid))
+            && resource.data.cls == myDoc().cls);
       allow create, update: if isMember() && request.auth.uid == uid
         && request.resource.data.keys().hasOnly(['cls','grp','name','tag','uid','ts'])
         && request.resource.data.uid == request.auth.uid
