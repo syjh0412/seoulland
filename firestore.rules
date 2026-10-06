@@ -53,7 +53,8 @@ service cloud.firestore {
       allow get, list: if isTeacher()
         || (isMember() && resource.data.cls == myDoc().cls && resource.data.grp == myDoc().grp);
       allow create: if isMember()
-        && request.resource.data.keys().hasOnly(['cls','grp','tag','cap','by','uid','th','ts'])
+        && request.resource.data.keys().hasOnly(['cls','grp','tag','cap','by','uid','th','ts','mis'])
+        && (!('mis' in request.resource.data) || (request.resource.data.mis is string && request.resource.data.mis.size() <= 40))
         && request.resource.data.uid == request.auth.uid
         && request.resource.data.cls == myDoc().cls && request.resource.data.grp == myDoc().grp
         && request.resource.data.tag in ['출발','점심','도착','미션','자유']
@@ -119,10 +120,11 @@ service cloud.firestore {
       allow write: if isTeacher();
     }
 
-    // 과학 미션(힘의 작용) 사진: 학생 1명당 1장(문서 이름 = 본인 uid). 작은 사진은 본인과 교사, 큰 사진은 교사만
+    // 과학 미션(힘의 작용) 사진: 학생 1명당 1장(문서 이름 = 본인 uid). 같은 반 학생(갤러리)과 교사가 봄
     match /sci/{uid} {
-      allow get: if isTeacher() || (signedIn() && request.auth.uid == uid);
-      allow list: if isTeacher();
+      allow get: if isTeacher() || (signedIn() && request.auth.uid == uid)
+        || (isMember() && resource.data.cls == myDoc().cls);
+      allow list: if isTeacher() || (isMember() && resource.data.cls == myDoc().cls);
       allow create, update: if isMember() && request.auth.uid == uid
         && request.resource.data.keys().hasOnly(['cls','grp','name','force','cap','th','uid','ts'])
         && request.resource.data.uid == request.auth.uid
@@ -135,7 +137,8 @@ service cloud.firestore {
       allow delete: if isTeacher() || (signedIn() && request.auth.uid == uid);
     }
     match /scifull/{uid} {
-      allow get, list: if isTeacher();
+      allow get: if isTeacher() || (isMember() && resource.data.cls == myDoc().cls);
+      allow list: if isTeacher();
       allow create, update: if isMember() && request.auth.uid == uid
         && request.resource.data.keys().hasOnly(['cls','uid','img','ts'])
         && request.resource.data.uid == request.auth.uid

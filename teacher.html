@@ -131,7 +131,7 @@ nav button .l{font-size:9.5px}
 .pthumbs{display:grid;grid-template-columns:repeat(4,1fr);gap:5px}
 .pthumbs button{position:relative;aspect-ratio:1;border-radius:9px;overflow:hidden;background:var(--line);padding:0}
 .pthumbs img{width:100%;height:100%;object-fit:cover;display:block}
-.pthumbs .tg{position:absolute;left:3px;top:3px;background:rgba(0,0,0,.6);color:#fff;font-size:10px;font-weight:800;padding:0 5px;border-radius:99px}
+.pthumbs .tg{position:absolute;left:3px;top:3px;max-width:calc(100% - 6px);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;background:rgba(0,0,0,.6);color:#fff;font-size:10px;font-weight:800;padding:0 5px;border-radius:99px}
 .plr{font-size:13px;margin:2px 0 6px;color:var(--ink2)}
 .plr b{color:var(--ink)}
 .plbtn{width:100%;padding:12px;border-radius:11px;background:var(--amberS);color:var(--amber);font-weight:800;font-size:14.5px;margin-bottom:10px}
@@ -520,6 +520,8 @@ function renderTagView(){
       ts.map(x=>'<span style="background:var(--blueS);color:var(--blue)">#'+esc(x.tag)+' · '+esc(x.name)+'</span>').join('')+miss.map(x=>'<span>'+esc(x.name)+' 아직</span>').join('')+'</div></div>'}
   $('phoBody').innerHTML=h;
 }
+const MIS_DEF_T=['모둠원 전원이 함께 탄 놀이기구','지구별 앞 단체사진'];
+function clsMis(){const m=MISD[String(pC)];return m&&m.items&&m.items.length?m.items.map(x=>x.t):MIS_DEF_T}
 function renderPho(){
   if(pMode==='sci')return renderSciView();
   if(pMode==='tag')return renderTagView();
@@ -527,10 +529,11 @@ function renderPho(){
   const sorted=PHO.slice().sort((a,b)=>((b.ts&&b.ts.toMillis?b.ts.toMillis():0)-(a.ts&&a.ts.toMillis?a.ts.toMillis():0)));
   let h='<div class="card" style="padding:10px 12px"><b>1-'+pC+' 사진 '+PHO.length+'장</b> <span class="dim">· 인증샷 ①출발 ②점심 ③도착 받은 모둠 표시</span></div>';
   for(let g=1;g<=n;g++){
-    const ps=sorted.filter(x=>x.grp===g),has={};ps.forEach(p=>has[p.tag]=1);
+    const ps=sorted.filter(x=>x.grp===g),has={};ps.forEach(p=>{if(!p.mis)has[p.tag]=1});
     h+='<div class="pgrp"><div class="ph"><span class="gnum">'+g+'</span><b>'+g+'모둠</b><span class="dim" style="font-size:12.5px">'+ps.length+'장</span>'+
        '<span class="ptags">'+TAGS.map((t,i)=>'<span class="'+(has[t]?'ok':'')+'">'+'①②③'[i]+(has[t]?' ✓':'')+'</span>').join('')+'</span></div>'+
-       (ps.length?'<div class="pthumbs">'+ps.map(p=>'<button onclick="pvOpen(\''+p.id+'\')"><img src="'+p.th+'" alt="" loading="lazy"><span class="tg">'+esc(p.tag)+'</span></button>').join('')+'</div>':'<div class="muted">아직 사진이 없어요</div>')+'</div>';
+       '<div class="chips" style="margin:-2px 0 8px">'+clsMis().map(t=>{const k=ps.filter(p=>p.mis===t).length;return '<span style="'+(k?'background:var(--greenS);color:var(--green)':'')+'">'+(k?'✓ ':'')+esc(t)+(k>1?' '+k:'')+'</span>'}).join('')+'</div>'+
+       (ps.length?'<div class="pthumbs">'+ps.map(p=>'<button onclick="pvOpen(\''+p.id+'\')"><img src="'+p.th+'" alt="" loading="lazy"><span class="tg">'+esc(p.mis||p.tag)+'</span></button>').join('')+'</div>':'<div class="muted">아직 사진이 없어요</div>')+'</div>';
   }
   $('phoBody').innerHTML=h;
   const seen=phoSeen[pC]||0; phoSeen[pC]=PHO.length; LS.s('phoSeen',phoSeen);
@@ -541,10 +544,10 @@ window.pvOpen=async (id,kind)=>{
   const t=p.ts&&p.ts.toDate?p.ts.toDate():null;
   const hm=t?('0'+t.getHours()).slice(-2)+':'+('0'+t.getMinutes()).slice(-2):'';
   $('pvMeta').innerHTML=sci?'<b>🔬 1-'+p.cls+' '+p.grp+'모둠 '+esc(p.name)+' · '+esc(p.force)+'</b> <span class="dim">'+hm+'</span>'+(p.cap?'<div style="margin-top:3px">'+esc(p.cap)+'</div>':'')
-    :'<b>1-'+p.cls+' '+p.grp+'모둠 · '+esc(p.tag)+'</b> <span class="dim">'+hm+' · '+esc(p.by)+'</span>'+(p.cap?'<div style="margin-top:3px">'+esc(p.cap)+'</div>':'');
+    :'<b>1-'+p.cls+' '+p.grp+'모둠 · '+esc(p.mis?'🎯 '+p.mis:p.tag)+'</b> <span class="dim">'+hm+' · '+esc(p.by)+'</span>'+(p.cap?'<div style="margin-top:3px">'+esc(p.cap)+'</div>':'');
   try{const s=await F.getDoc(F.doc(db,sci?'scifull':'photofull',id));
     if(pvCur&&pvCur.id===id&&s.exists()){const img=s.data().img;$('pvImg').src=img;$('pvSave').href=img;
-      $('pvSave').setAttribute('download',sci?'힘의작용_1-'+p.cls+'_'+p.name+'_'+p.force+'.jpg':'1-'+p.cls+'_'+p.grp+'모둠_'+p.tag+'_'+id.slice(0,5)+'.jpg')}
+      $('pvSave').setAttribute('download',sci?'힘의작용_1-'+p.cls+'_'+p.name+'_'+p.force+'.jpg':'1-'+p.cls+'_'+p.grp+'모둠_'+String(p.mis||p.tag).replace(/[\\/:*?"<>|]/g,'')+'_'+id.slice(0,5)+'.jpg')}
   }catch(e){onErr(e)}
   $('pvLoad').style.display='none';
 };
@@ -560,7 +563,7 @@ window.zipClass=async()=>{
     if(!window.JSZip)await new Promise((ok,no)=>{const s=document.createElement('script');s.src='https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js';s.onload=ok;s.onerror=no;document.head.appendChild(s)});
     const z=new JSZip();let k=0;
     for(const p of PHO){const s=await F.getDoc(F.doc(db,'photofull',p.id));if(!s.exists())continue;
-      const b64=s.data().img.split(',')[1];k++;z.file(p.grp+'모둠/'+p.tag+'_'+String(k).padStart(2,'0')+'.jpg',b64,{base64:true})}
+      const b64=s.data().img.split(',')[1];k++;z.file(p.grp+'모둠/'+String(p.mis||p.tag).replace(/[\\/:*?"<>|]/g,'')+'_'+String(k).padStart(2,'0')+'.jpg',b64,{base64:true})}
     const blob=await z.generateAsync({type:'blob'}),a=document.createElement('a');
     a.href=URL.createObjectURL(blob);a.download='서울랜드_1-'+pC+'_모둠사진.zip';document.body.appendChild(a);a.click();a.remove();
     toast(k+'장을 내려받았어요');
@@ -689,7 +692,7 @@ function start(){
     REP=s.docs.map(d=>Object.assign({id:d.id},d.data()));firstRep=false;
     if(fresh){buzz();toast('🆘 도움 요청이 왔어요!')}
     renderFeed();renderGrp()},onErr));
-  unsubs.push(F.onSnapshot(F.collection(db,'missions'),s=>{MISD={};s.forEach(d=>MISD[d.id]=d.data());misBtnText()},onErr));
+  unsubs.push(F.onSnapshot(F.collection(db,'missions'),s=>{MISD={};s.forEach(d=>MISD[d.id]=d.data());misBtnText();if(phoTabStarted)renderPho()},onErr));
   firstPlans=true;unsubs.push(F.onSnapshot(F.collection(db,'plans'),s=>{
     if(!firstPlans)s.docChanges().forEach(c=>{if(c.type==='added'||c.type==='modified'){const v=c.doc.data();toast('🤝 1-'+v.cls+' '+v.grp+'모둠이 약속을 정했어요')}});
     firstPlans=false;PLANS={};s.forEach(d=>PLANS[d.id]=d.data());renderGrp()},onErr));

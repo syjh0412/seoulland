@@ -121,6 +121,19 @@ h2.sec:first-child{margin-top:4px}
 .ms.done .mt{text-decoration:line-through;opacity:.62}
 .ms .md{font-size:13px;color:var(--ink2);margin-top:2px}
 .ms .pin{font-size:11px;font-weight:800;color:var(--grape);margin-top:3px}
+.ms .mb{flex:1;min-width:0;cursor:pointer}
+.ms .ck{cursor:pointer}
+.ms .mph{flex:none;align-self:center;padding:8px 10px;border-radius:11px;background:var(--grapeS);color:var(--grape);font-weight:800;font-size:13px;white-space:nowrap}
+.ms.done .mph{background:var(--card)}
+.mthumbs{display:flex;gap:4px;margin-top:6px;flex-wrap:wrap}
+.mthumbs img{width:44px;height:44px;object-fit:cover;border-radius:8px;display:block}
+.mthumbs .more{width:44px;height:44px;border-radius:8px;background:var(--line);display:grid;place-items:center;font-size:12px;font-weight:800;color:var(--ink2)}
+.gv{position:fixed;inset:0;z-index:110;background:rgba(8,10,20,.92);display:none;flex-direction:column;align-items:center;justify-content:center;padding:16px;color:#fff}
+.gv.on{display:flex}
+.gv img{max-width:100%;max-height:70vh;border-radius:12px;background:#000}
+.gv .gc{margin-top:10px;text-align:center;font-size:15px;line-height:1.5}
+.gv button{margin-top:14px;padding:12px 26px;border-radius:12px;background:#2A3346;color:#fff;font-weight:800}
+.phgrid .ph .nm{position:absolute;left:4px;bottom:4px;background:rgba(0,0,0,.6);color:#fff;font-size:10.5px;font-weight:800;padding:1px 6px;border-radius:99px}
 
 .bigbtn{width:100%;padding:14px;border-radius:14px;font-weight:800;font-size:15.5px;box-shadow:var(--shadow)}
 .bigbtn.g{background:var(--grape);color:#fff}
@@ -202,7 +215,7 @@ nav button.on{color:var(--sky);background:var(--skyS)}
 .phgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:10px}
 .phgrid .ph{position:relative;aspect-ratio:1;border-radius:11px;overflow:hidden;background:var(--line)}
 .phgrid .ph img{width:100%;height:100%;object-fit:cover;display:block}
-.phgrid .ph .tg{position:absolute;left:4px;top:4px;background:rgba(0,0,0,.6);color:#fff;font-size:10.5px;font-weight:800;padding:1px 6px;border-radius:99px}
+.phgrid .ph .tg{position:absolute;left:4px;top:4px;max-width:calc(100% - 34px);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;background:rgba(0,0,0,.6);color:#fff;font-size:10.5px;font-weight:800;padding:1px 6px;border-radius:99px}
 .phgrid .ph .dl{position:absolute;right:3px;top:3px;width:24px;height:24px;border-radius:50%;background:rgba(0,0,0,.55);color:#fff;font-size:13px;line-height:24px;text-align:center}
 .phgrid .ph.pend{opacity:.55}
 .toast{position:fixed;left:50%;transform:translateX(-50%);bottom:88px;background:#1B2434;color:#fff;padding:11px 18px;border-radius:12px;font-size:14px;font-weight:600;z-index:80;opacity:0;pointer-events:none;transition:.25s;max-width:88%}
@@ -366,7 +379,7 @@ nav button.on{color:var(--sky);background:var(--skyS)}
   <div id="misList"></div>
   <div class="card" style="background:var(--grapeS);border-color:var(--grape)">
     <b style="font-size:14px">📸 사진은 어떻게 내나요?</b>
-    <div class="muted" style="margin-top:4px;color:var(--ink)">아래 <b>「📸 모둠 사진 보내기」</b>로 보내면 담임 선생님께 바로 가요. 인증샷 ①②③을 보내면 미션도 자동으로 체크돼요! (모둠당 40장까지)</div>
+    <div class="muted" style="margin-top:4px;color:var(--ink)">미션마다 있는 <b>「📷 보내기」</b>를 누르면 그 미션 칸에 사진이 모이고, 모둠 모두에게 완료로 표시돼요. 미션과 상관없는 사진은 아래 <b>「📸 모둠 사진 보내기」</b>로 보내요. (모둠당 40장까지)</div>
   </div>
 
   <h2 class="sec">📸 모둠 사진 보내기</h2>
@@ -388,6 +401,8 @@ nav button.on{color:var(--sky);background:var(--skyS)}
     <input type="file" id="sciFile" accept="image/*" style="display:none">
     <button class="bigbtn g" id="sciBtn" style="margin-top:10px">📷 찍고 화살표 그려서 보내기</button>
     <div id="sciStat" class="muted" style="margin-top:8px"></div>
+    <button class="bigbtn" id="galBtn" style="margin-top:10px;background:var(--grapeS);color:var(--grape)">🖼️ 우리 반 힘 사진 갤러리 보기</button>
+    <div class="phgrid" id="galGrid"></div>
   </div>
 
   <h2 class="sec">#️⃣ 오늘의 해시태그 <span style="font-size:13px;color:var(--ink2)">(모두 한 개씩)</span></h2>
@@ -539,6 +554,7 @@ nav button.on{color:var(--sky);background:var(--skyS)}
   <div class="arcol" id="arCol"></div>
   <div class="arbt"><button onclick="arUndo()">↩ 되돌리기</button><button onclick="arClose()">✕ 취소</button><button class="go" onclick="arSend()">🔬 보내기</button></div>
 </div>
+<div class="gv" id="gv"><img id="gvImg" alt=""><div class="gc" id="gvCap"></div><button onclick="document.getElementById('gv').classList.remove('on')">닫기</button></div>
 <div class="pop" id="pop"><div class="in">
   <div class="em">🎉</div><h3>미션 올클리어!</h3>
   <p>우리 모둠 최고! 선생님께 자랑하러 가자</p>
@@ -632,9 +648,9 @@ var FACIL=[
 
 /* 미션(예시 — 실제 미션 정해지면 교체) */
 var MIS_FIXED={
- s:{id:'p출발',t:'모둠인증샷 ① 출발',d:'가는 길, 범계역에 다 모였을 때 한 장',e:'🚇',pin:'공통 · 가는 길'},
- l:{id:'p점심',t:'모둠인증샷 ② 점심',d:'다 같이 먹는 모습 한 장',e:'🍜',pin:'공통 · 점심'},
- a:{id:'p도착',t:'모둠인증샷 ③ 도착',d:'오는 길, 범계역에 내렸을 때 한 장',e:'🏠',pin:'공통 · 오는 길'}};
+ s:{id:'p출발',tag:'출발',t:'모둠인증샷 ① 출발',d:'가는 길, 범계역에 다 모였을 때 한 장',e:'🚇',pin:'공통 · 가는 길'},
+ l:{id:'p점심',tag:'점심',t:'모둠인증샷 ② 점심',d:'다 같이 먹는 모습 한 장',e:'🍜',pin:'공통 · 점심'},
+ a:{id:'p도착',tag:'도착',t:'모둠인증샷 ③ 도착',d:'오는 길, 범계역에 내렸을 때 한 장',e:'🏠',pin:'공통 · 오는 길'}};
 var MIS_DEF=[{t:'모둠원 전원이 함께 탄 놀이기구',d:'타기 전이나 후에 다 같이 한 장',e:'🎢'},{t:'지구별 앞 단체사진',d:'15:10 집합할 때',e:'🌐'}];
 var CLS_MIS=null, misUnwatch=null, misCls=0;
 
@@ -1018,6 +1034,27 @@ function arSend(){
    .then(function(){sciBusy=false;renderSci()});
 }
 
+/* 우리 반 힘 사진 갤러리 (누를 때만 불러와요) */
+var GAL=[];
+document.getElementById('galBtn').onclick=function(){
+  if(!ME){toast('먼저 「우리 모둠」 탭에서 등록해 주세요');return}
+  if(!window.FB){toast('아직 연결 중이에요. 잠시 후 다시 눌러 주세요');return}
+  var b=this,g=document.getElementById('galGrid');b.disabled=true;b.textContent='불러오는 중…';
+  FB.listSci(ME.cls).then(function(l){
+    GAL=l.sort(function(a,c){return (c.ts&&c.ts.toMillis?c.ts.toMillis():0)-(a.ts&&a.ts.toMillis?a.ts.toMillis():0)});
+    g.innerHTML=GAL.length?GAL.map(function(p,i){return '<div class="ph" data-i="'+i+'"><img src="'+p.th+'" alt="" loading="lazy"><span class="tg">'+esc(p.force)+'</span><span class="nm">'+esc(p.name)+'</span></div>'}).join(''):'<div class="muted" style="grid-column:1/-1">아직 아무도 안 보냈어요. 첫 번째 주인공이 되어 봐요!</div>';
+    g.querySelectorAll('.ph').forEach(function(el){el.onclick=function(){galOpen(+el.dataset.i)}});
+    b.textContent='🔄 1-'+ME.cls+'반 힘 사진 '+GAL.length+'장 · 새로 불러오기';
+  }).catch(function(e){console.warn(e);toast('불러오지 못했어요. 신호를 확인해 주세요');b.textContent='🖼️ 우리 반 힘 사진 갤러리 보기'})
+  .then(function(){b.disabled=false});
+};
+function galOpen(i){
+  var p=GAL[i];if(!p)return;var im=document.getElementById('gvImg');
+  im.src=p.th;document.getElementById('gvCap').innerHTML='<b>'+esc(p.name)+' · '+esc(p.force)+'</b>'+(p.cap?'<br>'+esc(p.cap):'');
+  document.getElementById('gv').classList.add('on');
+  FB.getSciFull(p.id).then(function(img){if(img&&document.getElementById('gv').classList.contains('on'))im.src=img}).catch(function(){});
+}
+
 /* 오늘의 해시태그 (개인 1개) */
 var TAGS_G=[], tagUnwatch=null;
 function cleanTag(t){return String(t||'').replace(/[#\s]/g,'').slice(0,15)}
@@ -1047,7 +1084,7 @@ document.getElementById('tagIn').onkeydown=function(e){if(e.key==='Enter'&&!e.is
 
 /* 모둠 사진 */
 var PH_TAGS=[['출발','① 출발'],['점심','② 점심'],['도착','③ 도착'],['미션','🎯 미션'],['자유','😊 자유']];
-var PH_MAX=40, phTag=S.g('phTag','출발'), PHOTOS=[], phUnwatch=null, phBusy=false;
+var PH_MAX=40, phTag=S.g('phTag','출발'), PHOTOS=[], phUnwatch=null, phBusy=false, phTarget=null;
 var TAG2MIS={'출발':'p출발','점심':'p점심','도착':'p도착'};
 function renderPhTag(){
   var el=document.getElementById('phTag');
@@ -1062,40 +1099,42 @@ function renderPhotos(){
   st.innerHTML='우리 모둠 사진 <b>'+PHOTOS.length+'</b> / '+PH_MAX+'장 · 인증샷 '+['출발','점심','도착'].map(function(t,i){return (have[t]?'✅':'⬜')+'①②③'[i]}).join(' ');
   g.innerHTML=PHOTOS.slice().sort(function(a,b){return (b.t||0)-(a.t||0)}).map(function(p){
     var mine=p.uid===FB.uid;
-    return '<div class="ph'+(p.pend?' pend':'')+'"><img src="'+p.th+'" alt=""><span class="tg">'+esc(p.tag)+'</span>'+(mine?'<span class="dl" onclick="delPhoto(\''+p.id+'\')">✕</span>':'')+'</div>'}).join('');
+    return '<div class="ph'+(p.pend?' pend':'')+'"><img src="'+p.th+'" alt=""><span class="tg">'+esc(p.mis||p.tag)+'</span>'+(mine?'<span class="dl" onclick="delPhoto(\''+p.id+'\')">✕</span>':'')+'</div>'}).join('');
 }
 function startPhotoWatch(){
   if(!window.FB||!ME)return;
   if(phUnwatch)phUnwatch();
-  phUnwatch=FB.watchPhotos(ME.cls,ME.grp,function(list){PHOTOS=list;renderPhotos()},function(e){console.warn(e)});
+  phUnwatch=FB.watchPhotos(ME.cls,ME.grp,function(list){PHOTOS=list;renderPhotos();renderMis()},function(e){console.warn(e)});
 }
 function shrink(file,max,q){return new Promise(function(res,rej){
   var url=URL.createObjectURL(file),im=new Image();
   im.onload=function(){var r=Math.min(1,max/Math.max(im.naturalWidth,im.naturalHeight)),w=Math.max(1,Math.round(im.naturalWidth*r)),hh=Math.max(1,Math.round(im.naturalHeight*r));
     var c=document.createElement('canvas');c.width=w;c.height=hh;c.getContext('2d').drawImage(im,0,0,w,hh);URL.revokeObjectURL(url);res(c.toDataURL('image/jpeg',q))};
   im.onerror=function(){URL.revokeObjectURL(url);rej(new Error('사진을 읽지 못했어요'))};im.src=url})}
-document.getElementById('phBtn').onclick=function(){
+document.getElementById('phBtn').onclick=function(){phTarget=null;startPhotoPick()};
+function startPhotoPick(){
   if(!ME){toast('먼저 「우리 모둠」 탭에서 등록해 주세요');return}
   if(!window.FB){toast('아직 연결 중이에요. 잠시 후 다시 눌러 주세요');return}
   if(phBusy){toast('보내는 중이에요. 잠깐만요!');return}
   if(PHOTOS.length>=PH_MAX){toast('우리 모둠은 '+PH_MAX+'장을 다 보냈어요');return}
+  if(phTarget)toast('📷 「'+phTarget.name+'」 사진을 골라 주세요');
   document.getElementById('phFile').click();
-};
+}
 document.getElementById('phFile').onchange=function(){
   var files=[].slice.call(this.files||[]);this.value='';if(!files.length)return;
   var room=PH_MAX-PHOTOS.length;if(files.length>room){toast('남은 '+room+'장만 보낼게요');files=files.slice(0,room)}
-  var cap=document.getElementById('phCap').value.trim(),tag=phTag,done=0,fail=0;phBusy=true;
+  var tgt=phTarget||{tag:phTag,mis:''};phTarget=null;var cap=document.getElementById('phCap').value.trim(),tag=tgt.tag,mis=tgt.mis,done=0,fail=0;phBusy=true;
   var st=document.getElementById('phStat');
   (function next(i){
     if(i>=files.length){phBusy=false;document.getElementById('phCap').value='';renderPhotos();
       toast(fail?(done+'장 보냄 · '+fail+'장 실패. 신호를 확인하고 다시 보내 주세요'):('📸 '+done+'장 보냈어요! 선생님께 전달돼요'));
-      if(done&&TAG2MIS[tag]!=null){var s=S.g('mis3',{});s[TAG2MIS[tag]]=true;S.s('mis3',s);renderMis()}
+      renderMis();
       return}
     st.textContent='사진 줄이는 중… ('+(i+1)+'/'+files.length+')';
     Promise.all([shrink(files[i],1280,.72),shrink(files[i],320,.55)]).then(function(r){
       var full=r[0];if(full.length>850000)return shrink(files[i],1000,.6).then(function(f2){return [f2,r[1]]});return r})
     .then(function(r){st.textContent='보내는 중… ('+(i+1)+'/'+files.length+') 신호가 약하면 조금 걸려요';
-      return FB.sendPhoto({tag:tag,cap:cap,by:ME.name,th:r[1],img:r[0]})})
+      return FB.sendPhoto({tag:tag,mis:mis,cap:cap,by:ME.name,th:r[1],img:r[0]})})
     .then(function(){done++;next(i+1)}).catch(function(e){console.warn(e);fail++;next(i+1)});
   })(0);
 };
@@ -1133,17 +1172,25 @@ function misList(){
   var cl=(own?CLS_MIS:MIS_DEF).map(function(m){return {id:'c:'+m.t,t:m.t,d:m.d||'',e:m.e||'🎯',pin:own?'우리 반 미션':'기본 미션'}});
   return [MIS_FIXED.s,MIS_FIXED.l].concat(cl,[MIS_FIXED.a]);
 }
+function misPhotos(m){return PHOTOS.filter(function(p){return m.tag?(p.tag===m.tag&&!p.mis):(p.mis===m.t)})}
 function renderMis(){
   var L=misList(),st=S.g('mis3',{}),done=0,c=(ME&&ME.cls)||myClass;
-  var h='<div class="muted" style="margin:0 2px 8px">'+(CLS_MIS&&CLS_MIS.length?'🏫 <b>1-'+c+'반 선생님이 정한 미션</b>이에요. 인증샷 3개는 모든 반 공통!':(c?'아직 1-'+c+'반 미션이 올라오지 않아서 기본 미션을 보여 줘요. 선생님이 올리면 바로 바뀌어요.':'「홈」에서 우리 반을 고르면 우리 반 미션이 나와요.'))+'</div>';
-  L.forEach(function(m,i){if(st[m.id])done++;
-    h+='<button class="ms '+(st[m.id]?'done':'')+'" data-i="'+i+'"><span class="ck">✓</span><span><span class="mt">'+m.e+' '+esc(m.t)+'</span>'+(m.d?'<span class="md">'+esc(m.d)+'</span>':'')+'<span class="pin">📍 '+m.pin+'</span></span></button>'});
+  var h='<div class="muted" style="margin:0 2px 8px">'+(CLS_MIS&&CLS_MIS.length?'🏫 <b>1-'+c+'반 선생님이 정한 미션</b>이에요. 인증샷 3개는 모든 반 공통!':(c?'아직 1-'+c+'반 미션이 올라오지 않아서 기본 미션을 보여 줘요. 선생님이 올리면 바로 바뀌어요.':'「홈」에서 우리 반을 고르면 우리 반 미션이 나와요.'))+
+    '<br>📷 버튼으로 미션 사진을 보내면 <b>모둠 모두에게 완료</b>로 표시되고 담임 선생님께 모여요.</div>';
+  L.forEach(function(m,i){var ps=misPhotos(m),ok=!!st[m.id]||ps.length>0;if(ok)done++;
+    var th=ps.slice().sort(function(a,b){return (b.t||0)-(a.t||0)});
+    h+='<div class="ms '+(ok?'done':'')+'"><span class="ck" data-i="'+i+'">✓</span><span class="mb" data-i="'+i+'"><span class="mt">'+m.e+' '+esc(m.t)+'</span>'+(m.d?'<span class="md">'+esc(m.d)+'</span>':'')+'<span class="pin">📍 '+m.pin+(ps.length?' · 사진 '+ps.length+'장':'')+'</span>'+
+      (th.length?'<span class="mthumbs">'+th.slice(0,5).map(function(p){return '<img src="'+p.th+'" alt="">'}).join('')+(th.length>5?'<span class="more">+'+(th.length-5)+'</span>':'')+'</span>':'')+
+      '</span><button class="mph" data-i="'+i+'">📷'+(ps.length?' 더':' 보내기')+'</button></div>'});
   document.getElementById('misList').innerHTML=h;
   document.getElementById('misCnt').textContent=done+' / '+L.length;
   document.getElementById('misBar').style.width=(done/L.length*100)+'%';
-  document.querySelectorAll('#misList .ms').forEach(function(b){b.onclick=function(){
-    var s=S.g('mis3',{}),id=L[+b.dataset.i].id,was=!!s[id];s[id]=!was;S.s('mis3',s);renderMis();
-    if(!was&&L.every(function(m){return s[m.id]}))document.getElementById('pop').classList.add('on')}});
+  document.querySelectorAll('#misList .ck,#misList .mb').forEach(function(b){b.onclick=function(){
+    var m=L[+b.dataset.i];if(misPhotos(m).length){toast('사진을 보내서 이미 완료된 미션이에요 📸');return}
+    var s=S.g('mis3',{}),was=!!s[m.id];s[m.id]=!was;S.s('mis3',s);renderMis();
+    if(!was&&L.every(function(x){return s[x.id]||misPhotos(x).length}))document.getElementById('pop').classList.add('on')}});
+  document.querySelectorAll('#misList .mph').forEach(function(b){b.onclick=function(){
+    var m=L[+b.dataset.i];phTarget=m.tag?{tag:m.tag,mis:'',name:m.t}:{tag:'미션',mis:m.t.slice(0,40),name:m.t};startPhotoPick()}});
 }
 function startMisWatch(){
   var c=(ME&&ME.cls)||myClass;
@@ -1194,11 +1241,12 @@ if(firebaseConfig&&firebaseConfig.apiKey){
       report:d=>F.addDoc(F.collection(db,'reports'),{cls:d.cls,grp:d.grp,name:d.name,kind:d.kind,msg:d.msg,uid,ts:F.serverTimestamp()}),
       watchPhotos:(c,g,cb,err)=>F.onSnapshot(
         F.query(F.collection(db,'photos'),F.where('cls','==',c),F.where('grp','==',g)),{includeMetadataChanges:true},
-        s=>cb(s.docs.map(x=>{const v=x.data();return {id:x.id,tag:v.tag,cap:v.cap,by:v.by,uid:v.uid,th:v.th,t:v.ts&&v.ts.toMillis?v.ts.toMillis():Date.now(),pend:x.metadata.hasPendingWrites}})),err),
+        s=>cb(s.docs.map(x=>{const v=x.data();return {id:x.id,tag:v.tag,mis:v.mis||'',cap:v.cap,by:v.by,uid:v.uid,th:v.th,t:v.ts&&v.ts.toMillis?v.ts.toMillis():Date.now(),pend:x.metadata.hasPendingWrites}})),err),
       sendPhoto:async d=>{
         const me=(await F.getDoc(mref)).data();
         const ref=F.doc(F.collection(db,'photos')),b=F.writeBatch(db);
-        b.set(ref,{cls:me.cls,grp:me.grp,tag:d.tag,cap:d.cap,by:d.by,uid,th:d.th,ts:F.serverTimestamp()});
+        const pd={cls:me.cls,grp:me.grp,tag:d.tag,cap:d.cap,by:d.by,uid,th:d.th,ts:F.serverTimestamp()};if(d.mis)pd.mis=d.mis;
+        b.set(ref,pd);
         b.set(F.doc(db,'photofull',ref.id),{cls:me.cls,grp:me.grp,uid,img:d.img,ts:F.serverTimestamp()});
         return b.commit();
       },
@@ -1222,6 +1270,8 @@ if(firebaseConfig&&firebaseConfig.apiKey){
         b.set(F.doc(db,'scifull',uid),{cls:me.cls,uid,img:d.img,ts:F.serverTimestamp()});
         return b.commit();
       },
+      listSci:c=>F.getDocs(F.query(F.collection(db,'sci'),F.where('cls','==',c))).then(s=>s.docs.map(x=>Object.assign({id:x.id},x.data()))),
+      getSciFull:id=>F.getDoc(F.doc(db,'scifull',id)).then(s=>s.exists()?s.data().img:null),
       watchTags:(c,g,cb,err)=>F.onSnapshot(
         F.query(F.collection(db,'tags'),F.where('cls','==',c),F.where('grp','==',g)),
         s=>cb(s.docs.map(x=>{const v=x.data();return {uid:v.uid,name:v.name,tag:v.tag}})),err),
