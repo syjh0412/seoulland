@@ -647,7 +647,7 @@ window.upRoster=inp=>{const f=inp.files&&inp.files[0];if(!f)return;const rd=new 
 
 /* ---- 선생님 공지 ---- */
 let NTS=[], ACKS={}, ntScope=LS.g('ntScope','cls'), ntC=LS.g('ntC',1), ntG=LS.g('ntG',1);
-const NT_QUICK=['지금 바로 지구별 앞으로 모이세요','10분 뒤 집합이에요. 미리 움직여요','점심 먹고 모둠장이 보고해 주세요','비가 와요. 실내로 이동하세요','모둠원이 다 있는지 확인하고 보고해 주세요'];
+const NT_QUICK=['지금 바로 지구별 앞으로 모이세요','15분 뒤 집합이에요. 미리 움직여요','점심 먹고 모둠장이 보고해 주세요','모둠원이 다 있는지 확인하고 보고해 주세요'];
 function ntTarget(){return ntScope==='all'?'1학년 전체':ntScope==='cls'?'1-'+ntC+'반 전체':'1-'+ntC+' '+ntG+'모둠'}
 function ntExpect(n){return MEM.filter(x=>n.scope==='all'||(x.cls===n.cls&&(n.scope==='cls'||x.grp===n.grp))).length}
 function renderNtForm(){
