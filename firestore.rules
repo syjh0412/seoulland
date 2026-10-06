@@ -73,6 +73,30 @@ service cloud.firestore {
       allow delete: if isTeacher() || (signedIn() && resource.data.uid == request.auth.uid);
     }
 
+    // 모둠 채팅: 같은 모둠 학생과 교사만 읽고, 학생은 자기 이름으로 200자 이내만 쓰기. 삭제는 교사만
+    match /chat/{id} {
+      allow get, list: if isTeacher()
+        || (isMember() && resource.data.cls == myDoc().cls && resource.data.grp == myDoc().grp);
+      allow create: if (isTeacher()
+          && request.resource.data.keys().hasOnly(['cls','grp','name','text','uid','ts','tc'])
+          && request.resource.data.tc == true
+          && request.resource.data.uid == request.auth.uid
+          && request.resource.data.cls is int && request.resource.data.grp is int
+          && request.resource.data.name is string && request.resource.data.name.size() <= 20
+          && request.resource.data.text is string
+          && request.resource.data.text.size() >= 1 && request.resource.data.text.size() <= 200
+          && request.resource.data.ts == request.time)
+        || (isMember()
+          && request.resource.data.keys().hasOnly(['cls','grp','name','text','uid','ts'])
+          && request.resource.data.uid == request.auth.uid
+          && request.resource.data.cls == myDoc().cls && request.resource.data.grp == myDoc().grp
+          && request.resource.data.name == myDoc().name
+          && request.resource.data.text is string
+          && request.resource.data.text.size() >= 1 && request.resource.data.text.size() <= 200
+          && request.resource.data.ts == request.time);
+      allow delete: if isTeacher();
+    }
+
     // 출결·명단·건강정보: 교사만
     match /att/{id}     { allow read, write: if isTeacher(); }
     match /private/{id} { allow read, write: if isTeacher(); }

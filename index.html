@@ -146,8 +146,25 @@ h2.sec:first-child{margin-top:4px}
 
 nav{position:fixed;left:0;right:0;bottom:0;z-index:50;display:flex;background:var(--navbg);
  backdrop-filter:blur(12px);border-top:1.5px solid var(--line);padding:6px 4px calc(6px + env(safe-area-inset-bottom))}
-nav button{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:5px 2px;border-radius:13px;color:var(--ink2)}
+nav button{position:relative;flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:5px 2px;border-radius:13px;color:var(--ink2)}
 nav button .i{font-size:20px;line-height:1}
+nav .ndot{position:absolute;top:3px;left:calc(50% + 8px);width:10px;height:10px;border-radius:50%;background:#E5484D;border:2px solid var(--bg);display:none}
+nav .ndot.on{display:block}
+.chat{background:var(--bg);border:1.5px solid var(--line);border-radius:14px;padding:8px;height:270px;overflow-y:auto;display:flex;flex-direction:column;gap:6px;-webkit-overflow-scrolling:touch}
+.cm{max-width:84%;align-self:flex-start;background:var(--card);border:1.5px solid var(--line);border-radius:14px 14px 14px 4px;padding:6px 10px}
+.cm.me{align-self:flex-end;background:var(--skyS);border-color:transparent;border-radius:14px 14px 4px 14px}
+.cm.tc{background:var(--sunS);border-color:var(--sun)}
+.cm.pend{opacity:.55}
+.cm .cn{font-size:11.5px;font-weight:800;color:var(--ink2)}
+.cm .ct{font-size:15px;line-height:1.4;word-break:break-word;white-space:pre-wrap}
+.cm .cx{font-size:10.5px;color:var(--ink2);text-align:right;margin-top:1px}
+.chat .empty{margin:auto;text-align:center;color:var(--ink2);font-size:13.5px;line-height:1.6}
+.qk{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.qk button{padding:7px 11px;border-radius:99px;background:var(--skyS);color:var(--sky);font-weight:800;font-size:13px;border:1.5px solid transparent}
+.crow{display:flex;gap:8px;margin-top:8px}
+.crow .field{margin-top:0;flex:1}
+.crow button{padding:0 18px;border-radius:12px;background:var(--sky);color:#fff;font-weight:800;font-size:15px;white-space:nowrap}
+.crow button:disabled,.crow .field:disabled{opacity:.5}
 nav button .l{font-size:10.5px;font-weight:700}
 nav button.on{color:var(--sky);background:var(--skyS)}
 .note{font-size:12px;color:var(--ink2);text-align:center;padding:14px 8px 4px;line-height:1.6}
@@ -291,6 +308,14 @@ nav button.on{color:var(--sky);background:var(--skyS)}
 
   <h2 class="sec">📒 우리 모둠 친구들</h2>
   <div id="mates"></div>
+
+  <h2 class="sec">💬 모둠 채팅</h2>
+  <div class="card">
+    <div class="muted" style="margin-bottom:8px">우리 모둠 친구들끼리만 보여요. <b>담임 선생님도 볼 수 있어요.</b> 서로 존중하는 말만 써요 🌿</div>
+    <div class="chat" id="chatBox"></div>
+    <div class="qk" id="chatQk"></div>
+    <div class="crow"><input class="field" id="chatIn" maxlength="200" placeholder="메시지 쓰기" autocomplete="off"><button id="chatSend">보내기</button></div>
+  </div>
 
   <h2 class="sec">📣 선생님께 바로 보고</h2>
   <div class="card">
@@ -456,7 +481,7 @@ nav button.on{color:var(--sky);background:var(--skyS)}
   <button class="on" data-p="home"><span class="i">⏰</span><span class="l">홈</span></button>
   <button data-p="way"><span class="i">🚇</span><span class="l">가는 길</span></button>
   <button data-p="map"><span class="i">🗺️</span><span class="l">지도</span></button>
-  <button data-p="group"><span class="i">🧑‍🤝‍🧑</span><span class="l">우리 모둠</span></button>
+  <button data-p="group"><span class="i">🧑‍🤝‍🧑</span><span class="l">우리 모둠</span><span class="ndot" id="chDot"></span></button>
   <button data-p="safe"><span class="i">🆘</span><span class="l">안전</span></button>
 </nav>
 
@@ -765,7 +790,7 @@ document.getElementById('regBtn').onclick=function(){
   if(!window.FB){toast('아직 연결 중이에요. 잠시 후 다시 눌러 주세요');return}
   var d={cls:myClass,grp:myGroup,name:name,phone:phone,leader:leader};
   var btn=this;btn.disabled=true;btn.textContent='등록하는 중…';
-  FB.register(d).then(function(){ME=d;S.s('me',d);renderReg();startWatch();startPhotoWatch();renderPhotos();toast('🎉 등록했어요!')})
+  FB.register(d).then(function(){ME=d;S.s('me',d);renderReg();startWatch();startPhotoWatch();renderPhotos();startChatWatch();renderChat();toast('🎉 등록했어요!')})
    .catch(function(e){console.warn(e);toast('등록이 안 됐어요. 신호를 확인하고 다시 눌러 주세요')})
    .then(function(){btn.disabled=false;btn.textContent='📝 등록하기'});
 };
@@ -787,6 +812,48 @@ function renderMates(){
   });
   el.innerHTML=h+'<div class="muted" style="margin-top:8px">👥 '+list.length+'명 등록됨</div></div>';
 }
+/* 모둠 채팅 */
+var CHAT=[], chUnwatch=null, chLastSend=0, chSeen=S.g('chSeen',0);
+var CH_QUICK=['📍 나 여기 있어','❓ 어디야?','🚻 화장실 다녀올게','🍜 밥 먹으러 가자','⏰ 시간 확인!','👍 알겠어'];
+function chHM(t){var d=new Date(t);return ('0'+d.getHours()).slice(-2)+':'+('0'+d.getMinutes()).slice(-2)}
+function renderChat(){
+  var box=document.getElementById('chatBox'),inp=document.getElementById('chatIn'),btn=document.getElementById('chatSend');
+  var on=!!(ME&&window.FB);inp.disabled=!on;btn.disabled=!on;
+  document.getElementById('chatQk').innerHTML=CH_QUICK.map(function(q,i){return '<button data-i="'+i+'">'+q+'</button>'}).join('');
+  document.querySelectorAll('#chatQk button').forEach(function(b){b.onclick=function(){sendChat(CH_QUICK[+b.dataset.i])}});
+  if(!ME){box.innerHTML='<div class="empty">위에서 우리 모둠을 등록하면<br>친구들과 채팅할 수 있어요 💬</div>';return}
+  if(!CHAT.length){box.innerHTML='<div class="empty">아직 대화가 없어요.<br>먼저 인사해 볼까요? 👋</div>';return}
+  var near=box.scrollHeight-box.scrollTop-box.clientHeight<80,last=CHAT[CHAT.length-1];
+  box.innerHTML=CHAT.map(function(m){var me=window.FB&&m.uid===FB.uid;
+    return '<div class="cm'+(me?' me':'')+(m.tc?' tc':'')+(m.pend?' pend':'')+'">'+(me?'':'<div class="cn">'+(m.tc?'👩‍🏫 ':'')+esc(m.name)+'</div>')+'<div class="ct">'+esc(m.text)+'</div><div class="cx">'+chHM(m.t)+'</div></div>'}).join('');
+  if(near||(window.FB&&last.uid===FB.uid))box.scrollTop=box.scrollHeight;
+}
+function chUpdateDot(){
+  var panelOn=document.getElementById('p-group').classList.contains('on');
+  var newest=CHAT.reduce(function(a,m){return window.FB&&m.uid!==FB.uid&&!m.pend&&m.t>a?m.t:a},0);
+  if(panelOn){chSeen=Math.max(chSeen,newest,Date.now()-1);S.s('chSeen',chSeen)}
+  document.getElementById('chDot').classList.toggle('on',!panelOn&&newest>chSeen);
+}
+function startChatWatch(){
+  if(!window.FB||!ME)return;
+  if(chUnwatch)chUnwatch();
+  chUnwatch=FB.watchChat(ME.cls,ME.grp,function(list){
+    CHAT=list.sort(function(a,b){return a.t-b.t}).slice(-100);renderChat();chUpdateDot();
+  },function(e){console.warn(e)});
+}
+function sendChat(text){
+  text=String(text||'').replace(/\s+/g,' ').trim();
+  if(!text)return;
+  if(!ME){toast('먼저 위에서 우리 모둠을 등록해 주세요');return}
+  if(!window.FB){toast('아직 연결 중이에요. 잠시 후 다시 눌러 주세요');return}
+  var now=Date.now();if(now-chLastSend<1500){toast('조금만 천천히 보내요 🙂');return}
+  chLastSend=now;
+  FB.sendChat(text.slice(0,200)).catch(function(e){console.warn(e);toast('보내지 못했어요. 신호를 확인해 주세요')});
+  document.getElementById('chatIn').value='';
+}
+document.getElementById('chatSend').onclick=function(){sendChat(document.getElementById('chatIn').value)};
+document.getElementById('chatIn').onkeydown=function(e){if(e.key==='Enter'&&!e.isComposing){e.preventDefault();sendChat(this.value)}};
+document.querySelector('nav button[data-p="group"]').addEventListener('click',function(){setTimeout(chUpdateDot,50)});
 /* 모둠 사진 */
 var PH_TAGS=[['출발','① 출발'],['점심','② 점심'],['도착','③ 도착'],['미션','🎯 미션'],['자유','😊 자유']];
 var PH_MAX=40, phTag=S.g('phTag','출발'), PHOTOS=[], phUnwatch=null, phBusy=false;
@@ -866,8 +933,8 @@ window.addEventListener('fbready',function(){
     if(d){ME={cls:d.cls,grp:d.grp,name:d.name,phone:d.phone,leader:d.leader};S.s('me',ME);
       if(!myClass){myClass=d.cls;S.s('class',myClass)} if(!myGroup){myGroup=d.grp;S.s('group',myGroup)}
       renderClassPick();renderGroupPick();}
-    else if(ME){ME=null;S.s('me',null);MATES=[];S.s('mates',[])}
-    renderReg();renderMates();startWatch();startPhotoWatch();renderPhotos();
+    else if(ME){ME=null;S.s('me',null);MATES=[];S.s('mates',[]);CHAT=[]}
+    renderReg();renderMates();startWatch();startPhotoWatch();renderPhotos();startChatWatch();renderChat();
   });
 });
 function renderMis(){
@@ -895,7 +962,7 @@ function renderCalls(){
 
 renderClassPick();renderCD();renderTimeline();renderPack();
 renderWay('go');drawMap();renderPOI();renderLands();
-renderGroupPick();renderReg();renderMates();renderPhTag();renderPhotos();renderMis();renderCalls();
+renderGroupPick();renderReg();renderMates();renderPhTag();renderPhotos();renderChat();renderMis();renderCalls();
 document.getElementById('foot').innerHTML='고천중학교 1학년 · 2026.10.8 현장체험학습<br>모둠 등록·보고는 선생님께 실시간 전달돼요 🌿';
 setInterval(function(){renderCD();renderTimeline()},60000);
 </script>
@@ -930,6 +997,13 @@ if(firebaseConfig&&firebaseConfig.apiKey){
         b.set(ref,{cls:me.cls,grp:me.grp,tag:d.tag,cap:d.cap,by:d.by,uid,th:d.th,ts:F.serverTimestamp()});
         b.set(F.doc(db,'photofull',ref.id),{cls:me.cls,grp:me.grp,uid,img:d.img,ts:F.serverTimestamp()});
         return b.commit();
+      },
+      watchChat:(c,g,cb,err)=>F.onSnapshot(
+        F.query(F.collection(db,'chat'),F.where('cls','==',c),F.where('grp','==',g)),{includeMetadataChanges:true},
+        s=>cb(s.docs.map(x=>{const v=x.data();return {id:x.id,name:v.name,text:v.text,uid:v.uid,tc:!!v.tc,t:v.ts&&v.ts.toMillis?v.ts.toMillis():Date.now(),pend:x.metadata.hasPendingWrites}})),err),
+      sendChat:async text=>{
+        const me=(await F.getDoc(mref)).data();
+        return F.addDoc(F.collection(db,'chat'),{cls:me.cls,grp:me.grp,name:me.name,text,uid,ts:F.serverTimestamp()});
       },
       delPhoto:id=>{const b=F.writeBatch(db);b.delete(F.doc(db,'photos',id));b.delete(F.doc(db,'photofull',id));return b.commit()}
     };

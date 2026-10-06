@@ -132,6 +132,23 @@ nav button .l{font-size:9.5px}
 .pthumbs button{position:relative;aspect-ratio:1;border-radius:9px;overflow:hidden;background:var(--line);padding:0}
 .pthumbs img{width:100%;height:100%;object-fit:cover;display:block}
 .pthumbs .tg{position:absolute;left:3px;top:3px;background:rgba(0,0,0,.6);color:#fff;font-size:10px;font-weight:800;padding:0 5px;border-radius:99px}
+.chv{position:fixed;inset:0;z-index:140;background:rgba(8,10,20,.6);display:none;align-items:flex-end;justify-content:center}
+.chv.on{display:flex}
+.chin{background:var(--card);width:100%;max-width:560px;height:82vh;border-radius:18px 18px 0 0;display:flex;flex-direction:column;padding:12px 12px calc(12px + env(safe-area-inset-bottom))}
+.chin .chh{display:flex;align-items:center;gap:8px;font-weight:800;font-size:16px;margin-bottom:8px}
+.chin .chh .sp{flex:1}
+.chin .chh button{padding:6px 12px;border-radius:9px;background:var(--line);font-weight:800;font-size:13.5px;color:var(--ink)}
+.chlist{flex:1;overflow-y:auto;background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:8px;display:flex;flex-direction:column;gap:6px}
+.cmt{max-width:88%;align-self:flex-start;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:6px 10px;position:relative}
+.cmt.tc{align-self:flex-end;background:var(--blueS);border-color:transparent}
+.cmt .cn{font-size:11.5px;font-weight:800;color:var(--ink2)}
+.cmt .ct{font-size:14.5px;line-height:1.4;word-break:break-word;white-space:pre-wrap}
+.cmt .cx{font-size:10.5px;color:var(--ink2);margin-top:1px;display:flex;gap:8px;justify-content:flex-end;align-items:center}
+.cmt .cx button{color:var(--red);font-weight:800;font-size:11px}
+.chsend{display:flex;gap:8px;margin-top:8px}
+.chsend input{flex:1;padding:11px 12px;border:1.5px solid var(--line);border-radius:11px;background:var(--bg);color:var(--ink);font:inherit}
+.chsend button{padding:0 18px;border-radius:11px;background:var(--blue);color:#fff;font-weight:800}
+.chbtn{margin-left:8px;padding:5px 10px;border-radius:9px;background:var(--blueS);color:var(--blue);font-weight:800;font-size:12.5px}
 .pv{position:fixed;inset:0;z-index:150;background:rgba(8,10,20,.88);display:none;place-items:center;padding:14px}
 .pv.on{display:grid}
 .pvin{background:var(--card);border-radius:16px;padding:12px;width:100%;max-width:560px}
@@ -190,6 +207,11 @@ nav button .l{font-size:9.5px}
 <section class="panel" id="p-grp">
   <div class="seg" id="gClsSeg"></div>
   <div id="grpBody"></div>
+  <h2>🧹 체험학습이 끝나면</h2>
+  <div class="card">
+    <button onclick="wipeChat()" style="width:100%;padding:12px;border-radius:11px;background:var(--redS);color:var(--red);font-weight:800;font-size:14.5px">🗑 모든 반 모둠 채팅 한꺼번에 지우기</button>
+    <div class="muted" style="margin-top:7px">학생 대화 기록이에요. 확인을 마친 뒤 지워 주세요.</div>
+  </div>
 </section>
 
 <!-- 사진 -->
@@ -260,6 +282,11 @@ nav button .l{font-size:9.5px}
   <button data-p="sch"><span class="i">🕘</span><span class="l">일정</span></button>
 </nav>
 <div class="toast" id="toast"></div>
+<div class="chv" id="chv"><div class="chin">
+  <div class="chh"><span id="chTitle">대화</span><span class="sp"></span><button onclick="closeChat()">닫기 ✕</button></div>
+  <div class="chlist" id="chList"></div>
+  <div class="chsend"><input id="chIn" maxlength="200" placeholder="이 모둠에게 보낼 메시지" autocomplete="off"><button onclick="sendTChat()">보내기</button></div>
+</div></div>
 <div class="pv" id="pv"><div class="pvin">
   <div class="pvimg"><img id="pvImg" alt=""><div id="pvLoad" class="muted">큰 사진 불러오는 중…</div></div>
   <div id="pvMeta" style="margin-top:8px;font-size:14px"></div>
@@ -376,7 +403,7 @@ window.copyReport=()=>{const C=R.classes[myC-1],a=attOf(myC,myCp),P=participants
 
 function renderGrp(){
   $('gClsSeg').innerHTML=[1,2,3,4].map(c=>'<button data-c="'+c+'" class="'+(gC===c?'on':'')+'">1-'+c+'</button>').join('');
-  document.querySelectorAll('#gClsSeg button').forEach(b=>b.onclick=()=>{gC=+b.dataset.c;LS.s('gcls',gC);renderGrp()});
+  document.querySelectorAll('#gClsSeg button').forEach(b=>b.onclick=()=>{gC=+b.dataset.c;LS.s('gcls',gC);closeChat();CH=[];renderGrp();if(chStarted)watchChat()});
   const m=MEM.filter(x=>x.cls===gC), nameCnt={};
   m.forEach(x=>{const k=String(x.name).trim();nameCnt[k]=(nameCnt[k]||0)+1});
   const n=Math.max(GROUPS[gC]||8,...m.map(x=>x.grp),0);
@@ -385,7 +412,8 @@ function renderGrp(){
     const ms=m.filter(x=>x.grp===g).sort((a,b)=>(b.leader?1:0)-(a.leader?1:0));
     const last=REP.find(r=>r.cls===gC&&r.grp===g&&isToday(r.ts));
     h+='<div class="gcard"><div class="gh"><span class="gnum">'+g+'</span><span class="gt">'+g+'모둠 <span class="dim">· '+ms.length+'명</span></span>'+
-       '<span class="gs '+(last?(last.kind==='help'?'bad':'ok'):'dim')+'">'+(last?(last.kind==='help'?'🆘 ':'✅ ')+hhmm(last.ts)+' 보고':'보고 없음')+'</span></div>';
+       '<span class="gs '+(last?(last.kind==='help'?'bad':'ok'):'dim')+'">'+(last?(last.kind==='help'?'🆘 ':'✅ ')+hhmm(last.ts)+' 보고':'보고 없음')+'</span>'+
+       '<button class="chbtn" onclick="openChat('+g+')">💬 '+CH.filter(x=>x.cls===gC&&x.grp===g).length+'</button></div>';
     if(!ms.length)h+='<div class="muted" style="padding:6px 0">아직 등록한 학생이 없어요</div>';
     ms.forEach(x=>{const t=telOf(x.phone);
       h+='<div class="mrow"><div class="mn">'+esc(x.name)+(x.leader?'<span class="star">⭐모둠장</span>':'')+(nameCnt[String(x.name).trim()]>1?'<span class="dup">중복?</span>':'')+'</div>'+
@@ -496,6 +524,43 @@ window.upRoster=inp=>{const f=inp.files&&inp.files[0];if(!f)return;const rd=new 
     F.setDoc(F.doc(db,'private','roster'),j).then(()=>toast('✅ 명단을 올렸습니다')).catch(onErr)}catch(e){toast('파일 형식이 맞지 않아요')}};
   rd.readAsText(f)};
 
+
+/* ---- 모둠 채팅 (반별로 불러오고, 모둠 카드의 💬로 열어요) ---- */
+let CH=[], chUnsub=null, chOpen=0, chStarted=false;
+function watchChat(){
+  if(!db)return; if(chUnsub)chUnsub();
+  chUnsub=F.onSnapshot(F.query(F.collection(db,'chat'),F.where('cls','==',gC)),s=>{
+    CH=s.docs.map(d=>Object.assign({id:d.id},d.data()));renderGrp();if(chOpen)renderChatView()},onErr);
+}
+const chMs=m=>m.ts&&m.ts.toMillis?m.ts.toMillis():Date.now();
+window.openChat=g=>{chOpen=g;$('chv').classList.add('on');renderChatView(true);setTimeout(()=>$('chIn').focus(),50)};
+window.closeChat=()=>{chOpen=0;$('chv').classList.remove('on')};
+function renderChatView(force){
+  if(!chOpen)return;
+  const l=$('chList'),ms=CH.filter(x=>x.cls===gC&&x.grp===chOpen).sort((a,b)=>chMs(a)-chMs(b));
+  $('chTitle').textContent='💬 1-'+gC+' '+chOpen+'모둠 대화 ('+ms.length+')';
+  const near=force||l.scrollHeight-l.scrollTop-l.clientHeight<80;
+  l.innerHTML=ms.length?ms.map(m=>'<div class="cmt'+(m.tc?' tc':'')+'"><div class="cn">'+(m.tc?'👩‍🏫 ':'')+esc(m.name)+'</div><div class="ct">'+esc(m.text)+'</div><div class="cx">'+hhmm(m.ts)+'<button onclick="delChat(\''+m.id+'\')">삭제</button></div></div>').join(''):'<div class="muted" style="margin:auto">아직 대화가 없어요</div>';
+  if(near)l.scrollTop=l.scrollHeight;
+}
+window.sendTChat=()=>{
+  const t=$('chIn').value.replace(/\s+/g,' ').trim();if(!t||!chOpen||!db)return;
+  F.addDoc(F.collection(db,'chat'),{cls:gC,grp:chOpen,name:'선생님',text:t.slice(0,200),uid:auth.currentUser.uid,tc:true,ts:F.serverTimestamp()}).catch(onErr);
+  $('chIn').value='';
+};
+document.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.isComposing&&document.activeElement===$('chIn')){e.preventDefault();sendTChat()}});
+window.delChat=id=>{if(!confirm('이 메시지를 지울까요?'))return;F.deleteDoc(F.doc(db,'chat',id)).catch(onErr)};
+window.wipeChat=async()=>{
+  const w=prompt('모든 반의 모둠 채팅을 지웁니다. 되돌릴 수 없어요.\n지우려면 "삭제"라고 입력하세요.');
+  if(w!=='삭제')return;
+  try{
+    const a=await F.getDocs(F.collection(db,'chat')),refs=a.docs.map(d=>d.ref);
+    for(let i=0;i<refs.length;i+=400){const bt=F.writeBatch(db);refs.slice(i,i+400).forEach(r=>bt.delete(r));await bt.commit()}
+    toast('채팅 '+a.size+'개를 모두 지웠습니다');
+  }catch(e){onErr(e)}
+};
+document.querySelector('nav button[data-p="grp"]').addEventListener('click',()=>{if(!chStarted&&db){chStarted=true;watchChat()}});
+
 /* ---- 연결 상태 ---- */
 function setSync(){const on=navigator.onLine,s=$('sync');s.className='sync'+(on?'':' off');
   s.querySelector('span').textContent=on?'실시간 연결됨 · 다른 선생님 체크가 바로 보여요':'오프라인 · 체크는 저장해두고 연결되면 자동 반영돼요'}
@@ -517,8 +582,9 @@ function start(){
     if(fresh){buzz();toast('🆘 도움 요청이 왔어요!')}
     renderFeed();renderGrp()},onErr));
   if($('p-pho').classList.contains('on')){phoTabStarted=true;watchPho()}
+  if($('p-grp').classList.contains('on')){chStarted=true;watchChat()}
 }
-function stop(){unsubs.forEach(u=>{try{u()}catch(e){}});unsubs=[];if(phoUnsub){phoUnsub();phoUnsub=null}PHO=[];phoTabStarted=false}
+function stop(){unsubs.forEach(u=>{try{u()}catch(e){}});unsubs=[];if(phoUnsub){phoUnsub();phoUnsub=null}PHO=[];phoTabStarted=false;if(chUnsub){chUnsub();chUnsub=null}CH=[];chStarted=false;closeChat()}
 window.logout=()=>{if(confirm('로그아웃할까요?')&&A)A.signOut(auth)};
 
 /* ---- 부팅 ---- */
