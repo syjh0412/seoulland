@@ -213,6 +213,7 @@ nav button .l{font-size:9.5px}
 <!-- 모둠 -->
 <section class="panel" id="p-grp">
   <div class="seg" id="gClsSeg"></div>
+  <button class="plbtn" id="misBtn" onclick="openMis()">🎯 우리 반 미션 입력</button>
   <div id="grpBody"></div>
   <h2>🧹 체험학습이 끝나면</h2>
   <div class="card">
@@ -293,6 +294,11 @@ nav button .l{font-size:9.5px}
   <div class="chh"><span id="chTitle">대화</span><span class="sp"></span><button onclick="closeChat()">닫기 ✕</button></div>
   <div class="chlist" id="chList"></div>
   <div class="chsend"><input id="chIn" maxlength="200" placeholder="이 모둠에게 보낼 메시지" autocomplete="off"><button onclick="sendTChat()">보내기</button></div>
+</div></div>
+<div class="chv" id="msv"><div class="chin">
+  <div class="chh"><span id="msTitle">미션</span><span class="sp"></span><button onclick="closeMis()">닫기 ✕</button></div>
+  <div class="chlist" id="msList" style="background:var(--card)"></div>
+  <div class="chsend"><button style="background:var(--green);flex:1;padding:13px" onclick="saveMis()">💾 저장해서 이 반 학생에게 보이기</button></div>
 </div></div>
 <div class="pv" id="pv"><div class="pvin">
   <div class="pvimg"><img id="pvImg" alt=""><div id="pvLoad" class="muted">큰 사진 불러오는 중…</div></div>
@@ -411,6 +417,7 @@ window.copyReport=()=>{const C=R.classes[myC-1],a=attOf(myC,myCp),P=participants
 const homeCls=x=>{const k=/\((\d)반\)\s*$/.exec(String(x.name||''));return k?+k[1]:null};
 const baseName=n=>String(n||'').replace(/\s*\(\d반\)\s*$/,'').trim();
 function renderGrp(){
+  if($('misBtn'))misBtnText();
   $('gClsSeg').innerHTML=[1,2,3,4].map(c=>'<button data-c="'+c+'" class="'+(gC===c?'on':'')+'">1-'+c+'</button>').join('');
   document.querySelectorAll('#gClsSeg button').forEach(b=>b.onclick=()=>{gC=+b.dataset.c;LS.s('gcls',gC);closeChat();CH=[];renderGrp();if(chStarted)watchChat()});
   const m=MEM.filter(x=>x.cls===gC), nameCnt={};
@@ -544,6 +551,31 @@ window.upRoster=inp=>{const f=inp.files&&inp.files[0];if(!f)return;const rd=new 
   rd.readAsText(f)};
 
 
+/* ---- 반별 미션 (missions/{반}) ---- */
+let MISD={}, msWork=[];
+function misBtnText(){const m=MISD[String(gC)],n=m&&m.items?m.items.length:0;$('misBtn').textContent='🎯 1-'+gC+'반 미션 입력'+(n?' · 지금 '+n+'개':' · 아직 없음(기본 미션 표시 중)')}
+function msRead(){msWork=msWork.map((_,i)=>({t:$('msT'+i).value,d:$('msD'+i).value}))}
+function msRender(){
+  let h='<div class="muted" style="margin-bottom:8px">인증샷 ①출발 ②점심 ③도착은 <b>모든 반 공통</b>으로 자동으로 들어가요. 여기에는 <b>우리 반만의 미션</b>을 써 주세요. 비워 두고 저장하면 기본 미션(놀이기구 함께 타기 · 지구별 단체사진)으로 돌아가요.</div>';
+  msWork.forEach((m,i)=>{h+='<div class="plrow"><div class="t" style="display:flex">미션 '+(i+1)+'<span style="flex:1"></span><button style="color:var(--red);font-weight:800" onclick="msDel('+i+')">✕ 빼기</button></div>'+
+    '<input id="msT'+i+'" maxlength="40" placeholder="미션 (예: 모둠 점프샷 찍기)" value="'+esc(m.t)+'"><input id="msD'+i+'" maxlength="80" placeholder="설명 (안 써도 돼요)" value="'+esc(m.d)+'"></div>'});
+  if(msWork.length<10)h+='<button style="width:100%;padding:11px;border-radius:11px;background:var(--blueS);color:var(--blue);font-weight:800" onclick="msAdd()">＋ 미션 추가</button>';
+  $('msList').innerHTML=h;
+}
+window.openMis=()=>{const m=MISD[String(gC)];msWork=(m&&m.items?m.items:[]).map(x=>({t:x.t||'',d:x.d||''}));if(!msWork.length)msWork=[{t:'',d:''},{t:'',d:''},{t:'',d:''}];
+  $('msTitle').textContent='🎯 1-'+gC+'반 미션';msRender();$('msv').classList.add('on')};
+window.closeMis=()=>$('msv').classList.remove('on');
+window.msAdd=()=>{msRead();msWork.push({t:'',d:''});msRender();const i=msWork.length-1;setTimeout(()=>$('msT'+i).focus(),30)};
+window.msDel=i=>{msRead();msWork.splice(i,1);msRender()};
+window.saveMis=async()=>{
+  msRead();const items=msWork.map(x=>({t:x.t.trim().slice(0,40),d:x.d.trim().slice(0,80)})).filter(x=>x.t).slice(0,10);
+  try{
+    const ref=F.doc(db,'missions',String(gC));
+    if(items.length)await F.setDoc(ref,{cls:gC,items,ts:F.serverTimestamp()});else await F.deleteDoc(ref);
+    closeMis();toast(items.length?'✅ 1-'+gC+'반 미션 '+items.length+'개를 올렸어요':'기본 미션으로 돌렸어요');
+  }catch(e){onErr(e)}
+};
+
 /* ---- 모둠 약속 (학생이 정해서 보냄: plans/{반-모둠}) ---- */
 let PLANS={}, firstPlans=true;
 const planOf=(c,g)=>PLANS[c+'-'+g]||null;
@@ -607,13 +639,14 @@ function start(){
     REP=s.docs.map(d=>Object.assign({id:d.id},d.data()));firstRep=false;
     if(fresh){buzz();toast('🆘 도움 요청이 왔어요!')}
     renderFeed();renderGrp()},onErr));
+  unsubs.push(F.onSnapshot(F.collection(db,'missions'),s=>{MISD={};s.forEach(d=>MISD[d.id]=d.data());misBtnText()},onErr));
   firstPlans=true;unsubs.push(F.onSnapshot(F.collection(db,'plans'),s=>{
     if(!firstPlans)s.docChanges().forEach(c=>{if(c.type==='added'||c.type==='modified'){const v=c.doc.data();toast('🤝 1-'+v.cls+' '+v.grp+'모둠이 약속을 정했어요')}});
     firstPlans=false;PLANS={};s.forEach(d=>PLANS[d.id]=d.data());renderGrp()},onErr));
   if($('p-pho').classList.contains('on')){phoTabStarted=true;watchPho()}
   if($('p-grp').classList.contains('on')){chStarted=true;watchChat()}
 }
-function stop(){unsubs.forEach(u=>{try{u()}catch(e){}});unsubs=[];if(phoUnsub){phoUnsub();phoUnsub=null}PHO=[];phoTabStarted=false;if(chUnsub){chUnsub();chUnsub=null}CH=[];chStarted=false;closeChat();PLANS={}}
+function stop(){unsubs.forEach(u=>{try{u()}catch(e){}});unsubs=[];if(phoUnsub){phoUnsub();phoUnsub=null}PHO=[];phoTabStarted=false;if(chUnsub){chUnsub();chUnsub=null}CH=[];chStarted=false;closeChat();PLANS={};MISD={}}
 window.logout=()=>{if(confirm('로그아웃할까요?')&&A)A.signOut(auth)};
 
 /* ---- 부팅 ---- */

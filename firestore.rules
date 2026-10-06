@@ -113,6 +113,12 @@ service cloud.firestore {
       allow delete: if isTeacher();
     }
 
+    // 반별 미션: 교사가 쓰고, 학생은 읽기만
+    match /missions/{id} {
+      allow read: if signedIn();
+      allow write: if isTeacher();
+    }
+
     // 출결·명단·건강정보: 교사만
     match /att/{id}     { allow read, write: if isTeacher(); }
     match /private/{id} { allow read, write: if isTeacher(); }

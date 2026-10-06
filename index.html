@@ -593,13 +593,12 @@ var FACIL=[
 ];
 
 /* 미션(예시 — 실제 미션 정해지면 교체) */
-var MISSIONS=[
- {t:'모둠인증샷 ① 출발',d:'가는 길, 범계역에 다 모였을 때 한 장',e:'🚇',pin:'가는 길'},
- {t:'모둠인증샷 ② 점심',d:'다 같이 먹는 모습 한 장',e:'🍜',pin:'점심'},
- {t:'모둠원 전원이 함께 탄 놀이기구',d:'타기 전이나 후에 다 같이 한 장',e:'🎢',pin:'오후'},
- {t:'지구별 앞 단체사진',d:'15:10 집합할 때',e:'🌐',pin:'집합'},
- {t:'모둠인증샷 ③ 도착',d:'오는 길, 범계역에 내렸을 때 한 장',e:'🏠',pin:'오는 길'}
-];
+var MIS_FIXED={
+ s:{id:'p출발',t:'모둠인증샷 ① 출발',d:'가는 길, 범계역에 다 모였을 때 한 장',e:'🚇',pin:'공통 · 가는 길'},
+ l:{id:'p점심',t:'모둠인증샷 ② 점심',d:'다 같이 먹는 모습 한 장',e:'🍜',pin:'공통 · 점심'},
+ a:{id:'p도착',t:'모둠인증샷 ③ 도착',d:'오는 길, 범계역에 내렸을 때 한 장',e:'🏠',pin:'공통 · 오는 길'}};
+var MIS_DEF=[{t:'모둠원 전원이 함께 탄 놀이기구',d:'타기 전이나 후에 다 같이 한 장',e:'🎢'},{t:'지구별 앞 단체사진',d:'15:10 집합할 때',e:'🌐'}];
+var CLS_MIS=null, misUnwatch=null, misCls=0;
 
 var myClass=S.g('class',0), myGroup=S.g('group',0);
 
@@ -644,7 +643,7 @@ function renderClassPick(){
   var h='';for(var c=1;c<=4;c++)h+='<button data-c="'+c+'" class="'+(myClass===c?'on':'')+'">1-'+c+'</button>';
   ['classPick','regCls'].forEach(function(id){
     var el=document.getElementById(id);el.innerHTML=h;
-    el.querySelectorAll('button').forEach(function(b){b.onclick=function(){myClass=+b.dataset.c;S.s('class',myClass);renderClassPick();renderGroupPick();renderCalls()}});
+    el.querySelectorAll('button').forEach(function(b){b.onclick=function(){myClass=+b.dataset.c;S.s('class',myClass);renderClassPick();renderGroupPick();renderCalls();startMisWatch();renderMis()}});
   });
 }
 function renderPack(){
@@ -805,7 +804,7 @@ document.getElementById('regBtn').onclick=function(){
   if(!window.FB){toast('아직 연결 중이에요. 잠시 후 다시 눌러 주세요');return}
   var d={cls:myClass,grp:myGroup,name:name,phone:phone,leader:leader};
   var btn=this;btn.disabled=true;btn.textContent='등록하는 중…';
-  FB.register(d).then(function(){ME=d;S.s('me',d);renderReg();startWatch();startPhotoWatch();renderPhotos();startChatWatch();renderChat();startPlanWatch();renderPlan();toast('🎉 등록했어요!')})
+  FB.register(d).then(function(){ME=d;S.s('me',d);renderReg();startWatch();startPhotoWatch();renderPhotos();startChatWatch();renderChat();startPlanWatch();renderPlan();startMisWatch();toast('🎉 등록했어요!')})
    .catch(function(e){console.warn(e);toast('등록이 안 됐어요. 신호를 확인하고 다시 눌러 주세요')})
    .then(function(){btn.disabled=false;btn.textContent='📝 등록하기'});
 };
@@ -906,7 +905,7 @@ document.querySelector('nav button[data-p="group"]').addEventListener('click',fu
 /* 모둠 사진 */
 var PH_TAGS=[['출발','① 출발'],['점심','② 점심'],['도착','③ 도착'],['미션','🎯 미션'],['자유','😊 자유']];
 var PH_MAX=40, phTag=S.g('phTag','출발'), PHOTOS=[], phUnwatch=null, phBusy=false;
-var TAG2MIS={'출발':0,'점심':1,'도착':4};
+var TAG2MIS={'출발':'p출발','점심':'p점심','도착':'p도착'};
 function renderPhTag(){
   var el=document.getElementById('phTag');
   el.innerHTML=PH_TAGS.map(function(t){return '<button data-t="'+t[0]+'" class="'+(phTag===t[0]?'on':'')+'">'+t[1]+'</button>'}).join('');
@@ -947,7 +946,7 @@ document.getElementById('phFile').onchange=function(){
   (function next(i){
     if(i>=files.length){phBusy=false;document.getElementById('phCap').value='';renderPhotos();
       toast(fail?(done+'장 보냄 · '+fail+'장 실패. 신호를 확인하고 다시 보내 주세요'):('📸 '+done+'장 보냈어요! 선생님께 전달돼요'));
-      if(done&&TAG2MIS[tag]!=null){var s=S.g('mis2',{});s[TAG2MIS[tag]]=true;S.s('mis2',s);renderMis()}
+      if(done&&TAG2MIS[tag]!=null){var s=S.g('mis3',{});s[TAG2MIS[tag]]=true;S.s('mis3',s);renderMis()}
       return}
     st.textContent='사진 줄이는 중… ('+(i+1)+'/'+files.length+')';
     Promise.all([shrink(files[i],1280,.72),shrink(files[i],320,.55)]).then(function(r){
@@ -983,19 +982,32 @@ window.addEventListener('fbready',function(){
       if(!myClass){myClass=d.cls;S.s('class',myClass)} if(!myGroup){myGroup=d.grp;S.s('group',myGroup)}
       renderClassPick();renderGroupPick();}
     else if(ME){ME=null;S.s('me',null);MATES=[];S.s('mates',[]);CHAT=[];PLAN=null}
-    renderReg();renderMates();startWatch();startPhotoWatch();renderPhotos();startChatWatch();renderChat();startPlanWatch();renderPlan();
+    renderReg();renderMates();startWatch();startPhotoWatch();renderPhotos();startChatWatch();renderChat();startPlanWatch();renderPlan();startMisWatch();
   });
 });
+function misList(){
+  var own=CLS_MIS&&CLS_MIS.length;
+  var cl=(own?CLS_MIS:MIS_DEF).map(function(m){return {id:'c:'+m.t,t:m.t,d:m.d||'',e:m.e||'🎯',pin:own?'우리 반 미션':'기본 미션'}});
+  return [MIS_FIXED.s,MIS_FIXED.l].concat(cl,[MIS_FIXED.a]);
+}
 function renderMis(){
-  var st=S.g('mis2',{}),done=0,h='';
-  MISSIONS.forEach(function(m,i){if(st[i])done++;
-    h+='<button class="ms '+(st[i]?'done':'')+'" data-i="'+i+'"><span class="ck">✓</span><span><span class="mt">'+m.e+' '+m.t+'</span><span class="md">'+m.d+'</span><span class="pin">📍 '+m.pin+'</span></span></button>'});
+  var L=misList(),st=S.g('mis3',{}),done=0,c=(ME&&ME.cls)||myClass;
+  var h='<div class="muted" style="margin:0 2px 8px">'+(CLS_MIS&&CLS_MIS.length?'🏫 <b>1-'+c+'반 선생님이 정한 미션</b>이에요. 인증샷 3개는 모든 반 공통!':(c?'아직 1-'+c+'반 미션이 올라오지 않아서 기본 미션을 보여 줘요. 선생님이 올리면 바로 바뀌어요.':'「홈」에서 우리 반을 고르면 우리 반 미션이 나와요.'))+'</div>';
+  L.forEach(function(m,i){if(st[m.id])done++;
+    h+='<button class="ms '+(st[m.id]?'done':'')+'" data-i="'+i+'"><span class="ck">✓</span><span><span class="mt">'+m.e+' '+esc(m.t)+'</span>'+(m.d?'<span class="md">'+esc(m.d)+'</span>':'')+'<span class="pin">📍 '+m.pin+'</span></span></button>'});
   document.getElementById('misList').innerHTML=h;
-  document.getElementById('misCnt').textContent=done+' / '+MISSIONS.length;
-  document.getElementById('misBar').style.width=(done/MISSIONS.length*100)+'%';
+  document.getElementById('misCnt').textContent=done+' / '+L.length;
+  document.getElementById('misBar').style.width=(done/L.length*100)+'%';
   document.querySelectorAll('#misList .ms').forEach(function(b){b.onclick=function(){
-    var s=S.g('mis2',{}),i=b.dataset.i,was=!!s[i];s[i]=!was;S.s('mis2',s);renderMis();
-    if(!was){var n=0;for(var k in s)if(s[k])n++;if(n===MISSIONS.length)document.getElementById('pop').classList.add('on')}}});
+    var s=S.g('mis3',{}),id=L[+b.dataset.i].id,was=!!s[id];s[id]=!was;S.s('mis3',s);renderMis();
+    if(!was&&L.every(function(m){return s[m.id]}))document.getElementById('pop').classList.add('on')}});
+}
+function startMisWatch(){
+  var c=(ME&&ME.cls)||myClass;
+  if(!window.FB||!c||(c===misCls&&misUnwatch))return;
+  if(misUnwatch)misUnwatch();
+  misCls=c;CLS_MIS=null;renderMis();
+  misUnwatch=FB.watchMissions(c,function(d){CLS_MIS=d&&d.items&&d.items.length?d.items:null;renderMis()},function(e){console.warn(e)});
 }
 function renderCalls(){
   var h='';
@@ -1060,6 +1072,7 @@ if(firebaseConfig&&firebaseConfig.apiKey){
         const me=(await F.getDoc(mref)).data();
         return F.setDoc(F.doc(db,'plans',me.cls+'-'+me.grp),{cls:me.cls,grp:me.grp,place:d.place,time:d.time,memo:d.memo,by:me.name,uid,ts:F.serverTimestamp()});
       },
+      watchMissions:(c,cb,err)=>F.onSnapshot(F.doc(db,'missions',String(c)),s=>cb(s.exists()?s.data():null),err),
       delPhoto:id=>{const b=F.writeBatch(db);b.delete(F.doc(db,'photos',id));b.delete(F.doc(db,'photofull',id));return b.commit()}
     };
     window.dispatchEvent(new Event('fbready'));
