@@ -64,8 +64,6 @@ h2:first-child{margin-top:2px}
 .st .nm{font-size:14.5px;font-weight:700;margin-top:1px}
 .st.on{background:var(--greenS);border-color:var(--green)}
 .st.on:after{content:"✓";position:absolute;top:3px;right:6px;color:var(--green);font-weight:800;font-size:13px}
-.st.care{box-shadow:inset 0 0 0 2px var(--amber),var(--sh)}
-.st.care .nm:after{content:" ⚠";color:var(--amber);font-size:11px}
 .st.absent{opacity:.42;background:var(--line)}
 .st.absent .nm{text-decoration:line-through}
 .row{display:flex;gap:10px;align-items:flex-start;padding:10px 0;border-bottom:1px solid var(--line)}
@@ -317,7 +315,6 @@ document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>{
 });
 
 const participants=C=>C.names.map((n,i)=>({no:i+1,n})).filter(x=>C.absent.indexOf(x.no)<0);
-const isCare=(c,no)=>R&&(R.care||[]).some(x=>x.c===c&&x.no===no);
 const attOf=(c,cp)=>(ATT[c+'-'+cp]&&ATT[c+'-'+cp].c)||{};
 const hhmm=ts=>{if(!ts||!ts.toDate)return '··:··';const d=ts.toDate();return ('0'+d.getHours()).slice(-2)+':'+('0'+d.getMinutes()).slice(-2)};
 const isToday=ts=>{if(!ts||!ts.toDate)return true;const d=ts.toDate(),n=new Date();return d.toDateString()===n.toDateString()};
@@ -361,7 +358,7 @@ function renderChk(){
   const C=R.classes[myC-1],a=attOf(myC,myCp),P=participants(C),done=P.filter(x=>a[x.no]).length;
   let g='';
   C.names.forEach((n,i)=>{const no=i+1,ab=C.absent.indexOf(no)>=0,on=!ab&&a[no];
-    g+='<button class="st'+(ab?' absent':'')+(on?' on':'')+(isCare(C.c,no)?' care':'')+'" '+(ab?'disabled':'onclick="tAtt('+no+')"')+'><div class="no">'+no+'</div><div class="nm">'+esc(n)+'</div></button>'});
+    g+='<button class="st'+(ab?' absent':'')+(on?' on':'')+'" '+(ab?'disabled':'onclick="tAtt('+no+')"')+'><div class="no">'+no+'</div><div class="nm">'+esc(n)+'</div></button>'});
   $('chkBody').innerHTML='<div class="stat"><div><div class="n '+(done===P.length?'ok':'bad')+'">'+done+' / '+P.length+'</div><div class="t">'+(done===P.length?'전원 확인 완료 ✓':(P.length-done)+'명 미확인')+'</div></div>'+
     '<div class="btns"><button onclick="allOn()">전원 확인</button><button onclick="clearAll()">해제</button></div></div><div class="grid">'+g+'</div>'+
     '<div class="card" style="margin-top:12px"><button onclick="copyReport()" style="width:100%;padding:12px;border-radius:11px;background:var(--blueS);color:var(--blue);font-weight:800;font-size:14.5px">📋 점검 결과 복사 (비상용 · 스쿨톡)</button><div class="muted" style="margin-top:6px">평소엔 필요 없어요. 다른 선생님 화면에 자동으로 보입니다.</div></div>';
