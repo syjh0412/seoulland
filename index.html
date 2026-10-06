@@ -761,7 +761,7 @@ function renderLands(){
 }
 
 /* 우리 모둠 (실시간 연동) */
-var GROUPS={1:8,2:8,3:8,4:7};
+var GROUPS={1:8,2:8,3:8,4:8};
 function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
 function telOf(t){return String(t||'').replace(/[^0-9]/g,'')}
 var ME=S.g('me',null), MATES=S.g('mates',[]), unwatch=null;
