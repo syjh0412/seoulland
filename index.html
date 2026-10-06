@@ -163,6 +163,17 @@ nav .ndot.on{display:block}
 .plan .pt{font-weight:800;font-size:13px;color:var(--ink2)}
 .plan .pw{font-size:19px;font-weight:800;margin-top:3px;line-height:1.35}
 .plan .pm{font-size:14px;color:var(--ink2);margin-top:5px;line-height:1.5;white-space:pre-wrap}
+.arw{position:fixed;inset:0;z-index:120;background:#0E1320;display:none;flex-direction:column;padding:calc(10px + env(safe-area-inset-top)) 12px calc(12px + env(safe-area-inset-bottom));color:#fff}
+.arw.on{display:flex}
+.arh{font-size:14px;line-height:1.5;text-align:center;margin-bottom:8px}
+.arc{flex:1;display:flex;align-items:center;justify-content:center;min-height:0}
+.arc canvas{max-width:100%;max-height:100%;border-radius:10px;touch-action:none;background:#000}
+.arcol{display:flex;gap:10px;justify-content:center;margin:10px 0 8px}
+.arcol button{width:38px;height:38px;border-radius:50%;border:3px solid transparent}
+.arcol button.on{border-color:#fff;box-shadow:0 0 0 2px rgba(255,255,255,.35)}
+.arbt{display:flex;gap:8px}
+.arbt button{flex:1;padding:13px 6px;border-radius:12px;background:#2A3346;color:#fff;font-weight:800;font-size:15px}
+.arbt button.go{background:var(--grape);flex:1.4}
 .qk{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
 .qk button{padding:7px 11px;border-radius:99px;background:var(--skyS);color:var(--sky);font-weight:800;font-size:13px;border:1.5px solid transparent}
 .crow{display:flex;gap:8px;margin-top:8px}
@@ -340,6 +351,24 @@ nav button.on{color:var(--sky);background:var(--skyS)}
     <div class="muted" style="margin-top:9px">모둠장 보고 시각: <b>11:00 · 13:00 · 14:30</b> · 급하면 전화가 먼저예요!</div>
   </div>
 
+</section>
+
+<!-- 안전 -->
+<!-- 미션 -->
+<section class="panel" id="p-mission">
+  <h2 class="sec">🎯 우리 모둠 미션</h2>
+  <div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:baseline">
+      <b style="font-size:15px">진행률</b><b id="misCnt" style="font-size:15px;color:var(--grass)">0 / 0</b>
+    </div>
+    <div class="bar"><i id="misBar" style="width:0%"></i></div>
+  </div>
+  <div id="misList"></div>
+  <div class="card" style="background:var(--grapeS);border-color:var(--grape)">
+    <b style="font-size:14px">📸 사진은 어떻게 내나요?</b>
+    <div class="muted" style="margin-top:4px;color:var(--ink)">아래 <b>「📸 모둠 사진 보내기」</b>로 보내면 담임 선생님께 바로 가요. 인증샷 ①②③을 보내면 미션도 자동으로 체크돼요! (모둠당 40장까지)</div>
+  </div>
+
   <h2 class="sec">📸 모둠 사진 보내기</h2>
   <div class="card">
     <div class="muted" style="margin-bottom:8px">어떤 사진인지 고르고 보내요. 담임 선생님 화면에 바로 떠요.</div>
@@ -353,11 +382,11 @@ nav button.on{color:var(--sky);background:var(--skyS)}
 
 <h2 class="sec">🔬 과학 미션 · 힘을 찾아라! <span style="font-size:13px;color:var(--ink2)">(개인)</span></h2>
   <div class="card">
-    <div class="muted" style="margin-bottom:8px">서울랜드에서 <b>힘이 작용하는 장면</b>을 찾아 <b>한 사람당 한 장</b> 찍어서 과학 선생님께 보내요. 다시 보내면 새 사진으로 바뀌어요.</div>
+    <div class="muted" style="margin-bottom:8px">서울랜드에서 <b>힘이 작용하는 장면</b>을 찾아 찍고, <b>힘의 방향을 화살표로 그려서</b> 보내요. <b>한 사람당 한 장</b>, 다시 보내면 바뀌어요.</div>
     <div class="pick" id="sciForce"></div>
     <input class="field" id="sciCap" maxlength="80" placeholder="어디에서 어떤 힘이? (예: 바이킹이 내려올 때 중력)">
     <input type="file" id="sciFile" accept="image/*" style="display:none">
-    <button class="bigbtn g" id="sciBtn" style="margin-top:10px">📷 찍어서 과학 선생님께 보내기</button>
+    <button class="bigbtn g" id="sciBtn" style="margin-top:10px">📷 찍고 화살표 그려서 보내기</button>
     <div id="sciStat" class="muted" style="margin-top:8px"></div>
   </div>
 
@@ -367,22 +396,8 @@ nav button.on{color:var(--sky);background:var(--skyS)}
     <div class="crow"><input class="field" id="tagIn" maxlength="16" placeholder="#신난다" autocomplete="off"><button id="tagBtn">남기기</button></div>
     <div class="qk" id="tagList"></div>
   </div>
-
-<h2 class="sec">🎯 우리 모둠 미션</h2>
-  <div class="card">
-    <div style="display:flex;justify-content:space-between;align-items:baseline">
-      <b style="font-size:15px">진행률</b><b id="misCnt" style="font-size:15px;color:var(--grass)">0 / 0</b>
-    </div>
-    <div class="bar"><i id="misBar" style="width:0%"></i></div>
-  </div>
-  <div id="misList"></div>
-  <div class="card" style="background:var(--grapeS);border-color:var(--grape)">
-    <b style="font-size:14px">📸 사진은 어떻게 내나요?</b>
-    <div class="muted" style="margin-top:4px;color:var(--ink)">위의 <b>「📸 모둠 사진 보내기」</b>로 보내면 담임 선생님께 바로 가요. 인증샷 ①②③을 보내면 미션도 자동으로 체크돼요! (모둠당 40장까지)</div>
-  </div>
 </section>
 
-<!-- 안전 -->
 <section class="panel" id="p-safe">
   <div class="card song-card" style="background:linear-gradient(135deg,var(--grapeS),var(--skyS));border-color:var(--grape)">
     <div style="display:flex;align-items:center;gap:11px">
@@ -514,9 +529,16 @@ nav button.on{color:var(--sky);background:var(--skyS)}
   <button data-p="way"><span class="i">🚇</span><span class="l">가는 길</span></button>
   <button data-p="map"><span class="i">🗺️</span><span class="l">지도</span></button>
   <button data-p="group"><span class="i">🧑‍🤝‍🧑</span><span class="l">우리 모둠</span><span class="ndot" id="chDot"></span></button>
+  <button data-p="mission"><span class="i">🎯</span><span class="l">미션</span></button>
   <button data-p="safe"><span class="i">🆘</span><span class="l">안전</span></button>
 </nav>
 
+<div class="arw" id="arw">
+  <div class="arh">👆 힘을 받는 곳에서 <b>힘의 방향</b>으로 손가락을 끌어 화살표를 그려요</div>
+  <div class="arc"><canvas id="arCv"></canvas></div>
+  <div class="arcol" id="arCol"></div>
+  <div class="arbt"><button onclick="arUndo()">↩ 되돌리기</button><button onclick="arClose()">✕ 취소</button><button class="go" onclick="arSend()">🔬 보내기</button></div>
+</div>
 <div class="pop" id="pop"><div class="in">
   <div class="em">🎉</div><h3>미션 올클리어!</h3>
   <p>우리 모둠 최고! 선생님께 자랑하러 가자</p>
@@ -866,7 +888,7 @@ function startPlanWatch(){
 }
 document.getElementById('planBtn').onclick=function(){
   var time=document.getElementById('planTime').value.trim(),place=document.getElementById('planPlace').value.trim(),memo=document.getElementById('planMemo').value.trim();
-  if(!ME){toast('먼저 위에서 우리 모둠을 등록해 주세요');return}
+  if(!ME){toast('먼저 「우리 모둠」 탭에서 등록해 주세요');return}
   if(!window.FB){toast('아직 연결 중이에요. 잠시 후 다시 눌러 주세요');return}
   if(!place){toast('만나는 장소를 써 주세요');return}
   if(!time){toast('만나는 시각을 골라 주세요');return}
@@ -908,7 +930,7 @@ function startChatWatch(){
 function sendChat(text){
   text=String(text||'').replace(/\s+/g,' ').trim();
   if(!text)return;
-  if(!ME){toast('먼저 위에서 우리 모둠을 등록해 주세요');return}
+  if(!ME){toast('먼저 「우리 모둠」 탭에서 등록해 주세요');return}
   if(!window.FB){toast('아직 연결 중이에요. 잠시 후 다시 눌러 주세요');return}
   var now=Date.now();if(now-chLastSend<1500){toast('조금만 천천히 보내요 🙂');return}
   chLastSend=now;
@@ -927,9 +949,9 @@ function renderSciForce(){
 }
 function renderSci(){
   var st=document.getElementById('sciStat'),btn=document.getElementById('sciBtn');
-  if(!ME){st.textContent='먼저 위에서 우리 모둠을 등록해야 보낼 수 있어요.';return}
+  if(!ME){st.textContent='먼저 「우리 모둠」 탭에서 등록해야 보낼 수 있어요.';return}
   if(SCI_ME){st.innerHTML='<div style="display:flex;gap:10px;align-items:center"><img src="'+SCI_ME.th+'" alt="" style="width:64px;height:64px;object-fit:cover;border-radius:10px"><div>✅ <b>보냈어요!</b> · '+esc(SCI_ME.force)+(SCI_ME.cap?'<br>'+esc(SCI_ME.cap):'')+'</div></div>';btn.textContent='🔄 다른 사진으로 바꿔 보내기'}
-  else{st.textContent='아직 안 보냈어요. 힘이 보이는 장면을 찾아봐요!';btn.textContent='📷 찍어서 과학 선생님께 보내기'}
+  else{st.textContent='아직 안 보냈어요. 힘이 보이는 장면을 찾아봐요!';btn.textContent='📷 찍고 화살표 그려서 보내기'}
 }
 function startSciWatch(){
   if(!window.FB||!ME)return;
@@ -937,29 +959,71 @@ function startSciWatch(){
   sciUnwatch=FB.watchSci(function(d){SCI_ME=d;renderSci()},function(e){console.warn(e)});
 }
 document.getElementById('sciBtn').onclick=function(){
-  if(!ME){toast('먼저 위에서 우리 모둠을 등록해 주세요');return}
+  if(!ME){toast('먼저 「우리 모둠」 탭에서 등록해 주세요');return}
   if(!window.FB){toast('아직 연결 중이에요. 잠시 후 다시 눌러 주세요');return}
   if(sciBusy){toast('보내는 중이에요. 잠깐만요!');return}
   document.getElementById('sciFile').click();
 };
 document.getElementById('sciFile').onchange=function(){
-  var f=(this.files||[])[0];this.value='';if(!f)return;
-  var cap=document.getElementById('sciCap').value.trim().slice(0,80),st=document.getElementById('sciStat');
-  sciBusy=true;st.textContent='사진 줄이는 중…';
-  Promise.all([shrink(f,1280,.72),shrink(f,320,.55)]).then(function(r){
-    if(r[0].length>850000)return shrink(f,1000,.6).then(function(f2){return [f2,r[1]]});return r})
-  .then(function(r){st.textContent='보내는 중… 신호가 약하면 조금 걸려요';return FB.sendSci({force:sciForce,cap:cap,th:r[1],img:r[0]})})
-  .then(function(){toast('🔬 과학 선생님께 보냈어요!');document.getElementById('sciCap').value=''})
-  .catch(function(e){console.warn(e);toast('보내지 못했어요. 신호를 확인하고 다시 보내 주세요')})
-  .then(function(){sciBusy=false;renderSci()});
+  var f=(this.files||[])[0];this.value='';if(!f)return;arOpen(f);
 };
+/* 화살표 그리기 */
+var AR={cv:null,base:null,arrows:[],tmp:null,col:'#FF3B30',W:0,H:0};
+var AR_COLS=['#FF3B30','#FFD60A','#0A84FF','#34C759'];
+function arRenderCols(){var el=document.getElementById('arCol');
+  el.innerHTML=AR_COLS.map(function(c){return '<button data-c="'+c+'" class="'+(AR.col===c?'on':'')+'" style="background:'+c+'"></button>'}).join('');
+  el.querySelectorAll('button').forEach(function(b){b.onclick=function(){AR.col=b.dataset.c;arRenderCols()}})}
+function arOpen(file){
+  var url=URL.createObjectURL(file),im=new Image();
+  im.onload=function(){
+    var r=Math.min(1,1280/Math.max(im.naturalWidth,im.naturalHeight));AR.W=Math.max(1,Math.round(im.naturalWidth*r));AR.H=Math.max(1,Math.round(im.naturalHeight*r));
+    AR.base=document.createElement('canvas');AR.base.width=AR.W;AR.base.height=AR.H;AR.base.getContext('2d').drawImage(im,0,0,AR.W,AR.H);URL.revokeObjectURL(url);
+    AR.cv=document.getElementById('arCv');AR.cv.width=AR.W;AR.cv.height=AR.H;AR.arrows=[];AR.tmp=null;
+    document.getElementById('arw').classList.add('on');arRenderCols();arDraw();
+  };
+  im.onerror=function(){URL.revokeObjectURL(url);toast('사진을 읽지 못했어요')};im.src=url;
+}
+function arArrow(x,a){
+  var lw=Math.max(5,Math.round(Math.max(AR.W,AR.H)*.011)),hl=lw*4.2,ang=Math.atan2(a.y2-a.y1,a.x2-a.x1);
+  var bx=a.x2-Math.cos(ang)*hl*.8,by=a.y2-Math.sin(ang)*hl*.8;
+  function path(){x.beginPath();x.moveTo(a.x1,a.y1);x.lineTo(bx,by);}
+  function head(){x.beginPath();x.moveTo(a.x2,a.y2);x.lineTo(a.x2-Math.cos(ang-.45)*hl,a.y2-Math.sin(ang-.45)*hl);x.lineTo(a.x2-Math.cos(ang+.45)*hl,a.y2-Math.sin(ang+.45)*hl);x.closePath();}
+  x.lineCap='round';x.lineJoin='round';
+  x.strokeStyle='rgba(255,255,255,.95)';x.lineWidth=lw+lw*.9;path();x.stroke();head();x.lineWidth=lw*.9;x.stroke();
+  x.strokeStyle=a.c;x.fillStyle=a.c;x.lineWidth=lw;path();x.stroke();head();x.fill();
+  x.beginPath();x.arc(a.x1,a.y1,lw*.9,0,Math.PI*2);x.fillStyle='#fff';x.fill();x.beginPath();x.arc(a.x1,a.y1,lw*.55,0,Math.PI*2);x.fillStyle=a.c;x.fill();
+}
+function arDraw(){var x=AR.cv.getContext('2d');x.drawImage(AR.base,0,0);AR.arrows.forEach(function(a){arArrow(x,a)});if(AR.tmp)arArrow(x,AR.tmp)}
+function arPt(e){var r=AR.cv.getBoundingClientRect();return {x:(e.clientX-r.left)*AR.W/r.width,y:(e.clientY-r.top)*AR.H/r.height}}
+(function(){var cv=document.getElementById('arCv'),down=null;
+  cv.addEventListener('pointerdown',function(e){e.preventDefault();cv.setPointerCapture(e.pointerId);down=arPt(e);AR.tmp=null});
+  cv.addEventListener('pointermove',function(e){if(!down)return;var p=arPt(e);AR.tmp={x1:down.x,y1:down.y,x2:p.x,y2:p.y,c:AR.col};arDraw()});
+  function up(e){if(!down)return;var p=arPt(e),d=Math.hypot(p.x-down.x,p.y-down.y);
+    if(d>Math.max(AR.W,AR.H)*.03)AR.arrows.push({x1:down.x,y1:down.y,x2:p.x,y2:p.y,c:AR.col});else toast('조금 더 길게 끌어 주세요');
+    down=null;AR.tmp=null;arDraw()}
+  cv.addEventListener('pointerup',up);cv.addEventListener('pointercancel',function(){down=null;AR.tmp=null;arDraw()});
+})();
+function arUndo(){AR.arrows.pop();arDraw()}
+function arClose(){document.getElementById('arw').classList.remove('on')}
+function arSend(){
+  if(!AR.arrows.length){toast('힘의 방향을 화살표로 하나 이상 그려 주세요');return}
+  var cap=document.getElementById('sciCap').value.trim().slice(0,80),st=document.getElementById('sciStat');
+  var full=AR.cv.toDataURL('image/jpeg',.72);if(full.length>850000)full=AR.cv.toDataURL('image/jpeg',.55);
+  var r=Math.min(1,320/Math.max(AR.W,AR.H)),t=document.createElement('canvas');t.width=Math.round(AR.W*r);t.height=Math.round(AR.H*r);
+  t.getContext('2d').drawImage(AR.cv,0,0,t.width,t.height);var th=t.toDataURL('image/jpeg',.6);
+  arClose();sciBusy=true;st.textContent='보내는 중… 신호가 약하면 조금 걸려요';
+  FB.sendSci({force:sciForce,cap:cap,th:th,img:full})
+   .then(function(){toast('🔬 과학 선생님께 보냈어요!');document.getElementById('sciCap').value=''})
+   .catch(function(e){console.warn(e);toast('보내지 못했어요. 신호를 확인하고 다시 보내 주세요')})
+   .then(function(){sciBusy=false;renderSci()});
+}
 
 /* 오늘의 해시태그 (개인 1개) */
 var TAGS_G=[], tagUnwatch=null;
 function cleanTag(t){return String(t||'').replace(/[#\s]/g,'').slice(0,15)}
 function renderTags(){
   var el=document.getElementById('tagList');
-  if(!ME){el.innerHTML='<span class="muted">등록하면 해시태그를 남길 수 있어요.</span>';return}
+  if(!ME){el.innerHTML='<span class="muted">「우리 모둠」 탭에서 등록하면 해시태그를 남길 수 있어요.</span>';return}
   if(!TAGS_G.length){el.innerHTML='<span class="muted">아직 아무도 안 남겼어요. 첫 번째로 남겨 봐요!</span>';return}
   el.innerHTML=TAGS_G.map(function(t){var me=window.FB&&t.uid===FB.uid;return '<button style="cursor:default'+(me?';background:var(--sky);color:#fff':'')+'">#'+esc(t.tag)+' <span style="opacity:.75;font-weight:600">'+esc(me?'나':t.name)+'</span></button>'}).join('');
   var mine=TAGS_G.filter(function(t){return window.FB&&t.uid===FB.uid})[0],inp=document.getElementById('tagIn');
@@ -972,7 +1036,7 @@ function startTagWatch(){
 }
 function saveTag(){
   var t=cleanTag(document.getElementById('tagIn').value);
-  if(!ME){toast('먼저 위에서 우리 모둠을 등록해 주세요');return}
+  if(!ME){toast('먼저 「우리 모둠」 탭에서 등록해 주세요');return}
   if(!window.FB){toast('아직 연결 중이에요. 잠시 후 다시 눌러 주세요');return}
   if(!t){toast('한 단어를 써 주세요');return}
   document.getElementById('tagIn').value='#'+t;
@@ -992,7 +1056,7 @@ function renderPhTag(){
 }
 function renderPhotos(){
   var st=document.getElementById('phStat'),g=document.getElementById('phGrid');
-  if(!ME){st.textContent='먼저 위에서 우리 모둠을 등록해야 보낼 수 있어요.';g.innerHTML='';return}
+  if(!ME){st.textContent='먼저 「우리 모둠」 탭에서 등록해야 보낼 수 있어요.';g.innerHTML='';return}
   if(!window.FB){st.textContent='연결 준비 중…';return}
   var have={};PHOTOS.forEach(function(p){have[p.tag]=1});
   st.innerHTML='우리 모둠 사진 <b>'+PHOTOS.length+'</b> / '+PH_MAX+'장 · 인증샷 '+['출발','점심','도착'].map(function(t,i){return (have[t]?'✅':'⬜')+'①②③'[i]}).join(' ');
@@ -1011,7 +1075,7 @@ function shrink(file,max,q){return new Promise(function(res,rej){
     var c=document.createElement('canvas');c.width=w;c.height=hh;c.getContext('2d').drawImage(im,0,0,w,hh);URL.revokeObjectURL(url);res(c.toDataURL('image/jpeg',q))};
   im.onerror=function(){URL.revokeObjectURL(url);rej(new Error('사진을 읽지 못했어요'))};im.src=url})}
 document.getElementById('phBtn').onclick=function(){
-  if(!ME){toast('먼저 위에서 우리 모둠을 등록해 주세요');return}
+  if(!ME){toast('먼저 「우리 모둠」 탭에서 등록해 주세요');return}
   if(!window.FB){toast('아직 연결 중이에요. 잠시 후 다시 눌러 주세요');return}
   if(phBusy){toast('보내는 중이에요. 잠깐만요!');return}
   if(PHOTOS.length>=PH_MAX){toast('우리 모둠은 '+PH_MAX+'장을 다 보냈어요');return}
@@ -1038,7 +1102,7 @@ document.getElementById('phFile').onchange=function(){
 function delPhoto(id){if(!confirm('이 사진을 지울까요?'))return;FB.delPhoto(id).then(function(){toast('지웠어요')}).catch(function(){toast('지우지 못했어요')})}
 
 function report(kind){
-  if(!ME){toast('먼저 위에서 우리 모둠을 등록해 주세요');return}
+  if(!ME){toast('먼저 「우리 모둠」 탭에서 등록해 주세요');return}
   if(kind==='ok'&&!ME.leader){toast('전원 무사 보고는 모둠장이 보내요');return}
   if(kind==='help'&&!confirm('도움 요청을 보낼까요?\n담임 선생님 화면에 빨간 알림이 떠요.'))return;
   var msg=kind==='ok'?'전원 이상 없이 잘 지내고 있어요':'도움이 필요해요! 연락 부탁드려요';
