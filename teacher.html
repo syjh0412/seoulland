@@ -529,19 +529,25 @@ function drawCloud(cv,words){
       if(!hit){placed.push({x:bx,y:by,w:tw,h:th});x.fillStyle=cols[i%cols.length];x.fillText(t,bx,by+fs*.04);break}}
   });
 }
-function cloudWords(list){var c={};list.forEach(function(x){c[x.tag]=(c[x.tag]||0)+1});return Object.keys(c).map(function(k){return {t:k,n:c[k]}}).sort(function(a,b){return b.n-a.n||a.t.localeCompare(b.t)})}
-window.cloudBig=()=>{$('wcv').classList.add('on');$('wcTitle').textContent='1-'+pC+'반 오늘의 해시태그 · '+TAGL.length+'개';setTimeout(()=>drawCloud($('wcCv'),cloudWords(TAGL)),30)};
+function tagsOf(x){return x.tags&&x.tags.length?x.tags:(x.tag?[x.tag]:[])}
+function cloudWords(list){var c={};list.forEach(function(x){tagsOf(x).forEach(function(t){c[t]=(c[t]||0)+1})});return Object.keys(c).map(function(k){return {t:k,n:c[k]}}).sort(function(a,b){return b.n-a.n||a.t.localeCompare(b.t)})}
+window.cloudBig=()=>{$('wcv').classList.add('on');$('wcTitle').textContent='1-'+pC+'반 오늘의 해시태그 · '+TAGL.length+'명';setTimeout(()=>drawCloud($('wcCv'),cloudWords(TAGL)),30)};
+window.cloudAll=async()=>{
+  try{toast('1학년 전체 해시태그 불러오는 중…');const s=await F.getDocs(F.collection(db,'tags')),l=s.docs.map(d=>d.data());
+    if(!l.length){toast('아직 남긴 학생이 없어요');return}
+    $('wcv').classList.add('on');$('wcTitle').textContent='🌏 1학년 전체 오늘의 해시태그 · '+l.length+'명';setTimeout(()=>drawCloud($('wcCv'),cloudWords(l)),30);
+  }catch(e){onErr(e)}};
 window.cloudClose=()=>$('wcv').classList.remove('on');
 function renderTagView(){
-  const l=TAGL,cnt={};l.forEach(x=>cnt[x.tag]=(cnt[x.tag]||0)+1);
+  const l=TAGL,cnt={};l.forEach(x=>tagsOf(x).forEach(t=>cnt[t]=(cnt[t]||0)+1));
   const top=Object.keys(cnt).sort((a,b)=>cnt[b]-cnt[a]);
   const n=Math.max(GROUPS[pC]||8,...l.map(x=>x.grp),0),m=MEM.filter(x=>x.cls===pC),got=new Set(l.map(x=>x.uid));
-  let h='<div class="card" style="padding:10px 12px"><div style="display:flex;align-items:center;gap:8px"><b>#️⃣ 1-'+pC+' 오늘의 해시태그 '+l.length+'개</b><span style="flex:1"></span>'+(top.length?'<button class="chbtn" onclick="cloudBig()">🖥️ 크게 보기</button>':'')+'</div>'+
+  let h='<div class="card" style="padding:10px 12px"><div style="display:flex;align-items:center;gap:8px"><b>#️⃣ 1-'+pC+' 해시태그 '+l.length+'명 참여</b><span style="flex:1"></span>'+(top.length?'<button class="chbtn" onclick="cloudBig()">🖥️ 크게</button>':'')+'<button class="chbtn" onclick="cloudAll()">🌏 1학년 전체</button></div>'+
     (top.length?'<canvas id="tagCv" style="width:100%;height:240px;margin-top:8px;border-radius:12px;background:var(--bg)"></canvas><div class="chips">'+top.map(k=>'<span>#'+esc(k)+(cnt[k]>1?' ×'+cnt[k]:'')+'</span>').join('')+'</div>':'<div class="muted" style="margin-top:4px">아직 남긴 학생이 없어요</div>')+'</div>';
   for(let g=1;g<=n;g++){const ts=l.filter(x=>x.grp===g),miss=m.filter(x=>x.grp===g&&!got.has(x.id));
     if(!ts.length&&!miss.length)continue;
     h+='<div class="pgrp"><div class="ph"><span class="gnum">'+g+'</span><b>'+g+'모둠</b><span class="dim" style="font-size:12.5px">'+ts.length+'개</span></div><div class="chips">'+
-      ts.map(x=>'<span style="background:var(--blueS);color:var(--blue)">#'+esc(x.tag)+' · '+esc(x.name)+'</span>').join('')+miss.map(x=>'<span>'+esc(x.name)+' 아직</span>').join('')+'</div></div>'}
+      ts.map(x=>'<span style="background:var(--blueS);color:var(--blue)">'+esc(tagsOf(x).map(t=>'#'+t).join(' '))+' · '+esc(x.name)+'</span>').join('')+miss.map(x=>'<span>'+esc(x.name)+' 아직</span>').join('')+'</div></div>'}
   $('phoBody').innerHTML=h;
   if($('tagCv'))drawCloud($('tagCv'),cloudWords(l));
 }

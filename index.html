@@ -414,10 +414,10 @@ nav button.on{color:var(--sky);background:var(--skyS)}
     <div class="phgrid" id="galGrid"></div>
   </div>
 
-  <h2 class="sec">#️⃣ 오늘의 해시태그 <span style="font-size:13px;color:var(--ink2)">(모두 한 개씩)</span></h2>
+  <h2 class="sec">#️⃣ 오늘의 해시태그 <span style="font-size:13px;color:var(--ink2)">(모두 1~3개)</span></h2>
   <div class="card">
-    <div class="muted" style="margin-bottom:6px">오늘 하루를 <b>한 단어</b>로! 🔒 <b>내 해시태그를 먼저 남겨야</b> 친구들 것을 볼 수 있어요. 다시 쓰면 바뀌어요.</div>
-    <div class="crow"><input class="field" id="tagIn" maxlength="16" placeholder="#신난다" autocomplete="off"><button id="tagBtn">남기기</button></div>
+    <div class="muted" style="margin-bottom:6px">오늘 하루를 <b>한 단어 해시태그</b>로! 띄어서 <b>3개까지</b> 쓸 수 있어요. 🔒 <b>내 해시태그를 먼저 남겨야</b> 친구들 것을 볼 수 있어요. 다시 쓰면 바뀌어요.</div>
+    <div class="crow"><input class="field" id="tagIn" maxlength="54" placeholder="#신난다 #꿀잼 (3개까지)" autocomplete="off"><button id="tagBtn">남기기</button></div>
     <div class="qk" id="tagList"></div>
     <button class="bigbtn" id="cloudBtn" style="margin-top:10px;background:var(--skyS);color:var(--sky);display:none">☁️ 우리 반 해시태그 클라우드 보기</button>
     <canvas id="cloudCv" style="width:100%;height:260px;display:none;margin-top:8px;border-radius:14px;background:var(--bg)"></canvas>
@@ -1068,16 +1068,17 @@ function galOpen(i){
 
 /* 오늘의 해시태그 (개인 1개, 먼저 남겨야 친구들 것이 보여요) */
 var TAGS_G=[], tagUnwatch=null, MY_TAG=null, myTagUnwatch=null;
-function cleanTag(t){return String(t||'').replace(/[#\s]/g,'').slice(0,15)}
+function cleanTags(v){var o=[];String(v||'').split(/[#\s,]+/).forEach(function(t){t=t.slice(0,15);if(t&&o.indexOf(t)<0&&o.length<3)o.push(t)});return o}
+function tagStr(a){return a.map(function(t){return '#'+t}).join(' ')}
 function renderTags(){
   var el=document.getElementById('tagList'),cb=document.getElementById('cloudBtn');
   if(!ME){el.innerHTML='<span class="muted">「우리 모둠」 탭에서 등록하면 해시태그를 남길 수 있어요.</span>';cb.style.display='none';return}
   if(!MY_TAG){el.innerHTML='<span class="muted">🔒 내 해시태그를 남기면 모둠 친구들과 우리 반 해시태그가 열려요!</span>';cb.style.display='none';document.getElementById('cloudCv').style.display='none';return}
   cb.style.display='block';
-  var inp=document.getElementById('tagIn');if(!inp.value&&document.activeElement!==inp)inp.value='#'+MY_TAG.tag;
+  var inp=document.getElementById('tagIn');if(!inp.value&&document.activeElement!==inp)inp.value=tagStr(tagsOf(MY_TAG));
   var g=TAGS_G.filter(function(t){return window.FB&&t.uid!==FB.uid});
-  el.innerHTML='<button style="cursor:default;background:var(--sky);color:#fff">#'+esc(MY_TAG.tag)+' <span style="opacity:.8;font-weight:600">나</span></button>'+
-    g.map(function(t){return '<button style="cursor:default">#'+esc(t.tag)+' <span style="opacity:.75;font-weight:600">'+esc(t.name)+'</span></button>'}).join('')+
+  el.innerHTML='<button style="cursor:default;background:var(--sky);color:#fff">'+esc(tagStr(tagsOf(MY_TAG)))+' <span style="opacity:.8;font-weight:600">나</span></button>'+
+    g.map(function(t){return '<button style="cursor:default">'+esc(tagStr(tagsOf(t)))+' <span style="opacity:.75;font-weight:600">'+esc(t.name)+'</span></button>'}).join('')+
     (g.length?'':'<span class="muted" style="align-self:center">우리 모둠에서 첫 번째로 남겼어요!</span>');
 }
 function startTagWatch(){
@@ -1089,12 +1090,12 @@ function startTagWatch(){
     renderTags()},function(e){console.warn(e)});
 }
 function saveTag(){
-  var t=cleanTag(document.getElementById('tagIn').value);
+  var t=cleanTags(document.getElementById('tagIn').value);
   if(!ME){toast('먼저 「우리 모둠」 탭에서 등록해 주세요');return}
   if(!window.FB){toast('아직 연결 중이에요. 잠시 후 다시 눌러 주세요');return}
-  if(!t){toast('한 단어를 써 주세요');return}
-  document.getElementById('tagIn').value='#'+t;
-  FB.saveTag(t).then(function(){toast('#️⃣ #'+t+' 남겼어요! 이제 친구들 것도 보여요')}).catch(function(e){console.warn(e);toast('남기지 못했어요. 신호를 확인해 주세요')});
+  if(!t.length){toast('한 단어를 써 주세요');return}
+  document.getElementById('tagIn').value=tagStr(t);
+  FB.saveTag(t).then(function(){toast('#️⃣ '+tagStr(t)+' 남겼어요! 이제 친구들 것도 보여요')}).catch(function(e){console.warn(e);toast('남기지 못했어요. 신호를 확인해 주세요')});
 }
 function drawCloud(cv,words){
   var dpr=window.devicePixelRatio||1,W=cv.clientWidth,H=cv.clientHeight;cv.width=Math.round(W*dpr);cv.height=Math.round(H*dpr);
@@ -1111,11 +1112,12 @@ function drawCloud(cv,words){
       if(!hit){placed.push({x:bx,y:by,w:tw,h:th});x.fillStyle=cols[i%cols.length];x.fillText(t,bx,by+fs*.04);break}}
   });
 }
-function cloudWords(list){var c={};list.forEach(function(x){c[x.tag]=(c[x.tag]||0)+1});return Object.keys(c).map(function(k){return {t:k,n:c[k]}}).sort(function(a,b){return b.n-a.n||a.t.localeCompare(b.t)})}
+function tagsOf(x){return x.tags&&x.tags.length?x.tags:(x.tag?[x.tag]:[])}
+function cloudWords(list){var c={};list.forEach(function(x){tagsOf(x).forEach(function(t){c[t]=(c[t]||0)+1})});return Object.keys(c).map(function(k){return {t:k,n:c[k]}}).sort(function(a,b){return b.n-a.n||a.t.localeCompare(b.t)})}
 document.getElementById('cloudBtn').onclick=function(){
   if(!MY_TAG){toast('내 해시태그를 먼저 남겨 주세요');return}
   var b=this,cv=document.getElementById('cloudCv');b.disabled=true;b.textContent='불러오는 중…';
-  FB.listClassTags(ME.cls).then(function(l){cv.style.display='block';drawCloud(cv,cloudWords(l));b.textContent='🔄 1-'+ME.cls+'반 해시태그 '+l.length+'개 · 새로 불러오기'})
+  FB.listClassTags(ME.cls).then(function(l){cv.style.display='block';drawCloud(cv,cloudWords(l));b.textContent='🔄 1-'+ME.cls+'반 '+l.length+'명 참여 · 새로 불러오기'})
    .catch(function(e){console.warn(e);toast('불러오지 못했어요. 신호를 확인해 주세요');b.textContent='☁️ 우리 반 해시태그 클라우드 보기'})
    .then(function(){b.disabled=false});
 };
@@ -1318,12 +1320,12 @@ if(firebaseConfig&&firebaseConfig.apiKey){
       getSciFull:id=>F.getDoc(F.doc(db,'scifull',id)).then(s=>s.exists()?s.data().img:null),
       watchTags:(c,g,cb,err)=>F.onSnapshot(
         F.query(F.collection(db,'tags'),F.where('cls','==',c),F.where('grp','==',g)),
-        s=>cb(s.docs.map(x=>{const v=x.data();return {uid:v.uid,name:v.name,tag:v.tag}})),err),
+        s=>cb(s.docs.map(x=>{const v=x.data();return {uid:v.uid,name:v.name,tag:v.tag,tags:v.tags||null}})),err),
       watchMyTag:(cb,err)=>F.onSnapshot(F.doc(db,'tags',uid),s=>cb(s.exists()?s.data():null),err),
       listClassTags:c=>F.getDocs(F.query(F.collection(db,'tags'),F.where('cls','==',c))).then(s=>s.docs.map(x=>x.data())),
       saveTag:async t=>{
         const me=(await F.getDoc(mref)).data();
-        return F.setDoc(F.doc(db,'tags',uid),{cls:me.cls,grp:me.grp,name:me.name,tag:t,uid,ts:F.serverTimestamp()});
+        return F.setDoc(F.doc(db,'tags',uid),{cls:me.cls,grp:me.grp,name:me.name,tag:t[0],tags:t,uid,ts:F.serverTimestamp()});
       },
       delPhoto:id=>{const b=F.writeBatch(db);b.delete(F.doc(db,'photos',id));b.delete(F.doc(db,'photofull',id));return b.commit()}
     };

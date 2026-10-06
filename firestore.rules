@@ -147,7 +147,7 @@ service cloud.firestore {
       allow delete: if isTeacher() || (signedIn() && request.auth.uid == uid);
     }
 
-    // 오늘의 해시태그: 학생 1명당 1개. 자기 해시태그를 먼저 남긴 학생만 같은 반 해시태그를 볼 수 있음(따라 쓰기 방지)
+    // 오늘의 해시태그: 학생 1명당 최대 3개. 자기 해시태그를 먼저 남긴 학생만 같은 반 해시태그를 볼 수 있음(따라 쓰기 방지)
     match /tags/{uid} {
       allow get: if isTeacher() || (signedIn() && request.auth.uid == uid)
         || (isMember() && exists(/databases/$(database)/documents/tags/$(request.auth.uid))
@@ -156,11 +156,15 @@ service cloud.firestore {
         || (isMember() && exists(/databases/$(database)/documents/tags/$(request.auth.uid))
             && resource.data.cls == myDoc().cls);
       allow create, update: if isMember() && request.auth.uid == uid
-        && request.resource.data.keys().hasOnly(['cls','grp','name','tag','uid','ts'])
+        && request.resource.data.keys().hasOnly(['cls','grp','name','tag','tags','uid','ts'])
         && request.resource.data.uid == request.auth.uid
         && request.resource.data.cls == myDoc().cls && request.resource.data.grp == myDoc().grp
         && request.resource.data.name == myDoc().name
         && request.resource.data.tag is string && request.resource.data.tag.size() >= 1 && request.resource.data.tag.size() <= 20
+        && request.resource.data.tags is list && request.resource.data.tags.size() >= 1 && request.resource.data.tags.size() <= 3
+        && request.resource.data.tags[0] is string && request.resource.data.tags[0].size() <= 20
+        && (request.resource.data.tags.size() < 2 || (request.resource.data.tags[1] is string && request.resource.data.tags[1].size() <= 20))
+        && (request.resource.data.tags.size() < 3 || (request.resource.data.tags[2] is string && request.resource.data.tags[2].size() <= 20))
         && request.resource.data.ts == request.time;
       allow delete: if isTeacher() || (signedIn() && request.auth.uid == uid);
     }
