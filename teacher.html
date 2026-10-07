@@ -212,6 +212,11 @@ nav button .l{font-size:9.5px}
   <div class="card" id="regStat"></div>
   <h2>📣 모둠 보고 <span class="dim">— 최신순</span></h2>
   <div class="card" id="feed"></div>
+  <h2>📂 명단 파일 다시 올리기</h2>
+  <div class="card">
+    <div class="muted" style="margin-bottom:8px">불참·전출 학생이 바뀌었을 때 고친 <b>roster-2026.json</b>을 다시 올려요. 올리면 모든 선생님 화면이 바로 바뀌어요.</div>
+    <label style="display:block;text-align:center;padding:12px;border-radius:11px;background:var(--blueS);color:var(--blue);font-weight:800;font-size:14.5px;cursor:pointer">📂 명단 파일 고르기<input type="file" accept=".json,application/json" style="display:none" onchange="upRoster(this);this.value=''"></label>
+  </div>
 </section>
 
 <!-- 출결 -->
