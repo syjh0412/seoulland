@@ -28,7 +28,10 @@ service cloud.firestore {
             && resource.data.cls == myDoc().cls && resource.data.grp == myDoc().grp);
       allow list: if isTeacher()
         || (signedIn() && resource.data.cls == myDoc().cls && resource.data.grp == myDoc().grp);
-      allow create, update: if signedIn() && request.auth.uid == uid && validMember(request.resource.data);
+      allow create: if signedIn() && request.auth.uid == uid && validMember(request.resource.data);
+      // 한 번 등록하면 반·모둠은 못 바꿈(이름·번호·모둠장은 수정 가능). 바꾸려면 교사가 삭제 후 다시 등록
+      allow update: if signedIn() && request.auth.uid == uid && validMember(request.resource.data)
+        && request.resource.data.cls == resource.data.cls && request.resource.data.grp == resource.data.grp;
       allow delete: if isTeacher() || (signedIn() && request.auth.uid == uid);
     }
 

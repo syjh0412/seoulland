@@ -356,7 +356,7 @@ nav button.on{color:var(--sky);background:var(--skyS)}
     <input class="field" id="regTel" maxlength="20" type="tel" inputmode="numeric" placeholder="내 전화번호 (예: 010-1234-5678)" autocomplete="tel">
     <label class="lchk"><input type="checkbox" id="regLeader"> 나는 우리 모둠의 <b>모둠장</b>이에요 ⭐</label>
     <button class="bigbtn g" id="regBtn" style="margin-top:10px">📝 등록하기</button>
-    <div class="muted" style="margin-top:8px">등록하면 <b>우리 모둠 친구들</b>과 <b>담임 선생님</b>께 이름·번호가 보여요. 잘못 넣었으면 고쳐서 다시 누르면 돼요.</div>
+    <div class="muted" style="margin-top:8px">등록하면 <b>우리 모둠 친구들</b>과 <b>담임 선생님</b>께 이름·번호가 보여요. 🔒 <b>반·모둠은 한 번 등록하면 못 바꿔요</b>(바꾸려면 담임 선생님께). 이름·번호는 고쳐서 다시 누르면 돼요.</div>
   </div>
 
   <h2 class="sec">🤝 우리 모둠 약속 정하기</h2>
@@ -878,7 +878,7 @@ function renderGroupPick(){
 }
 function renderReg(){
   var st=document.getElementById('regState');
-  if(ME){st.className='regstate ok';st.innerHTML='✅ 등록 완료 · 1-'+ME.cls+' '+ME.grp+'모둠 '+esc(ME.name)+(ME.leader?' ⭐모둠장':'');}
+  if(ME){st.className='regstate ok';st.innerHTML='✅ 등록 완료 · 1-'+ME.cls+' '+ME.grp+'모둠 '+esc(ME.name)+(ME.leader?' ⭐모둠장':'')+' <span style="font-weight:600;opacity:.8">🔒 모둠 고정</span>';}
   else if(window.FB){st.className='regstate';st.textContent='아직 등록하지 않았어요. 아래를 채우고 등록해 주세요!';}
   else{st.className='regstate';st.textContent='연결 준비 중… (인터넷이 연결되면 자동으로 켜져요)';}
   if(ME&&!document.getElementById('regName').value){
@@ -893,12 +893,21 @@ document.getElementById('regBtn').onclick=function(){
   if(!myGroup||myGroup>(GROUPS[myClass]||8)){toast('우리 모둠을 골라 주세요');return}
   if(!name){toast('이름을 써 주세요');return}
   if(!window.FB){toast('아직 연결 중이에요. 잠시 후 다시 눌러 주세요');return}
-  var d={cls:myClass,grp:myGroup,name:name,phone:phone,leader:leader};
-  var btn=this;btn.disabled=true;btn.textContent='등록하는 중…';
+  var d={cls:myClass,grp:myGroup,name:name,phone:phone,leader:leader},btn=this;
+  if(ME&&(ME.cls!==myClass||ME.grp!==myGroup)){
+    FB.me().then(function(cur){
+      if(cur){myClass=cur.cls;myGroup=cur.grp;S.s('class',myClass);S.s('group',myGroup);renderClassPick();renderGroupPick();
+        alert('🔒 반과 모둠은 한 번 등록하면 바꿀 수 없어요.\n모둠을 바꾸려면 담임 선생님께 말해 주세요.\n(이름·번호·모둠장 표시는 고칠 수 있어요)');return}
+      ME=null;S.s('me',null);doReg(d,btn);
+    });return}
+  doReg(d,btn);
+};
+function doReg(d,btn){
+  btn.disabled=true;btn.textContent='등록하는 중…';
   FB.register(d).then(function(){ME=d;S.s('me',d);renderReg();startWatch();startPhotoWatch();renderPhotos();startChatWatch();renderChat();startPlanWatch();renderPlan();startMisWatch();startSciWatch();renderSci();startTagWatch();renderTags();renderNotices();toast('🎉 등록했어요!')})
    .catch(function(e){console.warn(e);toast('등록이 안 됐어요. 신호를 확인하고 다시 눌러 주세요')})
    .then(function(){btn.disabled=false;btn.textContent='📝 등록하기'});
-};
+}
 function startWatch(){
   if(!window.FB||!ME)return;
   if(unwatch)unwatch();
