@@ -1351,10 +1351,16 @@ function startMisWatch(){
   misUnwatch=FB.watchMissions(c,function(d){CLS_MIS=d&&d.items&&d.items.length?d.items:null;renderMis()},function(e){console.warn(e)});
 }
 function renderCalls(){
+  if(ARCHIVED){
+    var h0='<a class="call b" href="tel:'+SCHOOL.t.replace(/-/g,'')+'"><span class="who">학교</span><span class="nm">🏫 교무실</span><span class="no">'+SCHOOL.t+'</span></a>'+
+      '<a class="call" href="tel:119" style="grid-column:1/-1;background:#C0392B"><span class="who">아주 위급할 때</span><span class="nm">🚑 119</span><span class="no">많이 다쳤거나 의식이 없을 때</span></a>';
+    document.getElementById('callList').innerHTML='<div class="muted" style="grid-column:1/-1;margin-bottom:8px">📌 현장학습이 끝나 담임·학년부장 선생님 성함·연락처는 보이지 않습니다.</div>'+h0;
+    return;
+  }
   var h='';
   if(myClass){var t=TEACHERS[myClass-1];h+='<a class="call" href="tel:'+t.t.replace(/-/g,'')+'"><span class="who">우리 반 담임</span><span class="nm">📞 '+t.n+' 선생님</span><span class="no">'+t.t+'</span></a>';}
   else h+='<a class="call p" href="#" onclick="alert(\'먼저 「홈」에서 우리 반을 골라 주세요!\');return false"><span class="who">담임 선생님</span><span class="nm">📞 반을 먼저 골라요</span><span class="no">홈 → 반 선택</span></a>';
-  var L=ARCHIVED?null:MATES.filter(function(m){return m.leader&&!(window.FB&&m.id===FB.uid)})[0];
+  var L=MATES.filter(function(m){return m.leader&&!(window.FB&&m.id===FB.uid)})[0];
   if(L&&telOf(L.phone))h+='<a class="call p" href="tel:'+telOf(L.phone)+'"><span class="who">우리 모둠장</span><span class="nm">📞 '+esc(L.name)+'</span><span class="no">'+esc(L.phone)+'</span></a>';
   h+='<a class="call b" href="tel:'+HEAD.t.replace(/-/g,'')+'"><span class="who">학년부장</span><span class="nm">📞 '+HEAD.n.split(' ')[0]+' 선생님</span><span class="no">'+HEAD.t+'</span></a>';
   h+='<a class="call b" href="tel:'+SCHOOL.t.replace(/-/g,'')+'"><span class="who">학교</span><span class="nm">🏫 교무실</span><span class="no">'+SCHOOL.t+'</span></a>';
@@ -1368,7 +1374,11 @@ renderGroupPick();renderReg();renderMates();renderPhTag();renderPhotos();renderC
 if(ARCHIVED){
   document.getElementById('archBanner').style.display='block';
   document.getElementById('reportCard').innerHTML='<div class="muted">📌 현장학습이 끝나 선생님께 보고하는 기능은 닫혔습니다.</div>';
-  document.getElementById('detCard').innerHTML='<div class="muted">📌 현장학습이 끝나 증거 사진 보고·사건 파일 보기는 닫혔습니다.</div>';
+  document.getElementById('sciCap').style.display='none';
+  document.getElementById('sciBtn').textContent='🔒 보고 마감 (현장학습 종료)';
+  document.getElementById('sciStat').textContent='📌 현장학습이 끝나 증거 사진 보고는 닫혔습니다.';
+  document.getElementById('galBtn').style.display='none';
+  document.getElementById('galGrid').innerHTML='';
   document.getElementById('foot').innerHTML='고천중학교 1학년 · 2026.10.8 현장체험학습 (종료 · 참관용 보기 전용)';
 } else {
   document.getElementById('foot').innerHTML='고천중학교 1학년 · 2026.10.8 현장체험학습<br>모둠 등록·보고는 선생님께 실시간 전달돼요 🌿';
