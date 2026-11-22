@@ -7,9 +7,6 @@ service cloud.firestore {
       return request.auth != null && request.auth.token.email == 'teacher@gocheon.school';
     }
     function signedIn() { return request.auth != null; }
-    function myDoc() {
-      return get(/databases/$(database)/documents/members/$(request.auth.uid)).data;
-    }
     function validMember(d) {
       return d.keys().hasOnly(['cls','grp','name','phone','leader','ts'])
         && d.cls is int && d.cls >= 1 && d.cls <= 4
@@ -20,27 +17,24 @@ service cloud.firestore {
         && d.ts == request.time;
     }
 
-    // 학생 모둠 등록: 본인 것만 쓰기, 같은 반·같은 모둠끼리만 읽기, 교사는 전부
+    // 2026.10.8 현장학습 종료 — 공개 페이지는 참관(보기 전용)으로 운영.
+    // 학생이 쓰던 등록·채팅·사진·해시태그·보고 쓰기는 모두 교사 전용으로 닫고,
+    // 다른 사람의 이름·전화번호·채팅·사진을 읽는 경로도 모두 막음(본인 것만 self-read 허용).
+
+    // 학생 모둠 등록: 조회는 교사 또는 본인만. 새 등록·수정은 교사만(현장학습 종료로 닫음)
     match /members/{uid} {
-      allow get: if isTeacher()
-        || (signedIn() && request.auth.uid == uid)
-        || (signedIn() && exists(/databases/$(database)/documents/members/$(request.auth.uid))
-            && resource.data.cls == myDoc().cls && resource.data.grp == myDoc().grp);
-      allow list: if isTeacher()
-        || (signedIn() && resource.data.cls == myDoc().cls && resource.data.grp == myDoc().grp);
-      allow create: if signedIn() && request.auth.uid == uid && validMember(request.resource.data);
-      // 한 번 등록하면 반·모둠은 못 바꿈(이름·번호·모둠장은 수정 가능). 바꾸려면 교사가 삭제 후 다시 등록
-      allow update: if signedIn() && request.auth.uid == uid && validMember(request.resource.data)
-        && request.resource.data.cls == resource.data.cls && request.resource.data.grp == resource.data.grp;
-      allow delete: if isTeacher() || (signedIn() && request.auth.uid == uid);
+      allow get: if isTeacher() || (signedIn() && request.auth.uid == uid);
+      allow list: if isTeacher();
+      allow create: if isTeacher() && validMember(request.resource.data);
+      allow update: if isTeacher() && validMember(request.resource.data);
+      allow delete: if isTeacher();
     }
 
-    // 모둠 보고: 학생은 보내기만, 읽기는 교사만
+    // 모둠 보고: 읽기는 교사만. 쓰기도 현장학습 종료로 닫음
     match /reports/{id} {
       allow read: if isTeacher();
-      allow create: if signedIn()
+      allow create: if isTeacher()
         && request.resource.data.keys().hasOnly(['cls','grp','name','kind','msg','uid','ts'])
-        && request.resource.data.uid == request.auth.uid
         && request.resource.data.kind in ['ok','help']
         && request.resource.data.cls is int && request.resource.data.grp is int
         && request.resource.data.name is string && request.resource.data.name.size() <= 20
@@ -48,68 +42,46 @@ service cloud.firestore {
         && request.resource.data.ts == request.time;
     }
 
-    // 모둠 사진: 작은 사진(photos)은 같은 모둠 학생과 교사가 보고, 큰 사진(photofull)은 교사만 봄
-    function isMember() {
-      return signedIn() && exists(/databases/$(database)/documents/members/$(request.auth.uid));
-    }
+    // 모둠 사진: 조회·업로드 모두 교사만(현장학습 종료 — 같은 모둠 학생 열람 경로는 닫음)
     match /photos/{id} {
-      allow get, list: if isTeacher()
-        || (isMember() && resource.data.cls == myDoc().cls && resource.data.grp == myDoc().grp);
-      allow create: if isMember()
+      allow get, list: if isTeacher();
+      allow create: if isTeacher()
         && request.resource.data.keys().hasOnly(['cls','grp','tag','cap','by','uid','th','ts','mis'])
         && (!('mis' in request.resource.data) || (request.resource.data.mis is string && request.resource.data.mis.size() <= 40))
-        && request.resource.data.uid == request.auth.uid
-        && request.resource.data.cls == myDoc().cls && request.resource.data.grp == myDoc().grp
         && request.resource.data.tag in ['출발','점심','도착','미션','자유']
         && request.resource.data.cap is string && request.resource.data.cap.size() <= 40
         && request.resource.data.by is string && request.resource.data.by.size() <= 20
         && request.resource.data.th is string && request.resource.data.th.size() <= 90000
         && request.resource.data.ts == request.time;
-      allow delete: if isTeacher() || (signedIn() && resource.data.uid == request.auth.uid);
+      allow delete: if isTeacher();
     }
     match /photofull/{id} {
       allow get, list: if isTeacher();
-      allow create: if isMember()
+      allow create: if isTeacher()
         && request.resource.data.keys().hasOnly(['cls','grp','uid','img','ts'])
-        && request.resource.data.uid == request.auth.uid
         && request.resource.data.img is string && request.resource.data.img.size() <= 900000
         && request.resource.data.ts == request.time;
-      allow delete: if isTeacher() || (signedIn() && resource.data.uid == request.auth.uid);
-    }
-
-    // 모둠 채팅: 같은 모둠 학생과 교사만 읽고, 학생은 자기 이름으로 200자 이내만 쓰기. 삭제는 교사만
-    match /chat/{id} {
-      allow get, list: if isTeacher()
-        || (isMember() && resource.data.cls == myDoc().cls && resource.data.grp == myDoc().grp);
-      allow create: if (isTeacher()
-          && request.resource.data.keys().hasOnly(['cls','grp','name','text','uid','ts','tc'])
-          && request.resource.data.tc == true
-          && request.resource.data.uid == request.auth.uid
-          && request.resource.data.cls is int && request.resource.data.grp is int
-          && request.resource.data.name is string && request.resource.data.name.size() <= 20
-          && request.resource.data.text is string
-          && request.resource.data.text.size() >= 1 && request.resource.data.text.size() <= 200
-          && request.resource.data.ts == request.time)
-        || (isMember()
-          && request.resource.data.keys().hasOnly(['cls','grp','name','text','uid','ts'])
-          && request.resource.data.uid == request.auth.uid
-          && request.resource.data.cls == myDoc().cls && request.resource.data.grp == myDoc().grp
-          && request.resource.data.name == myDoc().name
-          && request.resource.data.text is string
-          && request.resource.data.text.size() >= 1 && request.resource.data.text.size() <= 200
-          && request.resource.data.ts == request.time);
       allow delete: if isTeacher();
     }
 
-    // 모둠 약속(만나는 장소·시간): 같은 모둠 학생이 정해서 쓰고, 같은 모둠 학생과 교사가 읽음. 삭제는 교사만
+    // 모둠 채팅: 읽기·쓰기 모두 교사만(현장학습 종료 — 같은 모둠 학생 열람·전송 경로는 닫음)
+    match /chat/{id} {
+      allow get, list: if isTeacher();
+      allow create: if isTeacher()
+        && request.resource.data.keys().hasOnly(['cls','grp','name','text','uid','ts','tc'])
+        && request.resource.data.cls is int && request.resource.data.grp is int
+        && request.resource.data.name is string && request.resource.data.name.size() <= 20
+        && request.resource.data.text is string
+        && request.resource.data.text.size() >= 1 && request.resource.data.text.size() <= 200
+        && request.resource.data.ts == request.time;
+      allow delete: if isTeacher();
+    }
+
+    // 모둠 약속: 읽기·쓰기 모두 교사만(현장학습 종료)
     match /plans/{id} {
-      allow get, list: if isTeacher()
-        || (isMember() && resource.data.cls == myDoc().cls && resource.data.grp == myDoc().grp);
-      allow create, update: if isMember()
+      allow get, list: if isTeacher();
+      allow create, update: if isTeacher()
         && request.resource.data.keys().hasOnly(['cls','grp','place','time','memo','by','uid','ts'])
-        && request.resource.data.uid == request.auth.uid
-        && request.resource.data.cls == myDoc().cls && request.resource.data.grp == myDoc().grp
-        && request.resource.data.by == myDoc().name
         && request.resource.data.place is string && request.resource.data.place.size() >= 1 && request.resource.data.place.size() <= 60
         && request.resource.data.time is string && request.resource.data.time.size() >= 1 && request.resource.data.time.size() <= 10
         && request.resource.data.memo is string && request.resource.data.memo.size() <= 120
@@ -117,62 +89,50 @@ service cloud.firestore {
       allow delete: if isTeacher();
     }
 
-    // 반별 미션: 교사가 쓰고, 학생은 읽기만
+    // 반별 미션: 읽기는 로그인한 사용자(개인정보 아님, 참관용 보기에 필요), 쓰기는 교사만
     match /missions/{id} {
       allow read: if signedIn();
       allow write: if isTeacher();
     }
 
-    // 과학 미션(힘의 작용) 사진: 학생 1명당 1장(문서 이름 = 본인 uid). 같은 반 학생(갤러리)과 교사가 봄
+    // 과학 미션(힘의 작용) 사진: 조회·업로드 모두 교사만(현장학습 종료 — 같은 반 갤러리 열람 경로는 닫음)
     match /sci/{uid} {
-      allow get: if isTeacher() || (signedIn() && request.auth.uid == uid)
-        || (isMember() && resource.data.cls == myDoc().cls);
-      allow list: if isTeacher() || (isMember() && resource.data.cls == myDoc().cls);
-      allow create, update: if isMember() && request.auth.uid == uid
+      allow get: if isTeacher();
+      allow list: if isTeacher();
+      allow create, update: if isTeacher()
         && request.resource.data.keys().hasOnly(['cls','grp','name','force','cap','th','uid','ts'])
-        && request.resource.data.uid == request.auth.uid
-        && request.resource.data.cls == myDoc().cls && request.resource.data.grp == myDoc().grp
-        && request.resource.data.name == myDoc().name
         && request.resource.data.force in ['중력','탄성력','마찰력','부력','기타']
         && request.resource.data.cap is string && request.resource.data.cap.size() <= 80
         && request.resource.data.th is string && request.resource.data.th.size() <= 90000
         && request.resource.data.ts == request.time;
-      allow delete: if isTeacher() || (signedIn() && request.auth.uid == uid);
+      allow delete: if isTeacher();
     }
     match /scifull/{uid} {
-      allow get: if isTeacher() || (isMember() && resource.data.cls == myDoc().cls);
+      allow get: if isTeacher();
       allow list: if isTeacher();
-      allow create, update: if isMember() && request.auth.uid == uid
+      allow create, update: if isTeacher()
         && request.resource.data.keys().hasOnly(['cls','uid','img','ts'])
-        && request.resource.data.uid == request.auth.uid
         && request.resource.data.img is string && request.resource.data.img.size() <= 900000
         && request.resource.data.ts == request.time;
-      allow delete: if isTeacher() || (signedIn() && request.auth.uid == uid);
+      allow delete: if isTeacher();
     }
 
-    // 오늘의 해시태그: 학생 1명당 최대 3개. 자기 해시태그를 먼저 남긴 학생만 같은 반 해시태그를 볼 수 있음(따라 쓰기 방지)
+    // 오늘의 해시태그: 조회·쓰기 모두 교사만(현장학습 종료 — 같은 반 학생 열람 경로는 닫음)
     match /tags/{uid} {
-      allow get: if isTeacher() || (signedIn() && request.auth.uid == uid)
-        || (isMember() && exists(/databases/$(database)/documents/tags/$(request.auth.uid))
-            && resource.data.cls == myDoc().cls);
-      allow list: if isTeacher()
-        || (isMember() && exists(/databases/$(database)/documents/tags/$(request.auth.uid))
-            && resource.data.cls == myDoc().cls);
-      allow create, update: if isMember() && request.auth.uid == uid
+      allow get: if isTeacher();
+      allow list: if isTeacher();
+      allow create, update: if isTeacher()
         && request.resource.data.keys().hasOnly(['cls','grp','name','tag','tags','uid','ts'])
-        && request.resource.data.uid == request.auth.uid
-        && request.resource.data.cls == myDoc().cls && request.resource.data.grp == myDoc().grp
-        && request.resource.data.name == myDoc().name
         && request.resource.data.tag is string && request.resource.data.tag.size() >= 1 && request.resource.data.tag.size() <= 20
         && request.resource.data.tags is list && request.resource.data.tags.size() >= 1 && request.resource.data.tags.size() <= 3
         && request.resource.data.tags[0] is string && request.resource.data.tags[0].size() <= 20
         && (request.resource.data.tags.size() < 2 || (request.resource.data.tags[1] is string && request.resource.data.tags[1].size() <= 20))
         && (request.resource.data.tags.size() < 3 || (request.resource.data.tags[2] is string && request.resource.data.tags[2].size() <= 20))
         && request.resource.data.ts == request.time;
-      allow delete: if isTeacher() || (signedIn() && request.auth.uid == uid);
+      allow delete: if isTeacher();
     }
 
-    // 선생님 공지: 교사가 보내고(전체·반·모둠), 로그인한 학생은 읽기만
+    // 선생님 공지: 교사가 보내고(전체·반·모둠), 로그인한 사용자는 읽기만(참관용 보기에 유지)
     match /notices/{id} {
       allow read: if signedIn();
       allow create: if isTeacher()
@@ -183,16 +143,9 @@ service cloud.firestore {
         && request.resource.data.ts == request.time;
       allow delete: if isTeacher();
     }
-    // 공지 확인: 학생은 자기 확인만 남기고, 읽기는 교사만
+    // 공지 확인: 읽기·쓰기 모두 교사만(현장학습 종료)
     match /acks/{id} {
-      allow read, delete: if isTeacher();
-      allow create, update: if isMember()
-        && request.resource.data.keys().hasOnly(['nid','uid','cls','grp','name','ts'])
-        && request.resource.data.uid == request.auth.uid
-        && request.resource.data.cls == myDoc().cls && request.resource.data.grp == myDoc().grp
-        && request.resource.data.name == myDoc().name
-        && request.resource.data.nid is string && request.resource.data.nid.size() <= 40
-        && request.resource.data.ts == request.time;
+      allow read, write: if isTeacher();
     }
 
     // 출결·명단·건강정보: 교사만
